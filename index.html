@@ -1,707 +1,3 @@
-index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FLUX ONE | SY IC-SEDA (VIT Pune)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            surface: '#090d16',
-            card: '#111827',
-            border: '#1f293d',
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .glass-card {
-      background: rgba(17, 24, 39, 0.75);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-    }
-  </style>
-</head>
-<body class="bg-surface text-slate-100 min-h-screen pb-20">
-
-  <!-- TOP APP BAR -->
-  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#090d16]/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-cyan-500/20">
-          ⚡
-        </div>
-        <div>
-          <div class="font-extrabold text-base tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-            FLUX ONE
-          </div>
-          <div class="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Student Companion OS</div>
-        </div>
-      </div>
-
-      <!-- Live Campus Pill -->
-      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/60 text-xs">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-slate-300 font-semibold">VIT Pune • SY IC-SEDA</span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono">Sem 1 (2026-27)</span>
-      </div>
-
-      <!-- User Profile -->
-      <div class="flex items-center gap-3">
-        <div class="text-right hidden sm:block">
-          <div class="text-sm font-bold text-white">Nagesh Shinde</div>
-          <div class="text-[11px] text-cyan-400">Instrumentation & Control</div>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-600 to-blue-700 p-[1px]">
-          <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-xs text-cyan-300">
-            NS
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-
-    <!-- METRICS CARDS ROW -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      
-      <!-- Streak -->
-      <div class="glass-card p-4 sm:p-5 rounded-2xl relative overflow-hidden">
-        <div class="flex justify-between items-start">
-          <div>
-            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Discipline Streak</div>
-            <div class="text-2xl sm:text-3xl font-black text-white mt-1 flex items-center gap-1">
-              3 <span class="text-orange-500">🔥</span>
-            </div>
-            <div class="text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium">
-              <span>●</span> Active today
-            </div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
-            <i data-lucide="flame" class="w-5 h-5"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Study Time -->
-      <div class="glass-card p-4 sm:p-5 rounded-2xl">
-        <div class="flex justify-between items-start">
-          <div>
-            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Today's Focus</div>
-            <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-minutes">45m</div>
-            <div class="text-[11px] text-cyan-400 mt-1 font-medium">Target: 90m (50%)</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            <i data-lucide="clock" class="w-5 h-5"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Total Subjects -->
-      <div class="glass-card p-4 sm:p-5 rounded-2xl">
-        <div class="flex justify-between items-start">
-          <div>
-            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Registered Courses</div>
-            <div class="text-2xl sm:text-3xl font-black text-white mt-1">7</div>
-            <div class="text-[11px] text-indigo-400 mt-1 font-medium">5 Theory + 5 Labs</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-            <i data-lucide="book-marked" class="w-5 h-5"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Active Academic Brain -->
-      <div class="glass-card p-4 sm:p-5 rounded-2xl">
-        <div class="flex justify-between items-start">
-          <div>
-            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Academic Brain</div>
-            <div class="text-2xl sm:text-3xl font-black text-white mt-1">94%</div>
-            <div class="text-[11px] text-emerald-400 mt-1 font-medium">Consistency: High</div>
-          </div>
-          <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <i data-lucide="brain" class="w-5 h-5"></i>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- MAIN TWO COLUMN WORKSPACE -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- LEFT 7 COLS: STUDY ENGINE & REAL VIT CURRICULUM -->
-      <div class="lg:col-span-7 space-y-6">
-
-        <!-- INTERACTIVE STUDY TIMER -->
-        <div class="glass-card p-6 rounded-3xl border border-cyan-500/30 relative overflow-hidden">
-          <div class="flex items-center justify-between mb-5">
-            <div>
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-950 text-cyan-300 border border-cyan-800">
-                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                <span>Focus Session Engine</span>
-              </span>
-              <h2 class="text-xl sm:text-2xl font-bold text-white mt-2">Study & Revision Timer</h2>
-            </div>
-            <div id="session-status-badge" class="text-xs font-bold px-3 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
-              STANDBY
-            </div>
-          </div>
-
-          <!-- Select Real Subject -->
-          <div class="mb-5">
-            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Subject to Study</label>
-            <select id="subject-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 transition font-medium">
-              <option value="IC2303 - Sensors & Transducers (Prof. Seema Mashalkar)">IC2303: Sensors & Transducers • Prof. Seema Mashalkar</option>
-              <option value="IC2301 - Data Science (Prof. Rajesh Pashikanti)">IC2301: Data Science • Prof. Rajesh Pashikanti</option>
-              <option value="MM1408 - Microcontroller & Applications (Prof. Pramod Kanjalkar)">MM1408: Microcontroller & Applications • Prof. Pramod Kanjalkar</option>
-              <option value="IC2305 - Object Oriented Programming (Prof. Sheetal Katwe)">IC2305: OOP • Prof. Sheetal Katwe</option>
-              <option value="IC2307 - Database Management Systems (Prof. Vikas Nandeshwar)">IC2307: DBMS • Prof. Vikas Nandeshwar</option>
-              <option value="HS2001 - Reasoning & Aptitude Development (Prof. Manisha Narwane)">HS2001: Reasoning & Aptitude (RAAD-3) • Prof. Manisha Narwane</option>
-              <option value="IC2311 - Design Thinking - 1 (Dr. Jayant Kulkarni)">IC2311: Design Thinking - 1 • Dr. Jayant Kulkarni</option>
-            </select>
-          </div>
-
-          <!-- Timer Numbers -->
-          <div class="text-center py-4">
-            <div id="timer-display" class="text-6xl sm:text-7xl font-mono font-black tracking-tight text-white mb-1">
-              45:00
-            </div>
-            <p id="timer-subtitle" class="text-xs text-slate-400">Target duration: 45 minutes deep work</p>
-          </div>
-
-          <!-- Controls -->
-          <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <button id="btn-start" onclick="startTimer()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 transition transform active:scale-95 flex items-center gap-2">
-              <i data-lucide="play" class="w-4 h-4"></i> Start Focus Session
-            </button>
-            <button id="btn-pause" onclick="pauseTimer()" class="hidden px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition flex items-center gap-2">
-              <i data-lucide="pause" class="w-4 h-4"></i> Pause
-            </button>
-            <button id="btn-complete" onclick="completeTimer()" class="hidden px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/25 transition flex items-center gap-2">
-              <i data-lucide="check-circle-2" class="w-4 h-4"></i> Complete & Log (+45m)
-            </button>
-          </div>
-        </div>
-
-        <!-- 7 REAL VIT REGISTERED COURSES -->
-        <div class="glass-card p-6 rounded-3xl">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i>
-                Registered Courses & Faculty (VIERP SEDA-D)
-              </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Faculty names and subject codes mapped directly from your college timetable</p>
-            </div>
-            <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
-          </div>
-
-          <div class="space-y-2.5 text-sm">
-            
-            <!-- 1. Sensors -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center">
-                  SAT
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Sensors and Transducers <span class="text-xs font-normal text-slate-400">(IC2303)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Seema S. Mashalkar (SSM)</strong> • Theory & Lab</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">Core Theory</span>
-            </div>
-
-            <!-- 2. Data Science -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 font-black text-xs flex items-center justify-center">
-                  DS
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Data Science <span class="text-xs font-normal text-slate-400">(IC2301)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Rajesh Pashikanti (RP)</strong> • Theory & Lab</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">Core Theory</span>
-            </div>
-
-            <!-- 3. Microcontroller -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 font-black text-xs flex items-center justify-center">
-                  MAA
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Microcontroller and Applications <span class="text-xs font-normal text-slate-400">(MM1408)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Pramod M. Kanjalkar (PMK)</strong> • Theory & Tut</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Hardware</span>
-            </div>
-
-            <!-- 4. OOP -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-xs flex items-center justify-center">
-                  OOP
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Object Oriented Programming <span class="text-xs font-normal text-slate-400">(IC2305)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Sheetal Manoj Katwe (SMK)</strong> • Theory & Lab</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">Software</span>
-            </div>
-
-            <!-- 5. DBMS -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-black text-xs flex items-center justify-center">
-                  DBMS
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Database Management Systems <span class="text-xs font-normal text-slate-400">(IC2307)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Vikas Janu Nandeshwar (VJN)</strong> • Theory & Lab</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">Systems</span>
-            </div>
-
-            <!-- 6. Aptitude (RAAD-3) -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 font-black text-xs flex items-center justify-center">
-                  RAAD
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Reasoning & Aptitude Dev - 3 <span class="text-xs font-normal text-slate-400">(HS2001)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Manisha P. Narwane (MPN)</strong> • Theory</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">Placement</span>
-            </div>
-
-            <!-- 7. Design Thinking -->
-            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between hover:border-slate-700 transition">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-black text-xs flex items-center justify-center">
-                  DT-1
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm">Design Thinking - 1 <span class="text-xs font-normal text-slate-400">(IC2311)</span></div>
-                  <div class="text-xs text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Dr. Jayant V. Kulkarni / Prof. S. Waghmare</strong> • Tutorial</div>
-                </div>
-              </div>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">Project</span>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-      <!-- RIGHT 5 COLS: OFFICIAL VIT TIMETABLE -->
-      <div class="lg:col-span-5 space-y-6">
-
-        <!-- INTERACTIVE TIMETABLE VIEWER -->
-        <div class="glass-card p-6 rounded-3xl border border-slate-800">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="calendar-days" class="w-5 h-5 text-cyan-400"></i>
-                Official Timetable (SY IC-SEDA)
-              </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Click any day to view your exact slots & rooms</p>
-            </div>
-            <div class="text-[10px] px-2 py-0.5 rounded bg-slate-800 font-mono text-slate-300">W.E.F Jul 2026</div>
-          </div>
-
-          <!-- Day Selection Tabs -->
-          <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 mb-4 text-xs font-semibold">
-            <button onclick="switchDay('Mon')" id="tab-Mon" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Mon</button>
-            <button onclick="switchDay('Tue')" id="tab-Tue" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Tue</button>
-            <button onclick="switchDay('Wed')" id="tab-Wed" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Wed</button>
-            <button onclick="switchDay('Thu')" id="tab-Thu" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Thu</button>
-            <button onclick="switchDay('Fri')" id="tab-Fri" class="py-2 rounded-lg bg-cyan-600 text-white shadow">Fri</button>
-          </div>
-
-          <!-- Batch Filter Selector -->
-          <div class="flex items-center justify-between mb-4 px-1 text-xs">
-            <span class="text-slate-400 font-medium">Show Lab / Tut for Batch:</span>
-            <select id="batch-filter" onchange="renderSchedule()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none text-xs">
-              <option value="ALL">All Batches (B1, B2, B3)</option>
-              <option value="B1">Batch B1</option>
-              <option value="B2">Batch B2</option>
-              <option value="B3">Batch B3</option>
-            </select>
-          </div>
-
-          <!-- Schedule Slots List Container -->
-          <div id="schedule-container" class="space-y-3">
-            <!-- Dynamically populated via JS below -->
-          </div>
-        </div>
-
-        <!-- AI STUDY NUDGE -->
-        <div class="glass-card p-6 rounded-3xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/30 to-slate-900/90">
-          <div class="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider mb-2">
-            <i data-lucide="sparkles" class="w-4 h-4"></i> Gemini AI Study Nudge
-          </div>
-          <h4 class="text-sm font-bold text-white mb-1.5" id="ai-nudge-title">Prep for Sensors Lab</h4>
-          <p class="text-xs text-slate-300 leading-relaxed" id="ai-nudge-body">
-            "Prof. Seema Mashalkar covers linear range calibration in SAT. Review LVDT and piezo sensor principles for 25 minutes to stay ahead in Monday's lab."
-          </p>
-          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-            <span class="text-slate-400 font-mono">Confidence: 98%</span>
-            <button onclick="startSubjectTimer('Sensors')" class="text-cyan-400 font-bold hover:underline">Start 25m Revision →</button>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
-  </main>
-
-  <!-- JAVASCRIPT LOGIC -->
-  <script>
-    lucide.createIcons();
-
-    // 100% REAL TIMETABLE DATA DERIVED DIRECTLY FROM YOUR PDF
-    const timetableData = {
-      Mon: [
-        { time: "10:00 - 11:00 AM", type: "Theory", code: "MM1408", name: "Microcontroller & Applications", prof: "Prof. Pramod Kanjalkar (PMK)", room: "C204", batch: "ALL" },
-        { time: "11:00 - 12:00 PM", type: "Theory", code: "IC2303", name: "Sensors & Transducers", prof: "Prof. Seema Mashalkar (SSM)", room: "C204", batch: "ALL" },
-        { time: "01:00 - 03:00 PM", type: "Lab", code: "IC2301", name: "Data Science Lab", prof: "Prof. Rajesh Pashikanti (RP)", room: "C304", batch: "B2" },
-        { time: "03:00 - 05:00 PM", type: "Lab", code: "IC2305", name: "OOP Lab", prof: "Prof. Sheetal Katwe (SMK)", room: "C304", batch: "B2" },
-        { time: "03:00 - 05:00 PM", type: "Lab", code: "IC2303", name: "Sensors & Transducers Lab", prof: "Prof. Seema Mashalkar (SSM)", room: "C307", batch: "B1" },
-        { time: "03:00 - 05:00 PM", type: "Lab", code: "IC2301", name: "Data Science Lab", prof: "Prof. Rajesh Pashikanti (RP)", room: "C305", batch: "B3" },
-        { time: "05:00 - 06:00 PM", type: "Tutorial", code: "IC2311", name: "Design Thinking - 1", prof: "Dr. Jayant Kulkarni (JVK)", room: "Dept", batch: "B1" },
-        { time: "05:00 - 07:00 PM", type: "Lab", code: "IC2301", name: "Data Science Lab", prof: "Prof. Rajesh Pashikanti (RP)", room: "C304", batch: "B1" },
-        { time: "05:00 - 07:00 PM", type: "Lab", code: "IC2303", name: "Sensors & Transducers Lab", prof: "Prof. Seema Mashalkar (SSM)", room: "C307", batch: "B2" }
-      ],
-      Tue: [
-        { time: "10:00 - 11:00 AM", type: "Theory", code: "MM1408", name: "Microcontroller & Applications", prof: "Prof. Pramod Kanjalkar (PMK)", room: "C301", batch: "ALL" },
-        { time: "11:00 - 12:00 PM", type: "Theory", code: "IC2307", name: "Database Management Systems", prof: "Prof. Vikas Nandeshwar (VJN)", room: "C301", batch: "ALL" },
-        { time: "01:00 - 02:00 PM", type: "Theory", code: "IC2305", name: "Object Oriented Programming", prof: "Prof. Sheetal Katwe (SMK)", room: "C301", batch: "ALL" }
-      ],
-      Wed: [
-        { time: "11:00 - 01:00 PM", type: "Lab", code: "IC2305", name: "OOP Lab", prof: "Prof. Sheetal Katwe (SMK)", room: "C308", batch: "B3" },
-        { time: "01:00 - 02:00 PM", type: "Theory", code: "IC2303", name: "Sensors & Transducers", prof: "Prof. Seema Mashalkar (SSM)", room: "C301", batch: "ALL" },
-        { time: "02:00 - 03:00 PM", type: "Tutorial", code: "IC2311", name: "Design Thinking - 1", prof: "Dr. Jayant Kulkarni (JVK)", room: "Dept", batch: "B2" },
-        { time: "03:00 - 04:00 PM", type: "Tutorial", code: "MM1408", name: "Microcontroller Tutorial", prof: "Prof. Pramod Kanjalkar (PMK)", room: "C314", batch: "B5" },
-        { time: "04:00 - 06:00 PM", type: "Lab", code: "IC2307", name: "DBMS Lab", prof: "Prof. Vikas Nandeshwar (VJN)", room: "C305", batch: "B3" }
-      ],
-      Thu: [
-        { time: "09:00 - 11:00 AM", type: "Lab", code: "IC2305", name: "OOP Lab", prof: "Prof. Sheetal Katwe (SMK)", room: "C308", batch: "B1" },
-        { time: "11:00 - 12:00 PM", type: "Tutorial", code: "MM1408", name: "Microcontroller Tutorial", prof: "Prof. Pramod Kanjalkar (PMK)", room: "C314", batch: "B4" },
-        { time: "12:00 - 01:00 PM", type: "Theory", code: "IC2303", name: "Sensors & Transducers", prof: "Prof. Seema Mashalkar (SSM)", room: "C204", batch: "ALL" },
-        { time: "02:00 - 03:00 PM", type: "Theory", code: "IC2301", name: "Data Science", prof: "Prof. Rajesh Pashikanti (RP)", room: "C301", batch: "ALL" },
-        { time: "03:00 - 05:00 PM", type: "Lab", code: "IC2307", name: "DBMS Lab", prof: "Prof. Vikas Nandeshwar (VJN)", room: "C305",Here is the complete, clean **`index.html`** containing your exact subjects, teachers, and weekly schedule from your official [VIERP SEDA-D Timetable](https://www.vierp.in/division-timetable).
-
-### What to do:
-1. Open `index.html` in VS Code.
-2. Replace everything with the code below and save (`Ctrl + S`).
-3. Refresh your browser (`Ctrl + R` or `F5`).
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FLUX ONE | SY IC-SEDA (VIT Pune)</title>
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  <script src="[https://unpkg.com/lucide@latest](https://unpkg.com/lucide@latest)"></script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #090d16; }
-    .card { background: rgba(17, 24, 39, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); }
-  </style>
-</head>
-<body class="text-slate-100 min-h-screen pb-16">
-
-  <!-- TOP BAR -->
-  <header class="sticky top-0 z-50 border-b border-slate-800 bg-[#090d16]/95 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-cyan-500/20">
-          ⚡
-        </div>
-        <div>
-          <div class="font-extrabold text-base tracking-tight text-white">FLUX ONE</div>
-          <div class="text-[10px] uppercase font-bold tracking-wider text-cyan-400">Student OS</div>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700/60 text-xs">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-slate-300 font-semibold">VIT Pune • SY IC-SEDA</span>
-      </div>
-
-      <div class="flex items-center gap-2.5">
-        <div class="text-right hidden sm:block">
-          <div class="text-xs font-bold text-white">Nagesh Shinde</div>
-          <div class="text-[10px] text-cyan-400">Instrumentation & Control</div>
-        </div>
-        <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-bold text-xs">
-          NS
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN BODY -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
-
-    <!-- KPI STATS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="card p-4 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase">Streak</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1 flex items-center gap-1">3 <span class="text-orange-500 text-xl">🔥</span></div>
-        <div class="text-[11px] text-emerald-400 mt-1">● Active today</div>
-      </div>
-
-      <div class="card p-4 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase">Study Today</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-minutes">45m</div>
-        <div class="text-[11px] text-cyan-400 mt-1">Target: 90m (50%)</div>
-      </div>
-
-      <div class="card p-4 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase">Courses</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1">7</div>
-        <div class="text-[11px] text-indigo-400 mt-1">Theory, Labs & Tut</div>
-      </div>
-
-      <div class="card p-4 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase">Academic Brain</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1">94%</div>
-        <div class="text-[11px] text-emerald-400 mt-1">Consistency High</div>
-      </div>
-    </div>
-
-    <!-- 2 COLUMN LAYOUT -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- LEFT COLUMN (7): TIMER & REAL VIT COURSES -->
-      <div class="lg:col-span-7 space-y-6">
-
-        <!-- STUDY TIMER CARD -->
-        <div class="card p-6 rounded-3xl border border-cyan-500/30">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
-                Focus Engine
-              </span>
-              <h2 class="text-xl font-bold text-white mt-1">Study Session Timer</h2>
-            </div>
-            <span id="session-badge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400">IDLE</span>
-          </div>
-
-          <div class="mb-4">
-            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Select Subject</label>
-            <select id="subject-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
-              <option value="IC2303: Sensors & Transducers (Prof. Seema Mashalkar)">IC2303: Sensors & Transducers (Prof. Seema Mashalkar)</option>
-              <option value="IC2301: Data Science (Prof. Rajesh Pashikanti)">IC2301: Data Science (Prof. Rajesh Pashikanti)</option>
-              <option value="MM1408: Microcontroller & Applications (Prof. Pramod Kanjalkar)">MM1408: Microcontroller & Applications (Prof. Pramod Kanjalkar)</option>
-              <option value="IC2305: OOP (Prof. Sheetal Katwe)">IC2305: OOP (Prof. Sheetal Katwe)</option>
-              <option value="IC2307: DBMS (Prof. Vikas Nandeshwar)">IC2307: DBMS (Prof. Vikas Nandeshwar)</option>
-              <option value="HS2001: Reasoning & Aptitude (Prof. Manisha Narwane)">HS2001: Reasoning & Aptitude (Prof. Manisha Narwane)</option>
-              <option value="IC2311: Design Thinking - 1 (Dr. Jayant Kulkarni)">IC2311: Design Thinking - 1 (Dr. Jayant Kulkarni)</option>
-            </select>
-          </div>
-
-          <div class="text-center py-3">
-            <div id="timer-display" class="text-6xl font-mono font-black text-white tracking-tight">45:00</div>
-            <p id="timer-desc" class="text-xs text-slate-400 mt-1">Target duration: 45 minutes</p>
-          </div>
-
-          <div class="flex items-center justify-center gap-3 pt-2">
-            <button id="btn-start" onclick="startTimer()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
-              <i data-lucide="play" class="w-4 h-4"></i> Start Session
-            </button>
-            <button id="btn-pause" onclick="pauseTimer()" class="hidden px-5 py-2.5 rounded-xl bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700 transition flex items-center gap-2">
-              <i data-lucide="pause" class="w-4 h-4"></i> Pause
-            </button>
-            <button id="btn-complete" onclick="completeTimer()" class="hidden px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition flex items-center gap-2">
-              <i data-lucide="check-circle" class="w-4 h-4"></i> Complete (+45m)
-            </button>
-          </div>
-        </div>
-
-        <!-- 7 REGISTERED COURSES LIST -->
-        <div class="card p-6 rounded-3xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i data-lucide="book-open" class="w-4 h-4 text-cyan-400"></i> Registered Courses & Faculty
-            </h3>
-            <span class="text-xs font-mono text-cyan-400 font-semibold">SY IC-SEDA</span>
-          </div>
-
-          <div class="space-y-2.5 text-xs">
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Sensors and Transducers <span class="text-slate-400 font-normal">(IC2303)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Seema S. Mashalkar (SSM)</strong> • Theory & Lab</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-semibold">SAT</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Data Science <span class="text-slate-400 font-normal">(IC2301)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Rajesh Pashikanti (RP)</strong> • Theory & Lab</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-300 font-semibold">DS</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Microcontroller and Applications <span class="text-slate-400 font-normal">(MM1408)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Pramod M. Kanjalkar (PMK)</strong> • Theory & Tut</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 font-semibold">MAA</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Object Oriented Programming <span class="text-slate-400 font-normal">(IC2305)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Sheetal M. Katwe (SMK)</strong> • Theory & Lab</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-semibold">OOP</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Database Management Systems <span class="text-slate-400 font-normal">(IC2307)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Vikas J. Nandeshwar (VJN)</strong> • Theory & Lab</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 font-semibold">DBMS</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Reasoning & Aptitude Development - 3 <span class="text-slate-400 font-normal">(HS2001)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Prof. Manisha P. Narwane (MPN)</strong> • Theory</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 font-semibold">RAAD</span>
-            </div>
-
-            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white text-sm">Design Thinking - 1 <span class="text-slate-400 font-normal">(IC2311)</span></div>
-                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-300">Dr. Jayant V. Kulkarni / Prof. S. Waghmare</strong> • Tutorial</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 font-semibold">DT-1</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- RIGHT COLUMN (5): REAL VIERP TIMETABLE -->
-      <div class="lg:col-span-5 space-y-6">
-
-        <div class="card p-6 rounded-3xl">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Official Class Timetable
-            </h3>
-            <span class="text-[10px] text-slate-400">VIERP Timetable</span>
-          </div>
-
-          <!-- Day Tabs -->
-          <div class="grid grid-cols-5 gap-1 p-1 bg-slate-900 rounded-xl border border-slate-800 mb-3 text-xs font-semibold">
-            <button onclick="renderDay('Mon')" id="tab-Mon" class="py-1.5 rounded-lg text-slate-400">Mon</button>
-            <button onclick="renderDay('Tue')" id="tab-Tue" class="py-1.5 rounded-lg text-slate-400">Tue</button>
-            <button onclick="renderDay('Wed')" id="tab-Wed" class="py-1.5 rounded-lg text-slate-400">Wed</button>
-            <button onclick="renderDay('Thu')" id="tab-Thu" class="py-1.5 rounded-lg text-slate-400">Thu</button>
-            <button onclick="renderDay('Fri')" id="tab-Fri" class="py-1.5 rounded-lg text-slate-400">Fri</button>
-          </div>
-
-          <!-- Batch Filter -->
-          <div class="flex items-center justify-between mb-3 text-xs">
-            <span class="text-slate-400">Lab/Tut Batch:</span>
-            <select id="batch-filter" onchange="filterBatch()" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200">
-              <option value="ALL">All Batches (B1, B2, B3)</option>
-              <option value="B1">Batch B1</option>
-              <option value="B2">Batch B2</option>
-              <option value="B3">Batch B3</option>
-            </select>
-          </div>
-
-          <!-- Slots Container -->
-          <div id="slots-list" class="space-y-2 text-xs"></div>
-        </div>
-
-        <!-- AI Nudge -->
-        <div class="card p-5 rounded-3xl border border-indigo-500/30 bg-indigo-950/20">
-          <div class="flex items-center gap-1.5 text-indigo-400 text-xs font-bold uppercase mb-2">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Gemini Academic Nudge
-          </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            "You have SAT with Prof. Seema Mashalkar. Revise LVDT and capacitive sensor formulas for 20 minutes to be ready for the upcoming lab practical."
-          </p>
-        </div>
-
-      </div>
-
-    </div>
-  </main>
-
-  <!-- JS LOGIC -->
-  <script>
-    lucide.createIcons();
-
-    const schedule = {
-      Mon: [
-        { time: "10:00 - 11:00 AM", type: "Theory", name: "Microcontroller (MM1408)", prof: "Prof. Pramod Kanjalkar", room: "C204", batch: "ALL" },
-        { time: "11:00 - 12:00 PM", type: "Theory", name: "Sensors & Transducers (IC2303)", prof: "Prof. Seema Mashalkar", room: "C204", batch: "ALL" },
-        { time: "01:00 - 03:00 PM", type: "Lab", name: "Data Science Lab (IC2301)", prof: "Prof. Rajesh Pashikanti", room: "C304", batch: "B2" },
-        { time: "03:00 - 05:00 PM", type: "Lab", name: "OOP Lab (IC2305)", prof: "Prof. Sheetal Katwe", room: "C304", batch: "B2" },
-        { time: "03:00 - 05:00 PM", type: "Lab", name: "Sensors Lab (IC2303)", prof: "Prof. Seema Mashalkar", room: "C307", batch: "B1" },
-        { time: "03:00 - 05:00 PM", type: "Lab", name: "Data Science Lab (IC2301)", prof: "Prof. Rajesh Pashikanti", room: "C305", batch: "B3" },
-        { time: "05:00 - 06:00 PM", type: "Tutorial", name: "Design Thinking - 1", prof: "Dr. Jayant Kulkarni", room: "Dept", batch: "B1" },
-        { time: "05:00 - 07:00 PM", type: "Lab", name: "Data Science Lab (IC2301)", prof: "Prof. Rajesh Pashikanti", room: "C304", batch: "B1" },
-        { time: "05:00 - 07:00 PM", type: "Lab", name: "Sensors Lab (IC2303)", prof: "Prof. Seema Mashalkar", room: "C307", batch: "B2" }
-      ],
-      Tue: [
-        { time: "10:00 - 11:00 AM", type: "Theory", name: "Microcontroller (MM1408)", prof: "Prof. Pramod Kanjalkar", room: "C301", batch: "ALL" },
-        { time: "11:00 - 12:00 PM", type: "Theory", name: "DBMS (IC2307)", prof: "Prof. Vikas Nandeshwar", room: "C301", batch: "ALL" },
-        { time: "01:00 - 02:00 PM", type: "Theory", name: "OOP (IC2305)", prof: "Prof. Sheetal Katwe", room: "C301", batch: "ALL" }
-      ],
-      Wed: [
-        { time: "11:00 - 01:00 PM", type: "Lab", name: "OOP Lab (IC2305)", prof: "Prof. Sheetal Katwe", room: "C308", batch: "B3" },
-        { time: "01:00 - 02:00 PM", type: "Theory", name: "Sensors & Transducers (IC2303)", prof: "Prof. Seema Mashalkar", room: "C301", batch: "ALL" },
-        { time: "02:00 - 03:00 PM", type: "Tutorial", name: "Design Thinking - 1", prof: "Dr. Jayant Kulkarni", room: "Dept", batch: "B2" },
-        { time: "03:00 - 04:00 PM", type: "Tutorial", name: "Microcontroller Tutorial", prof: "Prof. Pramod Kanjalkar", room: "C314", batch: "B5" },
-        { time: "04:00 - 06:00 PM", type: "Lab", name: "DBMS Lab (IC2307)", prof: "Prof. Vikas Nandeshwar", room: "C305", batch: "B3" }
-      ],
-      Thu: [
-        { time: "09:00 - 11:00 AM", type: "Lab", name: "OOP Lab (IC2305)", prof: "Prof. Sheetal Katwe", room: "C308", batch: "B1" },
-        { time: "11:00 - 12:00 PM", type: "Tutorial", name: "Microcontroller Tutorial", prof: "Prof. Pramod Kanjalkar", room: "C314", batch: "B4" },
-        { time: "12:00 - 01:00 PM", type: "Theory", name: "Sensors & Transducers (IC2303)", prof: "Prof. Seema Mashalkar", room: "C204", batch: "ALL" },
-        { time: "02:00 - 03:00 PM", type: "Theory", name: "Data Science (IC2301)", prof: "Prof. Rajesh Pashikanti", room: "C301", batch: "ALL" },
-        { time: "03:00 - 05:00 PM", type: "Lab", name: "DBMS Lab (IC2307)", prof: "Prof. Vikas Nandeshwar", room: "C305", batch: "B1" }
-      ],
-      Fri: [
-        { time: "10:00 - 11:00 AM", type: "Theory", name: "Reasoning & Aptitude (HS2001)", prof: "Prof. Manisha Narwane", room: "C301", batch: "ALL" },
-        { time: "12:00 - 01:00 PM", type: "Theory", name: "DBMS (IC2307)", prof: "Prof. Vikas Nandeshwar", room: "C204", batch: "ALL" },
-        { time: "01:00 - 02:00 PM", type: "Theory", name: "OOP (IC2Here is the complete, non-looping `index.html` file with your exact **SY IC-SEDA** courses, professors, and schedule:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -711,81 +7,474 @@ index.html
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0b0f19; }
-    .box { background: rgba(17, 24, 39, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; }
+    .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
+    .glass-card:hover { border-color: rgba(255, 255, 255, 0.12); }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen pb-12">
+<body class="text-slate-100 min-h-screen pb-16">
 
-  <!-- TOP HEADER -->
-  <header class="sticky top-0 z-50 border-b border-slate-800 bg-[#0b0f19]/90 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-base">
+  <!-- TOP APP BAR -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#080c14]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-cyan-500/20">
           ⚡
         </div>
         <div>
-          <div class="font-extrabold text-base text-white tracking-tight">FLUX ONE</div>
-          <div class="text-[10px] uppercase font-bold text-cyan-400">Student Companion</div>
+          <div class="font-extrabold text-base tracking-tight text-white">FLUX ONE</div>
+          <div class="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Student Companion OS</div>
         </div>
       </div>
-      <div class="px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs text-slate-300 font-medium">
-        VIT Pune • SY IC-SEDA
+
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700/60 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-slate-300 font-semibold">VIT Pune • SY IC-SEDA</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono">Sem 1 (2026-27)</span>
       </div>
-      <div class="text-right">
-        <div class="text-xs font-bold text-white">Nagesh Shinde</div>
-        <div class="text-[10px] text-cyan-400">Instrumentation</div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div class="text-sm font-bold text-white">Nagesh Shinde</div>
+          <div class="text-[11px] text-cyan-400">Instrumentation & Control</div>
+        </div>
+        <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-bold text-xs">
+          NS
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 pt-6 space-y-6">
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
-    <!-- KPI STATS -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="box p-4 rounded-2xl">
-        <div class="text-[11px] text-slate-400 uppercase font-semibold">Streak</div>
-        <div class="text-2xl font-black text-white mt-1">3 <span class="text-orange-500">🔥</span></div>
-        <div class="text-[11px] text-emerald-400 mt-1">● Active today</div>
+    <!-- KPI ROW -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass-card p-4 sm:p-5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Discipline Streak</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1 flex items-center gap-1.5">
+          <span>3</span> <span class="text-orange-500">🔥</span>
+        </div>
+        <div class="text-[11px] text-emerald-400 mt-1 font-medium">● Active today</div>
       </div>
-      <div class="box p-4 rounded-2xl">
-        <div class="text-[11px] text-slate-400 uppercase font-semibold">Focus Today</div>
-        <div class="text-2xl font-black text-white mt-1" id="stat-min">45m</div>
-        <div class="text-[11px] text-cyan-400 mt-1">Target: 90m (50%)</div>
+
+      <div class="glass-card p-4 sm:p-5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Today's Focus</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-minutes">45m</div>
+        <div class="text-[11px] text-cyan-400 mt-1 font-medium">Target: 90m (50%)</div>
       </div>
-      <div class="box p-4 rounded-2xl">
-        <div class="text-[11px] text-slate-400 uppercase font-semibold">Registered</div>
-        <div class="text-2xl font-black text-white mt-1">7 Subs</div>
-        <div class="text-[11px] text-indigo-400 mt-1">Theory & Labs</div>
+
+      <div class="glass-card p-4 sm:p-5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Registered Courses</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1">7</div>
+        <div class="text-[11px] text-indigo-400 mt-1 font-medium">Theory, Labs & Tut</div>
       </div>
-      <div class="box p-4 rounded-2xl">
-        <div class="text-[11px] text-slate-400 uppercase font-semibold">Academic Brain</div>
-        <div class="text-2xl font-black text-white mt-1">94%</div>
-        <div class="text-[11px] text-emerald-400 mt-1">High Consistency</div>
+
+      <div class="glass-card p-4 sm:p-5 rounded-2xl">
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Academic Brain</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1">94%</div>
+        <div class="text-[11px] text-emerald-400 mt-1 font-medium">Consistency: High</div>
       </div>
     </div>
 
-    <!-- MAIN 2 COLUMNS -->
+    <!-- WORKSPACE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- LEFT: TIMER & COURSES -->
+      <!-- LEFT COLUMN (7): TIMER & COURSES -->
       <div class="lg:col-span-7 space-y-6">
 
-        <!-- TIMER -->
-        <div class="box p-6 rounded-3xl border border-cyan-500/30">
-          <div class="flex justify-between items-center mb-4">
-            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800">
-              STUDY ENGINE
-            </span>
-            <span id="badge" class="text-xs font-bold px-2.5 py-0.5 rounded bg-slate-800 text-slate-400">IDLE</span>
+        <!-- TIMER CARD -->
+        <div class="glass-card p-6 rounded-3xl border border-cyan-500/30">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
+                Focus Engine
+              </span>
+              <h2 class="text-xl sm:text-2xl font-bold text-white mt-1">Study Session Timer</h2>
+            </div>
+            <span id="session-badge" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400">IDLE</span>
           </div>
 
-          <label class="text-xs font-semibold text-slate-400 uppercase block mb-1">Subject to Study</label>
-          <select id="sub-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 mb-4 focus:outline-none focus:border-cyan-500">
-            <option value="IC2303: Sensors & Transducers (Prof. Seema Mashalkar)">IC2303: Sensors & Transducers (Prof. Seema Mashalkar)</option>
-            <option value="IC2301: Data Science (Prof. Rajesh Pashikanti)">IC2301: Data Science (Prof. Rajesh Pashikanti)</option>
-            <option value="MM1408: Microcontrollers (Prof. Pramod Kanjalkar)">MM1408: Microcontrollers (Prof. Pramod Kanjalkar)</option>
-            <option value="IC2305: OOP (Prof. Sheetal Katwe)">IC2305: OOP (Prof. Sheetal Katwe)</option>
-            <option value="IC2307: DBMS (Prof. Vikas Nandeshwar)">IC2307: DBMS (Prof. Vikas Nandeshwar)</option>
-            <option value="HS2001: Reasoning & Aptitude (Prof. Manisha Narwane)">HS2001: RAAD-3 (Prof. Manisha Narwane)</option>
-            <
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Target Course</label>
+          <select id="subject-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 mb-3 focus:outline-none focus:border-cyan-500 font-medium">
+            <option value="IC2303: Sensors & Transducers (Prof. Seema Mashalkar)">IC2303: Sensors & Transducers • Prof. Seema Mashalkar</option>
+            <option value="IC2301: Data Science (Prof. Rajesh Pashikanti)">IC2301: Data Science • Prof. Rajesh Pashikanti</option>
+            <option value="MM1408: Microcontrollers (Prof. Pramod Kanjalkar)">MM1408: Microcontrollers • Prof. Pramod Kanjalkar</option>
+            <option value="IC2305: OOP (Prof. Sheetal Katwe)">IC2305: OOP • Prof. Sheetal Katwe</option>
+            <option value="IC2307: DBMS (Prof. Vikas Nandeshwar)">IC2307: DBMS • Prof. Vikas Nandeshwar</option>
+            <option value="HS2001: Reasoning & Aptitude (Prof. Manisha Narwane)">HS2001: RAAD-3 • Prof. Manisha Narwane</option>
+            <option value="IC2311: Design Thinking - 1 (Dr. Jayant Kulkarni)">IC2311: Design Thinking • Dr. Jayant Kulkarni</option>
+          </select>
+
+          <!-- Duration Presets -->
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-xs text-slate-400 font-medium">Preset:</span>
+            <button onclick="setDuration(25)" id="pre-25" class="px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition">25m Pomodoro</button>
+            <button onclick="setDuration(45)" id="pre-45" class="px-3 py-1 rounded-lg bg-cyan-600 text-white text-xs font-bold shadow">45m Deep Work</button>
+            <button onclick="setDuration(60)" id="pre-60" class="px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition">60m Sprint</button>
+          </div>
+
+          <div class="text-center py-4 bg-slate-900/40 rounded-2xl border border-slate-800/60 mb-5">
+            <div id="timer-display" class="text-6xl sm:text-7xl font-mono font-black text-white">45:00</div>
+            <p id="timer-desc" class="text-xs text-slate-400 mt-1">45-minute focus session</p>
+          </div>
+
+          <div class="flex items-center justify-center gap-3">
+            <button id="btn-start" onclick="startTimer()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+              <i data-lucide="play" class="w-4 h-4"></i> Start Session
+            </button>
+            <button id="btn-pause" onclick="pauseTimer()" class="hidden px-5 py-3 rounded-xl bg-slate-800 text-slate-200 text-sm border border-slate-700 transition flex items-center gap-2">
+              <i data-lucide="pause" class="w-4 h-4"></i> Pause
+            </button>
+            <button id="btn-complete" onclick="completeTimer()" class="hidden px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-4 h-4"></i> Complete & Log
+            </button>
+          </div>
+        </div>
+
+        <!-- 7 VIT REGISTERED COURSES -->
+        <div class="glass-card p-6 rounded-3xl">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i> Registered Courses & Faculty
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Directly mapped from your VIERP timetable</p>
+            </div>
+            <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
+          </div>
+
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Sensors and Transducers <span class="text-slate-400 font-normal">(IC2303)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Seema S. Mashalkar (SSM)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">SAT</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Data Science <span class="text-slate-400 font-normal">(IC2301)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Rajesh Pashikanti (RP)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-950 text-blue-300 border border-blue-800">DS</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Microcontroller & Applications <span class="text-slate-400 font-normal">(MM1408)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Pramod M. Kanjalkar (PMK)</strong> • Theory & Tut</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-950 text-purple-300 border border-purple-800">MAA</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Object Oriented Programming <span class="text-slate-400 font-normal">(IC2305)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Sheetal M. Katwe (SMK)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">OOP</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Database Management Systems <span class="text-slate-400 font-normal">(IC2307)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Vikas J. Nandeshwar (VJN)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-950 text-amber-300 border border-amber-800">DBMS</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Reasoning & Aptitude Development - 3 <span class="text-slate-400 font-normal">(HS2001)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Manisha P. Narwane (MPN)</strong> • Theory</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-950 text-rose-300 border border-rose-800">RAAD</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Design Thinking - 1 <span class="text-slate-400 font-normal">(IC2311)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Dr. Jayant Kulkarni / Prof. S. Waghmare</strong> • Tut</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">DT-1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LECTURE NOTES SCRATCHPAD -->
+        <div class="glass-card p-6 rounded-3xl">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="pen-tool" class="w-4 h-4 text-cyan-400"></i> Lecture Scratchpad & Quick Notes
+            </h3>
+            <span class="text-[10px] text-slate-400">Auto-saves to browser</span>
+          </div>
+          <textarea id="notes-area" oninput="saveNotes()" placeholder="Jot down notes during class (e.g. LVDT null voltage formula, 8051 memory map, DBMS normal forms)..." class="w-full h-24 bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 transition leading-relaxed"></textarea>
+          <div class="flex justify-between items-center mt-2 text-[11px] text-slate-400">
+            <span id="save-status">Saved</span>
+            <button onclick="clearNotes()" class="text-slate-500 hover:text-rose-400 transition">Clear Notes</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN (5): TIMETABLE & AI NUDGE -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- TIMETABLE VIEWER -->
+        <div class="glass-card p-6 rounded-3xl">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Official Class Timetable
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Select day & batch to view schedule</p>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 font-mono text-slate-300">W.E.F Jul 2026</span>
+          </div>
+
+          <!-- Day Tabs -->
+          <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-900 rounded-xl border border-slate-800 mb-3 text-xs font-semibold text-center">
+            <button onclick="setDay('Mon')" id="tab-Mon" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Mon</button>
+            <button onclick="setDay('Tue')" id="tab-Tue" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Tue</button>
+            <button onclick="setDay('Wed')" id="tab-Wed" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Wed</button>
+            <button onclick="setDay('Thu')" id="tab-Thu" class="py-2 rounded-lg text-slate-400 hover:text-white transition">Thu</button>
+            <button onclick="setDay('Fri')" id="tab-Fri" class="py-2 rounded-lg bg-cyan-600 text-white shadow">Fri</button>
+          </div>
+
+          <!-- Batch Filter Dropdown -->
+          <div class="flex items-center justify-between mb-3 text-xs">
+            <span class="text-slate-400 font-medium">Filter Batch:</span>
+            <select id="batch-filter" onchange="renderTimetable()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 text-xs">
+              <option value="ALL">All Batches (B1, B2, B3)</option>
+              <option value="B1">Batch B1</option>
+              <option value="B2">Batch B2</option>
+              <option value="B3">Batch B3</option>
+            </select>
+          </div>
+
+          <!-- Slots Container -->
+          <div id="schedule-container" class="space-y-2.5 text-xs max-h-[480px] overflow-y-auto pr-1"></div>
+        </div>
+
+        <!-- AI STUDY NUDGE -->
+        <div class="glass-card p-5 rounded-3xl border border-indigo-500/30 bg-gradient-to-b from-indigo-950/30 to-slate-900/90">
+          <div class="flex items-center gap-1.5 text-indigo-400 text-xs font-bold uppercase mb-2">
+            <i data-lucide="sparkles" class="w-4 h-4"></i> Gemini AI Study Nudge
+          </div>
+          <h4 class="text-sm font-bold text-white mb-1">Prep for Sensors Lab</h4>
+          <p class="text-xs text-slate-300 leading-relaxed mb-3">
+            "Prof. Seema Mashalkar covers linear range calibration in SAT. Review LVDT and capacitive sensor formulas for 25 minutes to stay ahead in your lab practical."
+          </p>
+          <button onclick="startSpecificSession('IC2303: Sensors & Transducers (Prof. Seema Mashalkar)', 25)" class="w-full py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i> Launch 25m Sensors Revision
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    lucide.createIcons();
+
+    const rawData = [
+      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
+      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
+      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2",
+      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1",
+      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3",
+      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1",
+      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1",
+      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2",
+      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL",
+      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL",
+      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
+      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3",
+      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL",
+      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2",
+      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B5",
+      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3",
+      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1",
+      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B4",
+      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
+      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
+      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1",
+      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL",
+      "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL",
+      "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
+      "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
+      "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2",
+      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3"
+    ];
+
+    let currentDay = 'Fri';
+
+    function setDay(d) {
+      currentDay = d;
+      ['Mon','Tue','Wed','Thu','Fri'].forEach(x => {
+        const btn = document.getElementById('tab-' + x);
+        if (x === d) {
+          btn.className = 'py-2 rounded-lg bg-cyan-600 text-white shadow';
+        } else {
+          btn.className = 'py-2 rounded-lg text-slate-400 hover:text-white transition';
+        }
+      });
+      renderTimetable();
+    }
+
+    function renderTimetable() {
+      const container = document.getElementById('schedule-container');
+      const batch = document.getElementById('batch-filter').value;
+      
+      const filtered = rawData.map(line => {
+        const [day, time, type, name, prof, room, b] = line.split('|');
+        return { day, time, type, name, prof, room, batch: b };
+      }).filter(s => s.day === currentDay && (batch === 'ALL' || s.batch === 'ALL' || s.batch === batch));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="p-4 rounded-xl bg-slate-900 text-slate-400 text-center">No scheduled slots for this batch today.</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => {
+        let badgeColor = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+        if (s.type === 'Lab') badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
+        if (s.type === 'Tutorial') badgeColor = 'bg-purple-950 text-purple-300 border-purple-800';
+
+        return `
+          <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-mono text-cyan-400 font-bold">${s.time}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeColor}">
+                ${s.type} ${s.batch !== 'ALL' ? '(' + s.batch + ')' : ''}
+              </span>
+            </div>
+            <div class="font-bold text-white text-xs">${s.name}</div>
+            <div class="text-slate-400 text-[11px] mt-0.5">${s.prof} • Room <strong>${s.room}</strong></div>
+          </div>
+        `;
+      }).join('');
+    }
+    setDay('Fri');
+
+    // TIMER ENGINE
+    let currentDurationMins = 45;
+    let totalSeconds = currentDurationMins * 60;
+    let timerId = null;
+    let isRunning = false;
+    let totalStudied = 45;
+
+    function setDuration(mins) {
+      if (isRunning) return;
+      currentDurationMins = mins;
+      totalSeconds = mins * 60;
+      ['25','45','60'].forEach(m => {
+        const btn = document.getElementById('pre-' + m);
+        if (m === String(mins)) {
+          btn.className = 'px-3 py-1 rounded-lg bg-cyan-600 text-white text-xs font-bold shadow';
+        } else {
+          btn.className = 'px-3 py-1 rounded-lg bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition';
+        }
+      });
+      document.getElementById('timer-desc').textContent = `${mins}-minute focus session`;
+      updateClock();
+    }
+
+    function updateClock() {
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      document.getElementById('timer-display').textContent = 
+        `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      document.getElementById('session-badge').textContent = 'ACTIVE';
+      document.getElementById('session-badge').className = 'text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800';
+      document.getElementById('btn-start').classList.add('hidden');
+      document.getElementById('btn-pause').classList.remove('hidden');
+      document.getElementById('btn-complete').classList.remove('hidden');
+      
+      timerId = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateClock();
+        } else {
+          completeTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (!isRunning) return;
+      isRunning = false;
+      clearInterval(timerId);
+      document.getElementById('session-badge').textContent = 'PAUSED';
+      document.getElementById('session-badge').className = 'text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-950 text-amber-300 border border-amber-800';
+      document.getElementById('btn-pause').innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Resume';
+      document.getElementById('btn-pause').onclick = resumeTimer;
+      lucide.createIcons();
+    }
+
+    function resumeTimer() {
+      document.getElementById('btn-pause').innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
+      document.getElementById('btn-pause').onclick = pauseTimer;
+      lucide.createIcons();
+      startTimer();
+    }
+
+    function completeTimer() {
+      clearInterval(timerId);
+      isRunning = false;
+      totalStudied += currentDurationMins;
+      document.getElementById('stat-minutes').textContent = `${totalStudied}m`;
+      document.getElementById('session-badge').textContent = 'COMPLETED';
+      document.getElementById('session-badge').className = 'text-xs font-bold px-2.5 py-1 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-800';
+
+      totalSeconds = currentDurationMins * 60;
+      updateClock();
+
+      document.getElementById('btn-start').classList.remove('hidden');
+      document.getElementById('btn-pause').classList.add('hidden');
+      document.getElementById('btn-complete').classList.add('hidden');
+
+      alert(`🎉 Session Completed!\n+${currentDurationMins} minutes added to your focus stats.\nCourse: ${document.getElementById('subject-select').value}`);
+    }
+
+    function startSpecificSession(subject, mins) {
+      document.getElementById('subject-select').value = subject;
+      setDuration(mins);
+      startTimer();
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    // AUTO-SAVING NOTES LOGIC
+    const notesArea = document.getElementById('notes-area');
+    const saveStatus = document.getElementById('save-status');
+
+    if (localStorage.getItem('flux_notes')) {
+      notesArea.value = localStorage.getItem('flux_notes');
+    }
+
+    function saveNotes() {
+      localStorage.setItem('flux_notes', notesArea.value);
+      saveStatus.textContent = 'Saved';
+    }
+
+    function clearNotes() {
+      if (confirm('Clear scratchpad notes?')) {
+        notesArea.value = '';
+        localStorage.removeItem('flux_notes');
+        saveStatus.textContent = 'Cleared';
+      }
+    }
+  </script>
+</body>
+</html>
