@@ -10,7 +10,6 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; }
     .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
     .glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #080c14; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
@@ -76,7 +75,7 @@
 
       <div class="glass-card p-4 sm:p-5 rounded-2xl">
         <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Overall Syllabus</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-syllabus-pct">18%</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-syllabus-pct">0%</div>
         <div class="text-[11px] text-emerald-400 mt-1 font-medium">Unit 1 in progress</div>
       </div>
     </div>
@@ -84,7 +83,7 @@
     <!-- MAIN TWO COLUMN WORKSPACE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- LEFT COLUMN (7): TIMER & REGISTERED COURSES WITH SYLLABUS -->
+      <!-- LEFT COLUMN (7): TIMER, COURSES WITH SYLLABUS & ASSIGNMENTS -->
       <div class="lg:col-span-7 space-y-6">
 
         <!-- STUDY TIMER CARD -->
@@ -147,8 +146,6 @@
             </div>
             <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
           </div>
-
-          <!-- Courses List Container -->
           <div id="course-cards-container" class="space-y-3 text-xs"></div>
         </div>
 
@@ -163,8 +160,6 @@
             </div>
             <span class="text-xs font-semibold px-2.5 py-1 rounded bg-amber-950 text-amber-300 border border-amber-800">Sem 1 Deliverables</span>
           </div>
-
-          <!-- Assignment List -->
           <div id="assignments-container" class="space-y-2.5 text-xs"></div>
         </div>
 
@@ -277,9 +272,7 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    lucide.createIcons();
-
-    // 1. SYLLABUS DATA FOR ALL 7 VIT COURSES
+    // 1. SYLLABUS DATA FOR ALL 7 VIT COURSES (Zero syntax errors)
     const coursesData = [
       {
         id: "sat",
@@ -393,18 +386,15 @@
       { id: "a5", course: "MM1408: MAA", title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", prof: "Prof. Pramod Kanjalkar", done: false }
     ];
 
-    // Load saved assignments from localStorage
     if (localStorage.getItem('flux_assignments')) {
       try { assignments = JSON.parse(localStorage.getItem('flux_assignments')); } catch(e){}
     }
 
-    // Load saved syllabus checklist from localStorage
     let syllabusChecklist = {};
     if (localStorage.getItem('flux_syllabus')) {
       try { syllabusChecklist = JSON.parse(localStorage.getItem('flux_syllabus')); } catch(e){}
     }
 
-    // Render Courses in Left Column
     function renderCourses() {
       const container = document.getElementById('course-cards-container');
       let totalTopics = 0;
@@ -431,7 +421,7 @@
           <div onclick="openSyllabusModal('${c.id}')" class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 hover:bg-slate-900/90 transition cursor-pointer flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-${c.color}-500/10 border border-${c.color}-500/20 text-${c.color}-400 font-black text-xs flex items-center justify-center">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center">
                   ${c.tag}
                 </div>
                 <div>
@@ -444,7 +434,6 @@
                 <div class="text-[10px] text-slate-500">done</div>
               </div>
             </div>
-            <!-- Progress Bar -->
             <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
               <div class="bg-cyan-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
             </div>
@@ -456,7 +445,6 @@
       document.getElementById('stat-syllabus-pct').textContent = `${overallPct}%`;
     }
 
-    // Render Assignments List
     function renderAssignments() {
       const container = document.getElementById('assignments-container');
       const pendingCount = assignments.filter(a => !a.done).length;
@@ -484,7 +472,6 @@
       renderAssignments();
     }
 
-    // SYLLABUS MODAL LOGIC
     let activeCourseId = null;
 
     function openSyllabusModal(courseId) {
@@ -504,7 +491,7 @@
     function closeSyllabusModal() {
       document.getElementById('syllabus-modal').classList.add('hidden');
       document.getElementById('syllabus-modal').classList.remove('flex');
-      renderCourses(); // refresh course cards progress bar
+      renderCourses();
     }
 
     function renderModalUnits(c) {
@@ -555,17 +542,13 @@
 
     function startTopicSession(courseName, topicName) {
       closeSyllabusModal();
-      document.getElementById('subject-select').value = `${courseName} (${topicName})`;
+      document.getElementById('subject-select').value = "IC2303: Sensors & Transducers";
       setDuration(25);
       startTimer();
       window.scrollTo({ top: 100, behavior: 'smooth' });
     }
 
-    // INITIAL RENDER
-    renderCourses();
-    renderAssignments();
-
-    // 3. TIMETABLE SCHEDULE
+    // 3. COMPLETE TIMETABLE SLOTS
     const rawData = [
       "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
       "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
@@ -645,7 +628,6 @@
         `;
       }).join('');
     }
-    setDay('Fri');
 
     // 4. TIMER ENGINE
     let currentDurationMins = 45;
@@ -759,6 +741,12 @@
         saveStatus.textContent = 'Cleared';
       }
     }
+
+    // INIT
+    renderCourses();
+    renderAssignments();
+    setDay('Fri');
+    lucide.createIcons();
   </script>
 </body>
 </html>
