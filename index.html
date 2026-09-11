@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#080c14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>FLUX ONE | SY IC-SEDA VIT Pune</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; -webkit-tap-highlight-color: transparent; }
     .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
     .glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -74,16 +77,16 @@
       </div>
 
       <div class="glass-card p-4 sm:p-5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Overall Syllabus</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-syllabus-pct">0%</div>
-        <div class="text-[11px] text-emerald-400 mt-1 font-medium">Unit 1 in progress</div>
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Academic Brain</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-brain-score">94%</div>
+        <div class="text-[11px] text-emerald-400 mt-1 font-medium">Consistency: High</div>
       </div>
     </div>
 
     <!-- MAIN TWO COLUMN WORKSPACE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- LEFT COLUMN (7): TIMER & COURSES -->
+      <!-- LEFT COLUMN (7): TIMER, COURSES WITH SYLLABUS & QUIZZES -->
       <div class="lg:col-span-7 space-y-6">
 
         <!-- STUDY TIMER CARD -->
@@ -135,14 +138,14 @@
           </div>
         </div>
 
-        <!-- 7 VIT REGISTERED COURSES -->
+        <!-- 7 VIT COURSES WITH QUICK QUIZ BUTTONS -->
         <div class="glass-card p-6 rounded-3xl">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i> Course Syllabus & Progress
+                <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i> Course Syllabus & Diagnostic Quizzes
               </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Click any course to inspect Unit topics and tick progress</p>
+              <p class="text-xs text-slate-400 mt-0.5">Click syllabus or test your knowledge with instant quizzes</p>
             </div>
             <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
           </div>
@@ -228,9 +231,14 @@
           <p class="text-xs text-slate-300 leading-relaxed mb-3">
             "Prof. Seema Mashalkar covers linear range calibration in SAT. Review LVDT and capacitive sensor formulas for 25 minutes to stay ahead in your lab practical."
           </p>
-          <button onclick="startSpecificSession('IC2303: Sensors & Transducers', 25)" class="w-full py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
-            <i data-lucide="play" class="w-3.5 h-3.5"></i> Launch 25m Sensors Revision
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="startSpecificSession('IC2303: Sensors & Transducers', 25)" class="flex-1 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> Revise 25m
+            </button>
+            <button onclick="launchQuiz('sat')" class="px-3 py-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/40 text-cyan-300 font-bold text-xs transition flex items-center gap-1">
+              <i data-lucide="target" class="w-3.5 h-3.5"></i> Quick Quiz
+            </button>
+          </div>
         </div>
 
       </div>
@@ -260,7 +268,9 @@
       <div id="modal-units-list" class="space-y-4 py-4 overflow-y-auto flex-1 text-xs"></div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-        <span class="text-[11px] text-slate-500">Progress saved locally in browser</span>
+        <button id="modal-quiz-btn" onclick="" class="px-4 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center gap-1.5">
+          <i data-lucide="target" class="w-3.5 h-3.5"></i> Launch Practice Quiz
+        </button>
         <button onclick="closeSyllabusModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
           Done
         </button>
@@ -268,7 +278,66 @@
     </div>
   </div>
 
+  <!-- INTERACTIVE QUIZ MODAL -->
+  <div id="quiz-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-indigo-500/40 w-full max-w-xl rounded-3xl shadow-2xl p-6 relative flex flex-col">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-800">
+        <div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 uppercase tracking-wider">
+            Diagnostic Knowledge Check
+          </span>
+          <h3 id="quiz-course-title" class="text-base font-bold text-white mt-1">Sensors & Transducers Quiz</h3>
+        </div>
+        <button onclick="closeQuizModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Question Counter & Progress Bar -->
+      <div class="py-3">
+        <div class="flex justify-between items-center text-xs text-slate-400 mb-1.5">
+          <span id="quiz-counter">Question 1 of 3</span>
+          <span id="quiz-score-live" class="text-cyan-400 font-semibold">Score: 0</span>
+        </div>
+        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="quiz-progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1.5 rounded-full transition-all duration-300" style="width: 33%"></div>
+        </div>
+      </div>
+
+      <!-- Question Area -->
+      <div id="quiz-question-box" class="py-3">
+        <h4 id="quiz-question-text" class="text-sm font-bold text-white leading-relaxed mb-4">
+          In an LVDT, what is the output voltage at the null position?
+        </h4>
+        <div id="quiz-options-container" class="space-y-2 text-xs"></div>
+        <div id="quiz-explanation-box" class="hidden mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed"></div>
+      </div>
+
+      <!-- Completion Screen -->
+      <div id="quiz-result-box" class="hidden py-6 text-center space-y-3">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black">
+          🎯
+        </div>
+        <h4 class="text-lg font-bold text-white">Quiz Completed!</h4>
+        <p id="quiz-result-summary" class="text-xs text-slate-300">You scored 3/3 (100%). Great mastery of this topic!</p>
+        <div class="text-xs text-cyan-400 font-semibold py-1">+5% Consistency added to Academic Brain</div>
+        <button onclick="closeQuizModal()" class="mt-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
+          Back to Dashboard
+        </button>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div id="quiz-footer" class="pt-3 border-t border-slate-800 flex justify-between items-center">
+        <button onclick="closeQuizModal()" class="text-xs text-slate-400 hover:text-slate-200">Exit Quiz</button>
+        <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
+          Next Question →
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // 1. COURSES DATA
     const coursesData = [
       {
         id: "sat",
@@ -373,6 +442,36 @@
       }
     ];
 
+    // 2. QUIZ BANK
+    const quizBank = {
+      sat: [
+        { q: "In an LVDT, what is the output voltage at the null (center) position theoretically?", options: ["Maximum AC voltage", "Zero volts", "Pure DC offset voltage", "Equal to excitation voltage"], ans: 1, exp: "At the null position, the secondary voltages are identical in amplitude but 180° out of phase, canceling each other out to zero." },
+        { q: "Which transducer operates on the piezoelectric effect for dynamic pressure & vibration?", options: ["Quartz / PZT Crystal", "Copper Wire", "Silicon Thermistor", "Nichrome Coil"], ans: 0, exp: "PZT (Lead Zirconate Titanate) generates an electric potential across its crystal lattice when mechanically compressed." },
+        { q: "What is the nominal resistance of a standard PT100 RTD at 0°C?", options: ["0 Ohms", "50 Ohms", "100 Ohms", "1000 Ohms"], ans: 2, exp: "PT100 stands for Platinum resistance sensor with exactly 100 Ω nominal resistance at 0°C." }
+      ],
+      ds: [
+        { q: "In Pandas, what is the key difference between .loc[] and .iloc[]?", options: [".loc is label-based, .iloc is integer position-based", ".loc is for columns only", ".iloc is deprecated", "There is no functional difference"], ans: 0, exp: ".loc references index names or column labels, while .iloc strictly indexes by 0-based integer positions." },
+        { q: "Which Pandas function is used to discard rows containing NaN values?", options: ["df.clean()", "df.dropna()", "df.remove_nan()", "df.discard()"], ans: 1, exp: "df.dropna() removes rows or columns containing missing or null values." }
+      ],
+      maa: [
+        { q: "What is the register bit width of the DPTR (Data Pointer) in an 8051?", options: ["8-bit", "16-bit", "32-bit", "4-bit"], ans: 1, exp: "DPTR is a 16-bit register composed of DPH and DPL, capable of pointing to 64KB external memory." },
+        { q: "Which 8051 port has open-drain outputs requiring external pull-up resistors?", options: ["Port 0", "Port 1", "Port 2", "Port 3"], ans: 0, exp: "Port 0 lacks internal pull-ups and requires external 10kΩ pull-up resistors for normal I/O operation." }
+      ],
+      oop: [
+        { q: "How is dynamic (runtime) polymorphism implemented in C++?", options: ["Using virtual functions & base pointers", "Using function templates", "Using function overloading", "Using friend functions"], ans: 0, exp: "Virtual functions enable runtime dispatch through the vtable when accessed via base class pointers or references." }
+      ],
+      dbms: [
+        { q: "A relational table is in 2nd Normal Form (2NF) if it is in 1NF and eliminates:", options: ["Transitive dependencies", "Partial functional dependencies on candidate keys", "Foreign keys", "Null values"], ans: 1, exp: "2NF requires that every non-prime attribute depends fully on the whole candidate key, not just a subset." }
+      ],
+      raad: [
+        { q: "If A can complete a job in 10 days and B in 15 days, working together they finish in:", options: ["5 days", "6 days", "8 days", "12.5 days"], ans: 1, exp: "1/10 + 1/15 = 5/30 = 1/6 job/day. Total time required is 6 days." }
+      ],
+      dt: [
+        { q: "What is the primary objective of the 'Empathize' stage in Design Thinking?", options: ["Build working prototypes", "Understand user pain points through observation & interviews", "Pitch to investors", "Optimize unit economics"], ans: 1, exp: "Empathize focuses on deep user observation and immersion to uncover unmet needs before jumping to solutions." }
+      ]
+    };
+
+    // 3. DELIVERABLES & ASSIGNMENTS LIST
     let assignments = [
       { id: "a1", course: "IC2303: SAT", title: "LVDT Calibration Experiment Report", due: "Next Monday", prof: "Prof. Seema Mashalkar", done: false },
       { id: "a2", course: "IC2301: DS", title: "Pandas Data Cleaning on Sensor Dataset", due: "Sep 18, 2026", prof: "Prof. Rajesh Pashikanti", done: false },
@@ -381,36 +480,9 @@
       { id: "a5", course: "MM1408: MAA", title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", prof: "Prof. Pramod Kanjalkar", done: false }
     ];
 
-    const rawData = [
-      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
-      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
-      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2",
-      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2",
-      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1",
-      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3",
-      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1",
-      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1",
-      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2",
-      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL",
-      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL",
-      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
-      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3",
-      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL",
-      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2",
-      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B5",
-      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3",
-      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1",
-      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B4",
-      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
-      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
-      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1",
-      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL",
-      "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL",
-      "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
-      "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
-      "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2",
-      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3"
-    ];
+    if (localStorage.getItem('flux_assignments')) {
+      try { assignments = JSON.parse(localStorage.getItem('flux_assignments')); } catch(e){}
+    }
 
     let syllabusChecklist = {};
     if (localStorage.getItem('flux_syllabus')) {
@@ -419,30 +491,23 @@
 
     function renderCourses() {
       const container = document.getElementById('course-cards-container');
-      let totalTopics = 0;
-      let completedTopics = 0;
-
       container.innerHTML = coursesData.map(c => {
         let courseTopics = 0;
         let courseDone = 0;
         c.units.forEach((u, uidx) => {
           u.topics.forEach((t, tidx) => {
-            totalTopics++;
             courseTopics++;
             const key = `${c.id}_u${uidx}_t${tidx}`;
-            if (syllabusChecklist[key]) {
-              completedTopics++;
-              courseDone++;
-            }
+            if (syllabusChecklist[key]) courseDone++;
           });
         });
 
         const pct = courseTopics > 0 ? Math.round((courseDone / courseTopics) * 100) : 0;
 
         return `
-          <div onclick="openSyllabusModal('${c.id}')" class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 hover:bg-slate-900/90 transition cursor-pointer flex flex-col gap-2">
+          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 hover:bg-slate-900/90 transition flex flex-col gap-2.5">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
+              <div onclick="openSyllabusModal('${c.id}')" class="flex items-center gap-3 cursor-pointer flex-1">
                 <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center">
                   ${c.tag}
                 </div>
@@ -451,20 +516,22 @@
                   <div class="text-slate-400 text-[11px] mt-0.5">Faculty: <strong class="text-slate-300">${c.faculty}</strong></div>
                 </div>
               </div>
-              <div class="text-right">
-                <span class="text-xs font-bold text-cyan-400">${pct}%</span>
-                <div class="text-[10px] text-slate-500">done</div>
+              <div class="flex items-center gap-2">
+                <button onclick="launchQuiz('${c.id}')" class="px-2.5 py-1 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/45 border border-indigo-500/40 text-indigo-300 text-[11px] font-bold flex items-center gap-1 transition">
+                  <i data-lucide="target" class="w-3 h-3"></i> Quiz
+                </button>
+                <div onclick="openSyllabusModal('${c.id}')" class="text-right cursor-pointer pl-1">
+                  <span class="text-xs font-bold text-cyan-400">${pct}%</span>
+                  <div class="text-[10px] text-slate-500">done</div>
+                </div>
               </div>
             </div>
-            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div onclick="openSyllabusModal('${c.id}')" class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden cursor-pointer">
               <div class="bg-cyan-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
             </div>
           </div>
         `;
       }).join('');
-
-      const overallPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-      document.getElementById('stat-syllabus-pct').textContent = `${overallPct}%`;
     }
 
     function renderAssignments() {
@@ -494,6 +561,7 @@
       renderAssignments();
     }
 
+    // SYLLABUS MODAL
     let activeCourseId = null;
 
     function openSyllabusModal(courseId) {
@@ -504,10 +572,12 @@
       document.getElementById('modal-code').textContent = c.code;
       document.getElementById('modal-title').textContent = c.name;
       document.getElementById('modal-faculty').textContent = `Faculty: ${c.faculty}`;
+      document.getElementById('modal-quiz-btn').onclick = () => { closeSyllabusModal(); launchQuiz(c.id); };
 
       renderModalUnits(c);
       document.getElementById('syllabus-modal').classList.remove('hidden');
       document.getElementById('syllabus-modal').classList.add('flex');
+      lucide.createIcons();
     }
 
     function closeSyllabusModal() {
@@ -570,6 +640,136 @@
       window.scrollTo({ top: 100, behavior: 'smooth' });
     }
 
+    // 4. QUIZ ENGINE
+    let activeQuizCourse = null;
+    let quizQuestions = [];
+    let currentQuestionIdx = 0;
+    let quizScore = 0;
+    let selectedOption = null;
+
+    function launchQuiz(courseId) {
+      activeQuizCourse = courseId;
+      const c = coursesData.find(x => x.id === courseId);
+      quizQuestions = quizBank[courseId] || [];
+      if (quizQuestions.length === 0) {
+        alert("Practice quiz for this subject will be generated shortly.");
+        return;
+      }
+
+      currentQuestionIdx = 0;
+      quizScore = 0;
+      selectedOption = null;
+
+      document.getElementById('quiz-course-title').textContent = `${c ? c.name : 'Course'} Quiz`;
+      document.getElementById('quiz-modal').classList.remove('hidden');
+      document.getElementById('quiz-modal').classList.add('flex');
+      document.getElementById('quiz-result-box').classList.add('hidden');
+      document.getElementById('quiz-question-box').classList.remove('hidden');
+      document.getElementById('quiz-footer').classList.remove('hidden');
+
+      renderQuizQuestion();
+    }
+
+    function closeQuizModal() {
+      document.getElementById('quiz-modal').classList.add('hidden');
+      document.getElementById('quiz-modal').classList.remove('flex');
+    }
+
+    function renderQuizQuestion() {
+      const q = quizQuestions[currentQuestionIdx];
+      document.getElementById('quiz-counter').textContent = `Question ${currentQuestionIdx + 1} of ${quizQuestions.length}`;
+      document.getElementById('quiz-score-live').textContent = `Score: ${quizScore}`;
+      document.getElementById('quiz-progress-bar').style.width = `${((currentQuestionIdx + 1) / quizQuestions.length) * 100}%`;
+      document.getElementById('quiz-question-text').textContent = q.q;
+
+      document.getElementById('quiz-explanation-box').classList.add('hidden');
+      document.getElementById('quiz-next-btn').classList.add('hidden');
+      selectedOption = null;
+
+      const optsContainer = document.getElementById('quiz-options-container');
+      optsContainer.innerHTML = q.options.map((opt, idx) => `
+        <button onclick="handleOptionSelect(${idx})" id="quiz-opt-${idx}" class="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 transition font-medium flex items-center justify-between">
+          <span>${opt}</span>
+          <span id="quiz-opt-icon-${idx}"></span>
+        </button>
+      `).join('');
+    }
+
+    function handleOptionSelect(idx) {
+      if (selectedOption !== null) return;
+      selectedOption = idx;
+
+      const q = quizQuestions[currentQuestionIdx];
+      const isCorrect = (idx === q.ans);
+
+      if (isCorrect) {
+        quizScore++;
+        document.getElementById(`quiz-opt-${idx}`).className = "w-full text-left p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold flex items-center justify-between";
+        document.getElementById(`quiz-opt-icon-${idx}`).innerHTML = "✓";
+      } else {
+        document.getElementById(`quiz-opt-${idx}`).className = "w-full text-left p-3 rounded-xl bg-rose-950 border border-rose-500 text-rose-200 font-bold flex items-center justify-between";
+        document.getElementById(`quiz-opt-icon-${idx}`).innerHTML = "✕";
+        document.getElementById(`quiz-opt-${q.ans}`).className = "w-full text-left p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold flex items-center justify-between";
+      }
+
+      document.getElementById('quiz-score-live').textContent = `Score: ${quizScore}`;
+      
+      const expBox = document.getElementById('quiz-explanation-box');
+      expBox.innerHTML = `<strong>${isCorrect ? 'Correct!' : 'Key Takeaway:'}</strong> ${q.exp}`;
+      expBox.classList.remove('hidden');
+
+      document.getElementById('quiz-next-btn').classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIdx < quizQuestions.length - 1) {
+        currentQuestionIdx++;
+        renderQuizQuestion();
+      } else {
+        document.getElementById('quiz-question-box').classList.add('hidden');
+        document.getElementById('quiz-next-btn').classList.add('hidden');
+        document.getElementById('quiz-result-box').classList.remove('hidden');
+        document.getElementById('quiz-result-summary').textContent = 
+          `You scored ${quizScore} out of ${quizQuestions.length} (${Math.round((quizScore / quizQuestions.length) * 100)}%).`;
+        
+        let brainVal = parseInt(document.getElementById('stat-brain-score').textContent) || 94;
+        brainVal = Math.min(100, brainVal + 2);
+        document.getElementById('stat-brain-score').textContent = `${brainVal}%`;
+      }
+    }
+
+    // 5. TIMETABLE SCHEDULE
+    const rawData = [
+      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
+      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
+      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2",
+      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1",
+      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3",
+      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1",
+      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1",
+      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2",
+      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL",
+      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL",
+      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
+      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3",
+      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL",
+      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2",
+      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B5",
+      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3",
+      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1",
+      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B4",
+      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
+      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
+      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1",
+      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL",
+      "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL",
+      "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
+      "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
+      "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2",
+      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3"
+    ];
+
     let currentDay = 'Fri';
 
     function setDay(d) {
@@ -619,6 +819,7 @@
       }).join('');
     }
 
+    // 6. TIMER ENGINE
     let currentDurationMins = 45;
     let totalSeconds = currentDurationMins * 60;
     let timerId = null;
@@ -710,6 +911,7 @@
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
 
+    // 7. NOTES LOGIC
     const notesArea = document.getElementById('notes-area');
     const saveStatus = document.getElementById('save-status');
 
@@ -730,7 +932,7 @@
       }
     }
 
-    // INIT
+    // INITIALIZATION
     renderCourses();
     renderAssignments();
     setDay('Fri');
