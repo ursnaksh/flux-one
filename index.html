@@ -1206,30 +1206,38 @@
       }
     }
 
-    function saveCompletedStudySession() {
+   async function saveCompletedStudySession() {
       const topicSelect = document.getElementById('study-topic-select');
       const fullTopicText = topicSelect.options[topicSelect.selectedIndex]?.text || "Study Session";
       const courseId = document.getElementById('study-course-select').value;
       const c = coursesData.find(x => x.id === courseId);
       const reflection = document.getElementById('refl-text-input').value.trim();
 
-      const newSession = {
-        course: c ? c.name : "Course",
+      const sessionPayload = {
+        user_name: "Nagesh Shinde",
+        course_code: c ? `${c.code}: ${c.name}` : "Course",
         topic: fullTopicText,
-        duration: activeDurationMins,
+        duration_minutes: activeDurationMins,
         rating: activeStudyRating,
-        reflection: reflection || "Completed structured study session.",
-        time: "Just now"
+        reflection: reflection || "Completed structured study session."
       };
 
-      studySessions.unshift(newSession);
-      localStorage.setItem('flux_sessions', JSON.stringify(studySessions));
+      // Save directly to your FastAPI SQLite backend:
+      await fluxApi.saveSession(sessionPayload);
+
+      studySessions.unshift({
+        course: sessionPayload.course_code,
+        topic: sessionPayload.topic,
+        duration: sessionPayload.duration_minutes,
+        rating: sessionPayload.rating,
+        reflection: sessionPayload.reflection,
+        time: "Just now"
+      });
 
       closeSessionReflection();
       renderStudyHistory();
       renderDashboard();
     }
-
     function resetStudyTimer() {
       clearInterval(studyTimerInterval);
       isStudyActive = false;
@@ -1327,13 +1335,27 @@
       }).join('');
       lucide.createIcons();
     }
+    // Sync live data from backend on startup
+(async function loadLiveData() {
+  const overview = await fluxApi.getDashboard();
+  if (overview && overview.stats) {
+    document.getElementById('dash-focus-mins').textContent = `${overview.stats.total_study_minutes}m`;
+    document.getElementById('dash-brain-pct').textContent = `${overview.stats.academic_brain_score}%`;
+  }
+})();
 
-    function toggleAssignment(id) {
-      assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
-      localStorage.setItem('flux_assignments', JSON.stringify(assignments));
-      renderAssignmentsFull();
-      renderDashboard();
-    }
+    async function toggleAssignment(id) {
+  assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
+  
+  // If the assignment is an integer ID from SQLite, sync to backend:
+  const numericId = parseInt(id.replace(/\D/g, ''));
+  if (numericId) {
+    await fluxApi.toggleAssignment(numericId);
+  }
+
+  renderAssignmentsFull();
+  renderDashboard();
+}
 
     // 7. CONNECTED NOTES
     function renderNotes() {
@@ -1399,28 +1421,36 @@
       topicSelect.innerHTML = opts.join('');
     }
 
-    function saveNewNote() {
-      const courseId = document.getElementById('modal-note-course').value;
-      const topic = document.getElementById('modal-note-topic').value;
-      const title = document.getElementById('modal-note-title').value.trim() || "Untitled Note";
-      const content = document.getElementById('modal-note-content').value.trim();
+   async function saveNewNote() {
+  const courseId = document.getElementById('modal-note-course').value;
+  const topic = document.getElementById('modal-note-topic').value;
+  const title = document.getElementById('modal-note-title').value.trim() || "Untitled Note";
+  const content = document.getElementById('modal-note-content').value.trim();
 
-      const newNote = {
-        id: 'n_' + Date.now(),
-        courseId,
-        topic,
-        title,
-        content,
-        date: "Today"
-      };
+  const c = coursesData.find(x => x.id === courseId);
 
-      notesList.unshift(newNote);
-      localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
+  const notePayload = {
+    course_code: c ? c.name : courseId,
+    topic: topic,
+    title: title,
+    content: content
+  };
 
-      closeNewNoteModal();
-      renderNotes();
-    }
+  // Save to SQLite database
+  await fluxApi.createNote(notePayload);
 
+  notesList.unshift({
+    id: 'n_' + Date.now(),
+    courseId,
+    topic,
+    title,
+    content,
+    date: "Today"
+  });
+
+  closeNewNoteModal();
+  renderNotes();
+}
     function deleteNote(id) {
       if (confirm('Delete this note?')) {
         notesList = notesList.filter(n => n.id !== id);
@@ -1606,6 +1636,82 @@
     setTimetableDay('Fri');
     renderAcademicBrain();
     lucide.createIcons();
+    // Set your API URL (localhost for local dev, or your tunnel/cloud URL later)
+const API_BASE = "http://127.0.0.1:8000";
+
+const fluxApi = {
+  // 1. Dashboard Stats
+  async getDashboard() {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/dashboard/overview`);
+      return await res.json();
+    } catch (e) {
+      console.warn("Backend offline, falling back to local data", e);
+      return null;
+    }
+  },
+
+  // 2. Complete Study Session
+  async saveSession(sessionData) {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/sessions/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(sessionData)
+      });
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to save session to backend", e);
+    }
+  },
+
+  // 3. Assignments
+  async getAssignments() {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/assignments`);
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  },
+
+  async toggleAssignment(id) {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/assignments/${id}/toggle`, {
+        method: "PATCH"
+      });
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to toggle assignment", e);
+    }
+  },
+
+  // 4. Notes
+  async getNotes(courseCode = null) {
+    try {
+      const url = courseCode 
+        ? `${API_BASE}/api/v1/notes?course_code=${encodeURIComponent(courseCode)}` 
+        : `${API_BASE}/api/v1/notes`;
+      const res = await fetch(url);
+      return await res.json();
+    } catch (e) {
+      return null;
+    }
+  },
+
+  async createNote(noteData) {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(noteData)
+      });
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to create note", e);
+    }
+  }
+};
   </script>
 </body>
 </html>
