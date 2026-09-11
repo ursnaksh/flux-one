@@ -13,154 +13,221 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; -webkit-tap-highlight-color: transparent; }
     .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
     .glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #080c14; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-    .nav-active { color: #38bdf8; background: rgba(14, 165, 233, 0.12); border-color: rgba(56, 189, 248, 0.3); font-weight: 700; }
+    .nav-btn-active { color: #38bdf8; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen pb-24 md:pb-12">
+<body class="text-slate-100 min-h-screen flex bg-[#080c14]">
 
-  <!-- TOP APP BAR -->
-  <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-[#080c14]/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+  <!-- ==================== DESKTOP SIDEBAR ==================== -->
+  <aside class="hidden md:flex flex-col w-64 border-r border-slate-800/80 bg-[#080c14]/95 fixed inset-y-0 z-40 p-4 justify-between">
+    <div class="space-y-6">
+      <!-- App Brand -->
+      <div class="flex items-center gap-3 px-2">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-cyan-500/20">
           ⚡
         </div>
         <div>
           <div class="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
-            FLUX ONE <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">OS v2</span>
+            FLUX ONE
           </div>
-          <div class="text-[10px] uppercase font-bold tracking-widest text-cyan-400">Student Companion OS</div>
+          <div class="text-[9px] uppercase font-bold tracking-widest text-cyan-400">Student Companion OS</div>
         </div>
       </div>
 
-      <!-- DESKTOP NAV TABS -->
-      <nav class="hidden md:flex items-center gap-1 bg-slate-950/80 p-1 rounded-2xl border border-slate-800 text-xs">
-        <button onclick="switchView('dashboard')" id="dtab-dashboard" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5 nav-active">
-          <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Dashboard
+      <!-- Navigation Links -->
+      <nav class="space-y-1 text-xs">
+        <button onclick="switchView('dashboard')" id="snav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition nav-btn-active">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-cyan-400"></i>
+          <span>Dashboard</span>
         </button>
-        <button onclick="switchView('timetable')" id="dtab-timetable" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5">
-          <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Timetable
+        <button onclick="switchView('subjects')" id="snav-subjects" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">
+          <i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i>
+          <span>Subjects (7)</span>
         </button>
-        <button onclick="switchView('study')" id="dtab-study" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5">
-          <i data-lucide="timer" class="w-3.5 h-3.5"></i> Study Engine
+        <button onclick="switchView('study')" id="snav-study" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">
+          <i data-lucide="timer" class="w-4 h-4 text-emerald-400"></i>
+          <span>Study Engine</span>
         </button>
-        <button onclick="switchView('brain')" id="dtab-brain" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5">
-          <i data-lucide="brain" class="w-3.5 h-3.5"></i> Academic Brain
+        <button onclick="switchView('assignments')" id="snav-assignments" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">
+          <i data-lucide="check-square" class="w-4 h-4 text-amber-400"></i>
+          <span>Assignments</span>
+          <span id="side-pending-badge" class="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 font-bold border border-amber-800">3</span>
         </button>
-        <button onclick="switchView('courses')" id="dtab-courses" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5">
-          <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Syllabus
+        <button onclick="switchView('notes')" id="snav-notes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">
+          <i data-lucide="pen-tool" class="w-4 h-4 text-rose-400"></i>
+          <span>Academic Notes</span>
         </button>
-        <button onclick="switchView('assignments')" id="dtab-assignments" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5">
-          <i data-lucide="check-square" class="w-3.5 h-3.5"></i> Tasks
+        <button onclick="switchView('timetable')" id="snav-timetable" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">
+          <i data-lucide="calendar" class="w-4 h-4 text-blue-400"></i>
+          <span>Timetable</span>
         </button>
-        <button onclick="switchView('notes')" id="dtab-notes" class="px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5">
-          <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i> Notes
+        <button onclick="switchView('brain')" id="snav-brain" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition">
+          <i data-lucide="brain" class="w-4 h-4 text-purple-400"></i>
+          <span>Academic Brain</span>
         </button>
       </nav>
+    </div>
 
-      <!-- USER PROFILE PILL -->
-      <div class="flex items-center gap-3">
-        <div class="text-right hidden sm:block">
-          <div class="text-sm font-bold text-white">Nagesh Shinde</div>
-          <div class="text-[11px] text-cyan-400">VIT Pune • SY IC-SEDA</div>
-        </div>
-        <div class="w-10 h-10 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-bold text-xs shadow-inner">
+    <!-- Student Profile Pill -->
+    <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center justify-center">
           NS
         </div>
+        <div class="overflow-hidden">
+          <div class="text-xs font-bold text-white truncate">Nagesh Shinde</div>
+          <div class="text-[10px] text-cyan-400 truncate">VIT Pune • SY IC</div>
+        </div>
       </div>
+      <button onclick="openCalendarModal()" title="Dean's Calendar" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white">
+        <i data-lucide="calendar-range" class="w-3.5 h-3.5"></i>
+      </button>
     </div>
-  </header>
+  </aside>
 
-  <!-- BOTTOM MOBILE NAVIGATION BAR -->
-  <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#080c14]/95 border-t border-slate-800/90 backdrop-blur-lg px-2 py-2 flex justify-around items-center text-[10px] font-semibold text-slate-400">
-    <button onclick="switchView('dashboard')" id="mtab-dashboard" class="flex flex-col items-center gap-1 py-1 px-2 text-cyan-400">
+  <!-- ==================== MOBILE BOTTOM NAV ==================== -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#080c14]/95 border-t border-slate-800/90 backdrop-blur-lg px-2 py-2 flex justify-around items-center text-[10px] font-semibold text-slate-400">
+    <button onclick="switchView('dashboard')" id="mnav-dashboard" class="flex flex-col items-center gap-1 py-1 px-2 text-cyan-400">
       <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-      <span>Home</span>
+      <span>Today</span>
     </button>
-    <button onclick="switchView('timetable')" id="mtab-timetable" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
+    <button onclick="switchView('timetable')" id="mnav-timetable" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
       <i data-lucide="calendar" class="w-4 h-4"></i>
-      <span>Schedule</span>
+      <span>Classes</span>
     </button>
-    <button onclick="switchView('study')" id="mtab-study" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
+    <button onclick="switchView('study')" id="mnav-study" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
       <i data-lucide="timer" class="w-4 h-4"></i>
       <span>Study</span>
     </button>
-    <button onclick="switchView('brain')" id="mtab-brain" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
-      <i data-lucide="brain" class="w-4 h-4"></i>
-      <span>Brain</span>
-    </button>
-    <button onclick="switchView('courses')" id="mtab-courses" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
+    <button onclick="switchView('subjects')" id="mnav-subjects" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
       <i data-lucide="book-open" class="w-4 h-4"></i>
       <span>Courses</span>
     </button>
-    <button onclick="switchView('assignments')" id="mtab-assignments" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
-      <i data-lucide="check-square" class="w-4 h-4"></i>
-      <span>Tasks</span>
+    <button onclick="switchView('brain')" id="mnav-brain" class="flex flex-col items-center gap-1 py-1 px-2 hover:text-slate-200">
+      <i data-lucide="brain" class="w-4 h-4"></i>
+      <span>Brain</span>
     </button>
   </div>
 
-  <!-- MAIN APP CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="flex-1 md:ml-64 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-28 md:pb-12 space-y-6">
 
-    <!-- ==================== VIEW 1: DASHBOARD ==================== -->
+    <!-- MOBILE TOP BAR -->
+    <header class="md:hidden flex items-center justify-between pb-3 border-b border-slate-800">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-sm">
+          ⚡
+        </div>
+        <div class="font-bold text-sm text-white">FLUX ONE</div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 font-mono border border-cyan-800">SY IC-SEDA</span>
+        <button onclick="openCalendarModal()" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==================== VIEW 1: COMMAND CENTER (DASHBOARD) ==================== -->
     <div id="view-dashboard" class="space-y-6">
 
-      <!-- SEMESTER RADAR -->
-      <div class="glass-card p-5 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/40 relative overflow-hidden">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div class="space-y-1.5 flex-1">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
-                Semester Radar
-              </span>
-              <span class="text-xs text-slate-300 font-semibold">AY 2026-27 • Semester 1 (SEDA)</span>
+      <!-- QUESTION 1: WHAT CAN I DO RIGHT NOW? (BIG ACTION HERO) -->
+      <div class="glass-card p-6 sm:p-7 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/40 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div class="space-y-2 max-w-xl">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
+              Academic Command Center
+            </span>
+            <span class="text-xs text-slate-400 font-medium">Friday • Sep 11, 2026</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Ready for your next focus sprint, Nagesh?
+          </h1>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Week 3 of 16 • <strong>45 days until Mid-Sem Exams</strong> (Oct 26). 
+            Next class is at 12:00 PM (DBMS). You have a 45-minute study window right now.
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <button onclick="startQuickStudy('sat', 0, 0, 35)" class="px-7 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-extrabold text-sm shadow-xl shadow-cyan-500/20 transition flex items-center justify-center gap-2.5">
+            <i data-lucide="play" class="w-5 h-5 fill-white"></i>
+            <span>START STUDY SESSION (35m)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- QUESTION 2: WHAT SHOULD I STUDY? (FLUX INSIGHT INTELLIGENCE) -->
+      <div class="glass-card p-5 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/25 via-slate-900 to-indigo-950/30">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>FLUX INSIGHT • Priority Study Recommendation</span>
             </div>
-            <h3 class="text-base font-extrabold text-white flex items-center gap-2">
-              <span>Week 3 of 16</span>
-              <span class="text-xs text-slate-400 font-normal">• 16% Semester Elapsed</span>
+            <h3 class="text-sm font-bold text-white">
+              You've studied Sensors 3 times this week, but Control Systems only once.
             </h3>
-            <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden max-w-xl">
-              <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" style="width: 16%"></div>
-            </div>
-            <div class="flex justify-between text-[10px] text-slate-400 max-w-xl pt-0.5">
-              <span>Commenced: Aug 24</span>
-              <span class="text-cyan-400 font-semibold">Mid-Sem: Oct 26</span>
-              <span>End-Sem: Dec 14</span>
-            </div>
+            <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
+              Recommended: <strong>Microcontrollers & Applications</strong> (8051 Timers & Mode-2 Simulation due Sep 28). Diagnostic test accuracy is 60%.
+            </p>
           </div>
-
-          <div class="flex items-center gap-3">
-            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-center min-w-[120px]">
-              <div class="text-[10px] text-slate-400 font-medium">Mid-Sem Exams</div>
-              <div class="text-xl font-black text-white mt-0.5 flex items-center justify-center gap-1">
-                <span>45</span> <span class="text-xs text-cyan-400 font-semibold">days</span>
-              </div>
-              <div class="text-[10px] text-emerald-400 font-medium">Oct 26 - 31</div>
-            </div>
-
-            <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-center min-w-[140px]">
-              <div class="text-[10px] text-amber-400 font-medium flex items-center justify-center gap-1">
-                <span>🪔</span> Next Holiday
-              </div>
-              <div class="text-xs font-bold text-white mt-1 truncate">Ganesh Chaturthi</div>
-              <div class="text-[10px] text-slate-400 font-medium">Monday, Sep 14</div>
-            </div>
-          </div>
-
-          <div>
-            <button onclick="openCalendarModal()" class="w-full lg:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-bold transition flex items-center justify-center gap-2">
-              <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Dean's Roadmap
+          <div class="flex items-center gap-2">
+            <button onclick="startQuickStudy('maa', 2, 0, 35)" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> Study 8051 (35m)
+            </button>
+            <button onclick="launchQuiz('maa')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition">
+              Diagnostic Quiz
             </button>
           </div>
         </div>
       </div>
 
-      <!-- KPI ROW -->
+      <!-- QUESTION 3: WHAT DO I HAVE TO DO? (TODAY'S SCHEDULE + URGENT TASKS) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- TODAY'S SCHEDULE -->
+        <div class="lg:col-span-7 glass-card p-6 rounded-3xl space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Today's Classes (Friday)
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Batch B2 Schedule</p>
+            </div>
+            <button onclick="switchView('timetable')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">
+              Full Timetable →
+            </button>
+          </div>
+
+          <div id="dash-schedule-list" class="space-y-2.5 text-xs"></div>
+        </div>
+
+        <!-- URGENT ASSIGNMENTS -->
+        <div class="lg:col-span-5 glass-card p-6 rounded-3xl space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400"></i> Upcoming Deliverables
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">Labs, proposals & reports</p>
+            </div>
+            <button onclick="switchView('assignments')" class="text-xs text-amber-400 hover:text-amber-300 font-bold">
+              View All Tasks →
+            </button>
+          </div>
+
+          <div id="dash-tasks-list" class="space-y-2.5 text-xs"></div>
+        </div>
+
+      </div>
+
+      <!-- MINI ACADEMIC BRAIN TELEMETRY PREVIEW -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div onclick="switchView('brain')" class="glass-card p-4 sm:p-5 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
+        <div onclick="switchView('brain')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Discipline Streak</div>
           <div class="text-2xl sm:text-3xl font-black text-white mt-1 flex items-center gap-1.5">
             <span>3</span> <span class="text-orange-500">🔥</span>
@@ -168,137 +235,182 @@
           <div class="text-[11px] text-emerald-400 mt-1 font-medium">● Active today</div>
         </div>
 
-        <div onclick="switchView('study')" class="glass-card p-4 sm:p-5 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
+        <div onclick="switchView('study')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Today's Focus</div>
-          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-minutes">45m</div>
+          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-focus-mins">45m</div>
           <div class="text-[11px] text-cyan-400 mt-1 font-medium">Target: 90m (50%)</div>
         </div>
 
-        <div onclick="switchView('assignments')" class="glass-card p-4 sm:p-5 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
-          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Assignments Due</div>
-          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-pending-tasks">3</div>
-          <div class="text-[11px] text-amber-400 mt-1 font-medium">Upcoming deliverables</div>
-        </div>
-
-        <div onclick="switchView('brain')" class="glass-card p-4 sm:p-5 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
+        <div onclick="switchView('brain')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Academic Brain</div>
-          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-brain-score">94%</div>
+          <div class="text-2xl sm:text-3xl font-black text-cyan-400 mt-1" id="dash-brain-pct">94%</div>
           <div class="text-[11px] text-emerald-400 mt-1 font-medium">Consistency: High</div>
         </div>
-      </div>
 
-      <!-- CONNECTED INTELLIGENCE: FLUX INSIGHT BANNER -->
-      <div class="glass-card p-5 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900 to-indigo-950/30">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-              <span>⚡ FLUX INSIGHT</span>
-              <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">Priority Nudge</span>
-            </div>
-            <h4 class="text-sm font-bold text-white">Your LVDT Experiment Report is due in 3 days</h4>
-            <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
-              You've studied <strong>LVDT Operating Principle</strong> for 25 mins, but diagnostic test accuracy on <em>Null Voltage & Demodulation</em> is 40%. Recommended: 30m revision on Phase-Sensitive Demodulation.
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="startSpecificSession('sat', 0, 0, 30)" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
-              <i data-lucide="play" class="w-4 h-4"></i> Study Topic (30m)
-            </button>
-            <button onclick="launchQuiz('sat')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition">
-              Test Quiz
-            </button>
-          </div>
+        <div onclick="switchView('subjects')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
+          <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Semester Coverage</div>
+          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-syllabus-cov">61%</div>
+          <div class="text-[11px] text-indigo-400 mt-1 font-medium">Across 7 IC subjects</div>
         </div>
       </div>
 
-      <!-- TWO COLUMN DASHBOARD PREVIEW -->
+    </div>
+
+    <!-- ==================== VIEW 2: SUBJECTS LIST & WORKSPACE ==================== -->
+    <div id="view-subjects" class="hidden space-y-6">
+      
+      <!-- SUBJECTS OVERVIEW -->
+      <div id="subjects-list-container">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="book-open" class="w-5 h-5 text-cyan-400"></i> Course Workspaces
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Click any subject to enter its complete academic workspace</p>
+          </div>
+          <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-cyan-300">7 Core Courses</span>
+        </div>
+        <div id="all-courses-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- DEDICATED INDIVIDUAL SUBJECT WORKSPACE -->
+      <div id="subject-workspace-container" class="hidden space-y-6">
+        <!-- Will be populated dynamically by openSubjectWorkspace() -->
+      </div>
+
+    </div>
+
+    <!-- ==================== VIEW 3: STUDY ENGINE ==================== -->
+    <div id="view-study" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- LEFT: QUICK LAUNCH STUDY & TASKS -->
-        <div class="lg:col-span-7 space-y-6">
-          <div class="glass-card p-6 rounded-3xl">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                  <i data-lucide="timer" class="w-5 h-5 text-cyan-400"></i> Quick Study Launch
-                </h3>
-                <p class="text-xs text-slate-400 mt-0.5">Jump directly into a timed focus block</p>
-              </div>
-              <button onclick="switchView('study')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1">
-                Full Session Mode →
-              </button>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button onclick="startSpecificSession('sat', 0, 0, 25)" class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 text-left transition group">
-                <div class="text-[10px] font-mono text-cyan-400 font-bold">IC2303 • SAT</div>
-                <div class="text-xs font-bold text-white mt-1 group-hover:text-cyan-300">LVDT Calibration</div>
-                <div class="text-[11px] text-slate-400 mt-1">25m Pomodoro</div>
-              </button>
-              <button onclick="startSpecificSession('maa', 2, 0, 45)" class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-purple-500/40 text-left transition group">
-                <div class="text-[10px] font-mono text-purple-400 font-bold">MM1408 • MAA</div>
-                <div class="text-xs font-bold text-white mt-1 group-hover:text-purple-300">8051 Timers & Mode-2</div>
-                <div class="text-[11px] text-slate-400 mt-1">45m Deep Work</div>
-              </button>
-              <button onclick="startSpecificSession('ds', 0, 1, 25)" class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 text-left transition group">
-                <div class="text-[10px] font-mono text-blue-400 font-bold">IC2301 • DS</div>
-                <div class="text-xs font-bold text-white mt-1 group-hover:text-blue-300">Pandas Cleaning</div>
-                <div class="text-[11px] text-slate-400 mt-1">25m Sprint</div>
-              </button>
-            </div>
-          </div>
 
-          <!-- PENDING DELIVERABLES -->
-          <div class="glass-card p-6 rounded-3xl">
-            <div class="flex items-center justify-between mb-4">
+        <!-- STUDY CONTROLS -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl border border-cyan-500/30">
+            <div class="flex items-center justify-between mb-5">
               <div>
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                  <i data-lucide="check-square" class="w-5 h-5 text-amber-400"></i> Active Deliverables
-                </h3>
-                <p class="text-xs text-slate-400 mt-0.5">Assignments and lab reports due next</p>
+                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
+                  Deep Work Engine
+                </span>
+                <h2 class="text-2xl font-black text-white mt-1">Focus Session Runner</h2>
               </div>
-              <button onclick="switchView('assignments')" class="text-xs text-amber-400 hover:text-amber-300 font-bold">
-                View All →
+              <span id="session-badge" class="text-xs font-bold px-3 py-1 rounded-xl bg-slate-800 text-slate-400">IDLE</span>
+            </div>
+
+            <!-- Subject & Topic Selectors -->
+            <div class="space-y-3 mb-5">
+              <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Target Subject</label>
+                <select id="study-course-select" onchange="populateStudyTopics()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-200 font-medium focus:outline-none focus:border-cyan-500"></select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Specific Syllabus Topic</label>
+                <select id="study-topic-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-200 font-medium focus:outline-none focus:border-cyan-500"></select>
+              </div>
+            </div>
+
+            <!-- Duration Presets -->
+            <div class="flex items-center gap-2 mb-6">
+              <span class="text-xs text-slate-400 font-medium">Duration:</span>
+              <button onclick="setStudyDuration(25)" id="dur-25" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">25m</button>
+              <button onclick="setStudyDuration(35)" id="dur-35" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">35m</button>
+              <button onclick="setStudyDuration(45)" id="dur-45" class="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold shadow">45m Deep Work</button>
+              <button onclick="setStudyDuration(60)" id="dur-60" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">60m</button>
+            </div>
+
+            <!-- Timer Clock -->
+            <div class="text-center py-6 bg-slate-950/60 rounded-3xl border border-slate-800/80 mb-6">
+              <div id="study-clock-display" class="text-6xl sm:text-7xl font-mono font-black text-white">45:00</div>
+              <p id="study-clock-desc" class="text-xs text-cyan-400 font-semibold mt-1">45-minute focus session</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center justify-center gap-3">
+              <button id="study-btn-start" onclick="startStudySession()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 transition flex items-center gap-2">
+                <i data-lucide="play" class="w-4 h-4 fill-white"></i> Start Session
+              </button>
+              <button id="study-btn-pause" onclick="pauseStudySession()" class="hidden px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold border border-slate-700 transition flex items-center gap-2">
+                <i data-lucide="pause" class="w-4 h-4"></i> Pause
+              </button>
+              <button id="study-btn-finish" onclick="openSessionReflection()" class="hidden px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Complete & Reflect
               </button>
             </div>
-            <div id="dash-assignments-container" class="space-y-2.5 text-xs"></div>
           </div>
         </div>
 
-        <!-- RIGHT: TODAY'S TIMETABLE PREVIEW -->
+        <!-- STUDY HISTORY LOG -->
         <div class="lg:col-span-5 space-y-6">
-          <div class="glass-card p-6 rounded-3xl">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="text-base font-bold text-white flex items-center gap-2">
-                  <i data-lucide="calendar" class="w-5 h-5 text-cyan-400"></i> Today's Schedule
-                </h3>
-                <p class="text-xs text-slate-400 mt-0.5" id="dash-day-label">Friday • Batch B2</p>
-              </div>
-              <button onclick="switchView('timetable')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">
-                Full Week →
-              </button>
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <div>
+              <h3 class="text-base font-bold text-white flex items-center gap-2">
+                <i data-lucide="history" class="w-4 h-4 text-cyan-400"></i> Logged Sessions
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Recorded focus blocks with student reflections</p>
             </div>
-            <div id="dash-schedule-container" class="space-y-2.5 text-xs"></div>
+            <div id="study-history-list" class="space-y-3 text-xs max-h-[460px] overflow-y-auto pr-1"></div>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- ==================== VIEW 2: FULL TIMETABLE ==================== -->
-    <div id="view-timetable" class="hidden space-y-6">
-      <div class="glass-card p-6 rounded-3xl">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+    <!-- ==================== VIEW 4: ASSIGNMENTS TRACKER ==================== -->
+    <div id="view-assignments" class="hidden space-y-6">
+      <div class="glass-card p-6 rounded-3xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <i data-lucide="calendar" class="w-6 h-6 text-cyan-400"></i> Official Class Timetable
+              <i data-lucide="check-square" class="w-5 h-5 text-amber-400"></i> Academic Deliverables
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">VIT Pune • Instrumentation & Control • SEDA (W.E.F Jul 2026)</p>
+            <p class="text-xs text-slate-400 mt-0.5">Track lab reports, seminar decks, and assignments</p>
           </div>
-          
-          <div class="flex items-center gap-3">
-            <span class="text-xs text-slate-400 font-medium">Filter Batch:</span>
-            <select id="batch-filter" onchange="renderTimetable()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 text-xs font-semibold focus:outline-none focus:border-cyan-500">
+
+          <!-- Filter Tabs -->
+          <div class="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+            <button onclick="setAssignmentFilter('ALL')" id="afilt-ALL" class="px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-bold">ALL</button>
+            <button onclick="setAssignmentFilter('PENDING')" id="afilt-PENDING" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold">PENDING</button>
+            <button onclick="setAssignmentFilter('COMPLETED')" id="afilt-COMPLETED" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold">COMPLETED</button>
+          </div>
+        </div>
+
+        <div id="assignments-full-list" class="space-y-3 text-xs"></div>
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 5: CONNECTED NOTES ==================== -->
+    <div id="view-notes" class="hidden space-y-6">
+      <div class="glass-card p-6 rounded-3xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="pen-tool" class="w-5 h-5 text-rose-400"></i> Academic Lecture Notes
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Notes connected to syllabus subjects and specific topics</p>
+          </div>
+          <button onclick="openNewNoteModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-xs shadow transition flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i> New Subject Note
+          </button>
+        </div>
+
+        <div id="notes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs"></div>
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 6: INTERACTIVE TIMETABLE ==================== -->
+    <div id="view-timetable" class="hidden space-y-6">
+      <div class="glass-card p-6 rounded-3xl space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="calendar" class="w-5 h-5 text-blue-400"></i> Class Timetable (Actionable)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Directly prepare for class or launch study sessions from schedule slots</p>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-slate-400">Batch:</span>
+            <select id="tt-batch-filter" onchange="renderTimetableFull()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 font-semibold focus:outline-none focus:border-cyan-500">
               <option value="ALL">All Batches (B1, B2, B3)</option>
               <option value="B1">Batch B1</option>
               <option value="B2" selected>Batch B2 (Nagesh)</option>
@@ -308,137 +420,60 @@
         </div>
 
         <!-- Day Tabs -->
-        <div class="grid grid-cols-5 gap-2 p-1.5 bg-slate-900/90 rounded-2xl border border-slate-800 mb-5 text-xs font-bold text-center">
-          <button onclick="setDay('Mon')" id="tab-Mon" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Mon</button>
-          <button onclick="setDay('Tue')" id="tab-Tue" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Tue</button>
-          <button onclick="setDay('Wed')" id="tab-Wed" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Wed</button>
-          <button onclick="setDay('Thu')" id="tab-Thu" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Thu</button>
-          <button onclick="setDay('Fri')" id="tab-Fri" class="py-2.5 rounded-xl bg-cyan-600 text-white shadow">Fri</button>
+        <div class="grid grid-cols-5 gap-1.5 p-1 bg-slate-900 rounded-2xl border border-slate-800 text-xs font-bold text-center">
+          <button onclick="setTimetableDay('Mon')" id="tt-tab-Mon" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Mon</button>
+          <button onclick="setTimetableDay('Tue')" id="tt-tab-Tue" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Tue</button>
+          <button onclick="setTimetableDay('Wed')" id="tt-tab-Wed" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Wed</button>
+          <button onclick="setTimetableDay('Thu')" id="tt-tab-Thu" class="py-2.5 rounded-xl text-slate-400 hover:text-white transition">Thu</button>
+          <button onclick="setTimetableDay('Fri')" id="tt-tab-Fri" class="py-2.5 rounded-xl bg-cyan-600 text-white shadow">Fri</button>
         </div>
 
-        <!-- Schedule Slots -->
-        <div id="schedule-container" class="space-y-3 text-xs"></div>
+        <div id="timetable-slots-list" class="space-y-3 text-xs"></div>
       </div>
     </div>
 
-    <!-- ==================== VIEW 3: STUDY ENGINE ==================== -->
-    <div id="view-study" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- LEFT (7): ACTIVE SESSION CONTROLS -->
-        <div class="lg:col-span-7 space-y-6">
-          <div class="glass-card p-6 sm:p-8 rounded-3xl border border-cyan-500/30">
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
-                  Focus Engine
-                </span>
-                <h2 class="text-2xl font-black text-white mt-1">Study Session Runner</h2>
-              </div>
-              <span id="session-badge" class="text-xs font-bold px-3 py-1 rounded-xl bg-slate-800 text-slate-400">IDLE</span>
-            </div>
-
-            <!-- Subject & Topic Dropdowns -->
-            <div class="space-y-3 mb-5">
-              <div>
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">1. Target Subject</label>
-                <select id="study-course-select" onchange="populateTopicDropdown()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 font-medium focus:outline-none focus:border-cyan-500"></select>
-              </div>
-              <div>
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">2. Specific Syllabus Topic</label>
-                <select id="study-topic-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 font-medium focus:outline-none focus:border-cyan-500"></select>
-              </div>
-            </div>
-
-            <!-- Presets -->
-            <div class="flex items-center gap-2 mb-6">
-              <span class="text-xs text-slate-400 font-medium">Session Duration:</span>
-              <button onclick="setDuration(25)" id="pre-25" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">25m Pomodoro</button>
-              <button onclick="setDuration(45)" id="pre-45" class="px-3.5 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold shadow">45m Deep Work</button>
-              <button onclick="setDuration(60)" id="pre-60" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">60m Sprint</button>
-            </div>
-
-            <!-- Timer Display -->
-            <div class="text-center py-6 bg-slate-950/60 rounded-3xl border border-slate-800/80 mb-6">
-              <div id="timer-display" class="text-6xl sm:text-7xl font-mono font-black text-white">45:00</div>
-              <p id="timer-desc" class="text-xs text-cyan-400 font-semibold mt-1">45-minute focus session</p>
-            </div>
-
-            <!-- Controls -->
-            <div class="flex items-center justify-center gap-3">
-              <button id="btn-start" onclick="startTimer()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-sm shadow-lg shadow-cyan-500/25 transition flex items-center gap-2">
-                <i data-lucide="play" class="w-4 h-4"></i> Start Session
-              </button>
-              <button id="btn-pause" onclick="pauseTimer()" class="hidden px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold border border-slate-700 transition flex items-center gap-2">
-                <i data-lucide="pause" class="w-4 h-4"></i> Pause
-              </button>
-              <button id="btn-complete" onclick="openSessionReflectionModal()" class="hidden px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/25 transition flex items-center gap-2">
-                <i data-lucide="check-circle" class="w-4 h-4"></i> Finish & Reflect
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- RIGHT (5): RECENT SESSIONS & REFLECTIONS LOG -->
-        <div class="lg:col-span-5 space-y-6">
-          <div class="glass-card p-6 rounded-3xl">
-            <h3 class="text-base font-bold text-white flex items-center gap-2 mb-1">
-              <i data-lucide="history" class="w-5 h-5 text-cyan-400"></i> Study Session Log
-            </h3>
-            <p class="text-xs text-slate-400 mb-4">Completed focus blocks with self-reflection</p>
-            <div id="study-history-container" class="space-y-3 text-xs max-h-[500px] overflow-y-auto pr-1"></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ==================== VIEW 4: ACADEMIC BRAIN ==================== -->
+    <!-- ==================== VIEW 7: ACADEMIC BRAIN ==================== -->
     <div id="view-brain" class="hidden space-y-6">
-      
-      <!-- MAIN BRAIN METRICS -->
-      <div class="glass-card p-6 rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40">
-        <div class="flex items-center justify-between mb-4">
+      <div class="glass-card p-6 sm:p-8 rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
             <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 uppercase tracking-wide">
               Intelligence Telemetry
             </span>
-            <h2 class="text-2xl font-black text-white mt-1 flex items-center gap-2">
-              Academic Brain
-            </h2>
+            <h2 class="text-2xl font-black text-white mt-1">Academic Brain</h2>
           </div>
           <div class="text-right">
-            <div class="text-3xl font-black text-cyan-400">78%</div>
-            <div class="text-[10px] text-slate-400 uppercase font-semibold">Overall Index</div>
+            <div class="text-4xl font-black text-cyan-400">94%</div>
+            <div class="text-[10px] text-slate-400 font-semibold uppercase">Overall Academic Health</div>
           </div>
         </div>
 
         <!-- 4 Sub-Metrics -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
-          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 text-xs">
+          <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
             <div class="text-[10px] text-slate-400 font-semibold uppercase">Study Consistency</div>
-            <div class="text-xl font-bold text-white mt-1">84%</div>
+            <div class="text-xl font-black text-white mt-1">82%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-cyan-400 h-1.5 rounded-full" style="width: 84%"></div>
+              <div class="bg-cyan-400 h-1.5 rounded-full" style="width: 82%"></div>
             </div>
           </div>
-          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
-            <div class="text-[10px] text-slate-400 font-semibold uppercase">Focus Average</div>
-            <div class="text-xl font-bold text-white mt-1">72%</div>
+          <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <div class="text-[10px] text-slate-400 font-semibold uppercase">Focus Quality</div>
+            <div class="text-xl font-black text-white mt-1">76%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-emerald-400 h-1.5 rounded-full" style="width: 72%"></div>
+              <div class="bg-emerald-400 h-1.5 rounded-full" style="width: 76%"></div>
             </div>
           </div>
-          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
-            <div class="text-[10px] text-slate-400 font-semibold uppercase">Topics Covered</div>
-            <div class="text-xl font-bold text-white mt-1">61%</div>
+          <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <div class="text-[10px] text-slate-400 font-semibold uppercase">Syllabus Coverage</div>
+            <div class="text-xl font-black text-white mt-1">91%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-indigo-400 h-1.5 rounded-full" style="width: 61%"></div>
+              <div class="bg-indigo-400 h-1.5 rounded-full" style="width: 91%"></div>
             </div>
           </div>
-          <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
-            <div class="text-[10px] text-slate-400 font-semibold uppercase">Quiz Mastery</div>
-            <div class="text-xl font-bold text-white mt-1">88%</div>
+          <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
+            <div class="text-[10px] text-slate-400 font-semibold uppercase">Assignment Health</div>
+            <div class="text-xl font-black text-white mt-1">88%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
               <div class="bg-purple-400 h-1.5 rounded-full" style="width: 88%"></div>
             </div>
@@ -446,145 +481,54 @@
         </div>
       </div>
 
-      <!-- TWO COLUMNS: STRONG VS NEEDS ATTENTION -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- SUBJECT HEALTH BARS -->
+      <div class="glass-card p-6 rounded-3xl space-y-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i> Subject Health Breakdown
+        </h3>
+        <div id="subject-health-container" class="space-y-3 text-xs"></div>
+      </div>
 
-        <!-- Strong Mastery -->
-        <div class="glass-card p-6 rounded-3xl border border-emerald-500/20">
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
-              ✓
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-white">Strong Mastery</h3>
-              <p class="text-xs text-slate-400">High diagnostic scores and regular revision</p>
-            </div>
+      <!-- STRENGTHS VS NEEDS ATTENTION -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+        <div class="glass-card p-6 rounded-3xl border border-emerald-500/20 space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">✓</div>
+            <h4 class="font-bold text-white text-sm">Strengths & High Retention</h4>
           </div>
-          <div class="space-y-2.5 text-xs">
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">LVDT Operating Principle</div>
-                <div class="text-[11px] text-slate-400">SAT • Unit 1 • 65m studied</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold border border-emerald-800">92% Score</span>
+          <div class="space-y-2 text-slate-300">
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-white">Sensors: LVDT Operating Principle</div>
+              <div class="text-[11px] text-slate-400">65m studied • 92% diagnostic quiz score</div>
             </div>
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">Potentiometers & Optical Encoders</div>
-                <div class="text-[11px] text-slate-400">SAT • Unit 1 • 45m studied</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold border border-emerald-800">85% Score</span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">8051 Internal Memory Map & SFRs</div>
-                <div class="text-[11px] text-slate-400">MAA • Unit 1 • 70m studied</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold border border-emerald-800">88% Score</span>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">Entity-Relationship (ER) Modeling</div>
-                <div class="text-[11px] text-slate-400">DBMS • Unit 1 • Assignment Done</div>
-              </div>
-              <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold border border-emerald-800">90% Score</span>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="font-bold text-white">Consistent 45-minute daily focus sprints</div>
+              <div class="text-[11px] text-slate-400">Streak: 3 days active</div>
             </div>
           </div>
         </div>
 
-        <!-- Needs Attention -->
-        <div class="glass-card p-6 rounded-3xl border border-rose-500/20">
-          <div class="flex items-center gap-2 mb-4">
-            <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">
-              ⚠
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-white">Needs Attention</h3>
-              <p class="text-xs text-slate-400">Low retention, overdue topics, or low quiz accuracy</p>
-            </div>
+        <div class="glass-card p-6 rounded-3xl border border-rose-500/20 space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">⚠</div>
+            <h4 class="font-bold text-white text-sm">Needs Attention</h4>
           </div>
-          <div class="space-y-2.5 text-xs">
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+          <div class="space-y-2 text-slate-300">
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white">Microcontrollers: 8051 Timers</div>
+                <div class="text-[11px] text-slate-400">Simulation Due Sep 28 • Only 1 session</div>
+              </div>
+              <button onclick="startQuickStudy('maa', 2, 0, 35)" class="px-2.5 py-1 rounded-lg bg-rose-950 text-rose-200 border border-rose-800 font-bold">Study 35m →</button>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
               <div>
                 <div class="font-bold text-white">Phase-Sensitive Demodulation</div>
-                <div class="text-[11px] text-slate-400">SAT • Unit 1 • Low Quiz Accuracy</div>
+                <div class="text-[11px] text-slate-400">Low accuracy on AC bridge nulling</div>
               </div>
-              <button onclick="startSpecificSession('sat', 0, 0, 25)" class="px-3 py-1 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 font-bold">
-                Revise 25m →
-              </button>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">Capacitive Pressure Transducers</div>
-                <div class="text-[11px] text-slate-400">SAT • Unit 2 • Not yet studied</div>
-              </div>
-              <button onclick="startSpecificSession('sat', 1, 2, 25)" class="px-3 py-1 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 font-bold">
-                Study 25m →
-              </button>
-            </div>
-            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">8051 Timers & Mode-2 Autoreload</div>
-                <div class="text-[11px] text-slate-400">MAA • Unit 3 • Simulation Due Sep 28</div>
-              </div>
-              <button onclick="startSpecificSession('maa', 2, 0, 45)" class="px-3 py-1 rounded-lg bg-rose-950 hover:bg-rose-900 text-rose-200 border border-rose-800 font-bold">
-                Study 45m →
-              </button>
+              <button onclick="startQuickStudy('sat', 0, 0, 25)" class="px-2.5 py-1 rounded-lg bg-rose-950 text-rose-200 border border-rose-800 font-bold">Revise 25m →</button>
             </div>
           </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ==================== VIEW 5: COURSES & SYLLABUS ==================== -->
-    <div id="view-courses" class="hidden space-y-6">
-      <div class="glass-card p-6 rounded-3xl">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <i data-lucide="layers" class="w-6 h-6 text-cyan-400"></i> Course Syllabus & Diagnostic Quizzes
-            </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Click syllabus or test your knowledge with instant diagnostic quizzes</p>
-          </div>
-          <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
-        </div>
-        <div id="course-cards-container" class="space-y-3 text-xs"></div>
-      </div>
-    </div>
-
-    <!-- ==================== VIEW 6: ASSIGNMENTS & DELIVERABLES ==================== -->
-    <div id="view-assignments" class="hidden space-y-6">
-      <div class="glass-card p-6 rounded-3xl">
-        <div class="flex items-center justify-between mb-5">
-          <div>
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <i data-lucide="check-square" class="w-6 h-6 text-amber-400"></i> Lab & Assignment Submissions
-            </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Track lab reports, project milestones, and assignment deadlines</p>
-          </div>
-          <span class="text-xs font-semibold px-2.5 py-1 rounded bg-amber-950 text-amber-300 border border-amber-800">Sem 1 Deliverables</span>
-        </div>
-        <div id="assignments-full-container" class="space-y-3 text-xs"></div>
-      </div>
-    </div>
-
-    <!-- ==================== VIEW 7: NOTES / SCRATCHPAD ==================== -->
-    <div id="view-notes" class="hidden space-y-6">
-      <div class="glass-card p-6 rounded-3xl">
-        <div class="flex items-center justify-between mb-3">
-          <div>
-            <h2 class="text-xl font-bold text-white flex items-center gap-2">
-              <i data-lucide="pen-tool" class="w-6 h-6 text-cyan-400"></i> Lecture Scratchpad & Quick Notes
-            </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Auto-saves to browser localStorage</p>
-          </div>
-          <button onclick="clearNotes()" class="text-xs text-slate-400 hover:text-rose-400 transition">Clear Notes</button>
-        </div>
-        <textarea id="notes-area" oninput="saveNotes()" placeholder="Jot down formulas, faculty announcements, or lecture takeaways (e.g. LVDT null voltage formula, 8051 memory map, DBMS normal forms)..." class="w-full h-80 bg-slate-900 border border-slate-700 rounded-2xl p-4 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 transition leading-relaxed"></textarea>
-        <div class="flex justify-between items-center mt-2 text-xs text-slate-400">
-          <span id="save-status">Saved</span>
-          <span class="text-[11px] text-slate-500">Persistent across browser tabs</span>
         </div>
       </div>
     </div>
@@ -599,67 +543,72 @@
           🎯
         </div>
         <h3 class="text-lg font-bold text-white">Study Session Complete!</h3>
-        <p class="text-xs text-slate-400 mt-0.5" id="reflection-topic-summary">Topic: LVDT Operating Principle</p>
+        <p class="text-xs text-slate-400 mt-0.5" id="refl-topic-display">LVDT Operating Principle</p>
       </div>
 
       <div class="py-4 space-y-4 text-xs">
         <div>
-          <label class="block font-semibold text-slate-300 mb-1.5">How focused was your session? (1-5)</label>
-          <div class="flex justify-between gap-2 text-sm">
-            <button onclick="setFocusRating(1)" id="rate-1" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">1</button>
-            <button onclick="setFocusRating(2)" id="rate-2" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">2</button>
-            <button onclick="setFocusRating(3)" id="rate-3" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">3</button>
-            <button onclick="setFocusRating(4)" id="rate-4" class="flex-1 py-2 rounded-xl bg-cyan-600 border border-cyan-500 text-white font-bold">4</button>
-            <button onclick="setFocusRating(5)" id="rate-5" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">5</button>
+          <label class="block font-semibold text-slate-300 mb-1.5">How focused were you? (1 to 5 scale)</label>
+          <div class="flex justify-between gap-2">
+            <button onclick="setReflectionRating(1)" id="refl-rate-1" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">1</button>
+            <button onclick="setReflectionRating(2)" id="refl-rate-2" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">2</button>
+            <button onclick="setReflectionRating(3)" id="refl-rate-3" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">3</button>
+            <button onclick="setReflectionRating(4)" id="refl-rate-4" class="flex-1 py-2 rounded-xl bg-cyan-600 border border-cyan-500 text-white font-bold">4</button>
+            <button onclick="setReflectionRating(5)" id="refl-rate-5" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold">5</button>
           </div>
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1.5">Quick Reflection (What clicked? What is still confusing?)</label>
-          <textarea id="reflection-text" placeholder="e.g. Cleared secondary winding null voltage phase opposition, still need to check demodulator bridge circuit..." class="w-full h-20 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"></textarea>
+          <label class="block font-semibold text-slate-300 mb-1.5">Reflection Notes (What clicked? What is still confusing?)</label>
+          <textarea id="refl-text-input" placeholder="e.g. Understood differential core displacement and null voltage phase opposition. Still need to verify phase demodulator circuit..." class="w-full h-20 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"></textarea>
         </div>
       </div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-end gap-3">
-        <button onclick="closeReflectionModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">Skip</button>
-        <button onclick="saveSessionWithReflection()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs shadow-md">Save & Log to Brain</button>
+        <button onclick="closeSessionReflection()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">Skip</button>
+        <button onclick="saveCompletedStudySession()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs shadow-md">Complete & Log</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== SYLLABUS MODAL ==================== -->
-  <div id="syllabus-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl shadow-2xl p-6 relative max-h-[85vh] flex flex-col">
-      <div class="flex justify-between items-start pb-4 border-b border-slate-800">
+  <!-- ==================== NEW NOTE MODAL ==================== -->
+  <div id="note-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/30 w-full max-w-lg rounded-3xl shadow-2xl p-6 relative flex flex-col">
+      <div class="flex justify-between items-start pb-3 border-b border-slate-800">
         <div>
-          <span id="modal-code" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">IC2303</span>
-          <h3 id="modal-title" class="text-lg font-bold text-white mt-1">Sensors & Transducers</h3>
-          <p id="modal-faculty" class="text-xs text-slate-400 mt-0.5">Faculty: Prof. Seema Mashalkar</p>
+          <h3 class="text-base font-bold text-white">Create Academic Note</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Tag by subject and topic for connected intelligence</p>
         </div>
-        <button onclick="closeSyllabusModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          ✕
-        </button>
+        <button onclick="closeNewNoteModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white">✕</button>
       </div>
 
-      <div class="py-3 flex items-center justify-between text-xs border-b border-slate-800/60">
-        <span class="text-slate-400">Course Syllabus Progress:</span>
-        <span id="modal-progress-pct" class="font-bold text-cyan-400">0% Completed</span>
+      <div class="py-4 space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Subject</label>
+          <select id="modal-note-course" onchange="populateModalNoteTopics()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-cyan-500"></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Topic</label>
+          <select id="modal-note-topic" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-cyan-500"></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Note Title</label>
+          <input type="text" id="modal-note-title" placeholder="e.g. LVDT Operating Principle & Bridge Formula" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-400 mb-1">Content</label>
+          <textarea id="modal-note-content" placeholder="Write key formulas, lecture definitions, and observations..." class="w-full h-32 bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 focus:border-cyan-500"></textarea>
+        </div>
       </div>
 
-      <div id="modal-units-list" class="space-y-4 py-4 overflow-y-auto flex-1 text-xs"></div>
-
-      <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-        <button id="modal-quiz-btn" onclick="" class="px-4 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center gap-1.5">
-          <i data-lucide="target" class="w-3.5 h-3.5"></i> Launch Practice Quiz
-        </button>
-        <button onclick="closeSyllabusModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
-          Done
-        </button>
+      <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+        <button onclick="closeNewNoteModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700">Cancel</button>
+        <button onclick="saveNewNote()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">Save Note</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== QUIZ MODAL ==================== -->
+  <!-- ==================== PRACTICE QUIZ MODAL ==================== -->
   <div id="quiz-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-indigo-500/40 w-full max-w-xl rounded-3xl shadow-2xl p-6 relative flex flex-col">
       <div class="flex justify-between items-start pb-3 border-b border-slate-800">
@@ -669,9 +618,7 @@
           </span>
           <h3 id="quiz-course-title" class="text-base font-bold text-white mt-1">Sensors & Transducers Quiz</h3>
         </div>
-        <button onclick="closeQuizModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          ✕
-        </button>
+        <button onclick="closeQuizModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white">✕</button>
       </div>
 
       <div class="py-3">
@@ -680,7 +627,7 @@
           <span id="quiz-score-live" class="text-cyan-400 font-semibold">Score: 0</span>
         </div>
         <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-          <div id="quiz-progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1.5 rounded-full transition-all duration-300" style="width: 33%"></div>
+          <div id="quiz-progress-bar" class="bg-gradient-to-r from-cyan-500 to-indigo-500 h-1.5 rounded-full" style="width: 33%"></div>
         </div>
       </div>
 
@@ -689,155 +636,67 @@
           In an LVDT, what is the output voltage at the null position?
         </h4>
         <div id="quiz-options-container" class="space-y-2 text-xs"></div>
-        <div id="quiz-explanation-box" class="hidden mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed"></div>
+        <div id="quiz-explanation-box" class="hidden mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300"></div>
       </div>
 
       <div id="quiz-result-box" class="hidden py-6 text-center space-y-3">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black">
-          🎯
-        </div>
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black">🎯</div>
         <h4 class="text-lg font-bold text-white">Quiz Completed!</h4>
-        <p id="quiz-result-summary" class="text-xs text-slate-300">You scored 3/3 (100%). Great mastery of this topic!</p>
-        <div class="text-xs text-cyan-400 font-semibold py-1">+5% Consistency added to Academic Brain</div>
-        <button onclick="closeQuizModal()" class="mt-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
-          Back to Dashboard
-        </button>
+        <p id="quiz-result-summary" class="text-xs text-slate-300">You scored 3/3 (100%).</p>
+        <button onclick="closeQuizModal()" class="mt-2 px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">Back to Workspaces</button>
       </div>
 
       <div id="quiz-footer" class="pt-3 border-t border-slate-800 flex justify-between items-center">
         <button onclick="closeQuizModal()" class="text-xs text-slate-400 hover:text-slate-200">Exit Quiz</button>
-        <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
-          Next Question →
-        </button>
+        <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">Next Question →</button>
       </div>
     </div>
   </div>
 
   <!-- ==================== DEAN'S CALENDAR MODAL ==================== -->
   <div id="academic-calendar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-3xl shadow-2xl p-6 relative max-h-[90vh] flex flex-col">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl shadow-2xl p-6 relative max-h-[85vh] flex flex-col text-xs">
       <div class="flex justify-between items-start pb-4 border-b border-slate-800">
         <div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase">
             Official VIT Academic Calendar
           </span>
-          <h3 class="text-lg font-bold text-white mt-1">A.Y. 2026-27 • Semester 1 (Direct Second Year SEDA)</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Approved by: Prof. (Dr.) Parikshit N. Mahalle, Dean - Academics</p>
+          <h3 class="text-lg font-bold text-white mt-1">AY 2026-27 • Semester 1 (SEDA)</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Approved by: Prof. (Dr.) Parikshit N. Mahalle, Dean Academics</p>
         </div>
-        <button onclick="closeCalendarModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          ✕
-        </button>
+        <button onclick="closeCalendarModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white">✕</button>
       </div>
 
-      <div class="py-4 overflow-y-auto space-y-5 text-xs">
-        <div>
-          <h4 class="font-bold text-white text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <i data-lucide="flag" class="w-3.5 h-3.5 text-cyan-400"></i> Key Academic Milestones
-          </h4>
-          <div class="rounded-2xl border border-slate-800 overflow-hidden bg-slate-950/60">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-900 text-slate-400 font-semibold border-b border-slate-800">
-                <tr>
-                  <th class="p-3">#</th>
-                  <th class="p-3">Parameter / Event</th>
-                  <th class="p-3">Official Dates</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800/60 text-slate-300">
-                <tr>
-                  <td class="p-3 font-mono text-slate-500">1</td>
-                  <td class="p-3 font-semibold text-white">Commencement of Teaching - Learning Activities</td>
-                  <td class="p-3 text-cyan-400 font-mono">24/08/2026</td>
-                </tr>
-                <tr class="bg-cyan-950/20">
-                  <td class="p-3 font-mono text-cyan-400">2</td>
-                  <td class="p-3 font-bold text-cyan-200">Mid-Semester Examination and Reviews</td>
-                  <td class="p-3 text-cyan-300 font-mono font-bold">26/10/2026 to 31/10/2026</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-mono text-slate-500">3</td>
-                  <td class="p-3 font-semibold text-white">Internal Assessment (GD / PPT, Course Projects)</td>
-                  <td class="p-3 text-slate-300 font-mono">07/12/2026 to 12/12/2026</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-mono text-slate-500">4</td>
-                  <td class="p-3 font-semibold text-white">End of Semester</td>
-                  <td class="p-3 text-slate-300 font-mono">12/12/2026</td>
-                </tr>
-                <tr class="bg-indigo-950/20">
-                  <td class="p-3 font-mono text-indigo-400">5</td>
-                  <td class="p-3 font-bold text-indigo-200">End-Semester Examination (ESE)</td>
-                  <td class="p-3 text-indigo-300 font-mono font-bold">14/12/2026 to 26/12/2026</td>
-                </tr>
-                <tr>
-                  <td class="p-3 font-mono text-emerald-400">6</td>
-                  <td class="p-3 font-semibold text-emerald-200">Commencement of Next Semester (Sem 2)</td>
-                  <td class="p-3 text-emerald-400 font-mono">04/01/2027 (Tentative)</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="py-4 overflow-y-auto space-y-4">
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="text-cyan-400 font-bold mb-1">Key Milestones:</div>
+          <ul class="space-y-1.5 text-slate-300">
+            <li>• Commencement: <strong>24/08/2026</strong></li>
+            <li>• Mid-Sem Examinations: <strong>26/10/2026 to 31/10/2026</strong></li>
+            <li>• End-Sem Examinations: <strong>14/12/2026 to 26/12/2026</strong></li>
+            <li>• Next Semester Starts: <strong>04/01/2027</strong></li>
+          </ul>
         </div>
-
-        <div>
-          <h4 class="font-bold text-white text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-400"></i> Official List of Holidays
-          </h4>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center opacity-60">
-              <span>1. Independence Day & Parsi Navarsha</span>
-              <span class="font-mono text-slate-400">15/08/26 (Sat)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center opacity-60">
-              <span>2. Id E Milad</span>
-              <span class="font-mono text-slate-400">26/08/26 (Wed)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/40 text-amber-200 font-semibold flex justify-between items-center">
-              <span>3. 🪔 Shri Ganesh Chaturthi</span>
-              <span class="font-mono text-amber-300">14/09/26 (Mon)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>4. 🌸 Gauri Pujan</span>
-              <span class="font-mono text-slate-300">18/09/26 (Fri)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>5. 🚩 Anant Chaturdashi</span>
-              <span class="font-mono text-slate-300">25/09/26 (Fri)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>6. 🇮🇳 Mahatma Gandhi Jayanti</span>
-              <span class="font-mono text-slate-300">02/10/26 (Fri)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>7. 🏹 Vijaya Dashami / Dasara</span>
-              <span class="font-mono text-slate-300">20/10/26 (Tue)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>8. 🪔 Diwali Vacation</span>
-              <span class="font-mono text-slate-300">06/11 - 12/11/26</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>9. Gurunanak Jayanti</span>
-              <span class="font-mono text-slate-300">24/11/26 (Tue)</span>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
-              <span>10. 🎄 Christmas</span>
-              <span class="font-mono text-slate-300">25/12/26 (Fri)</span>
-            </div>
-          </div>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="text-amber-400 font-bold mb-1">Upcoming Holidays:</div>
+          <ul class="space-y-1 text-slate-300">
+            <li>• 14/09/2026 (Mon): <strong>Shri Ganesh Chaturthi</strong></li>
+            <li>• 18/09/2026 (Fri): <strong>Gauri Pujan</strong></li>
+            <li>• 25/09/2026 (Fri): <strong>Anant Chaturdashi</strong></li>
+            <li>• 02/10/2026 (Fri): <strong>Mahatma Gandhi Jayanti</strong></li>
+          </ul>
         </div>
       </div>
 
       <div class="pt-3 border-t border-slate-800 flex justify-end">
-        <button onclick="closeCalendarModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
-          Close
-        </button>
+        <button onclick="closeCalendarModal()" class="px-5 py-2 rounded-xl bg-cyan-600 text-white font-bold">Close</button>
       </div>
     </div>
   </div>
 
+  <!-- ==================== SCRIPT ENGINE ==================== -->
   <script>
-    // 1. DATA SOURCES
+    // 1. ACADEMIC DATA
     const coursesData = [
       {
         id: "sat",
@@ -845,7 +704,7 @@
         tag: "SAT",
         name: "Sensors and Transducers",
         faculty: "Prof. Seema S. Mashalkar (SSM)",
-        badge: "Theory & Lab",
+        progress: 65,
         color: "cyan",
         units: [
           { name: "Unit 1: Motion & Displacement", topics: ["LVDT Operating Principle & Characteristics", "Strain Gauges & Wheatstone Bridge", "Potentiometers & Optical Encoders"] },
@@ -860,7 +719,7 @@
         tag: "DS",
         name: "Data Science",
         faculty: "Prof. Rajesh Pashikanti (RP)",
-        badge: "Theory & Lab",
+        progress: 58,
         color: "blue",
         units: [
           { name: "Unit 1: Python for Data Science", topics: ["NumPy Array Computations & Vectorization", "Pandas DataFrames & Series", "Data Cleaning & Missing Value Imputation"] },
@@ -875,12 +734,12 @@
         tag: "MAA",
         name: "Microcontroller & Applications",
         faculty: "Prof. Pramod M. Kanjalkar (PMK)",
-        badge: "Theory & Tut",
+        progress: 51,
         color: "purple",
         units: [
           { name: "Unit 1: 8051 Architecture", topics: ["8051 Internal Memory Map & SFRs", "Pin Diagram & Oscillator Connections", "I/O Ports & Electrical Characteristics"] },
           { name: "Unit 2: Instruction Set & Assembly", topics: ["Addressing Modes (Immediate, Direct, Register)", "Data Transfer & Arithmetic Instructions", "Logical Operations & Branching"] },
-          { name: "Unit 3: Timers & Interrupts", topics: ["8051 Timers", "Interrupts", "Serial UART"] },
+          { name: "Unit 3: Timers & Interrupts", topics: ["8051 Timer Registers (TMOD, TCON)", "Timer Mode-1 (16-bit) & Mode-2 (8-bit Auto-reload)", "Interrupt Structure & Vector Locations"] },
           { name: "Unit 4: Hardware Interfacing", topics: ["ADC0808 / DAC0808 Interfacing", "16x2 LCD Display Command Sequencing", "Stepper Motor Driving via ULN2003"] }
         ]
       },
@@ -890,13 +749,13 @@
         tag: "OOP",
         name: "Object Oriented Programming",
         faculty: "Prof. Sheetal M. Katwe (SMK)",
-        badge: "Theory & Lab",
+        progress: 72,
         color: "emerald",
         units: [
           { name: "Unit 1: OOP Fundamentals", topics: ["Classes, Objects & Encapsulation", "Constructors, Destructors & Copy Constructors", "Memory Management (new / delete)"] },
           { name: "Unit 2: Inheritance & Polymorphism", topics: ["Single, Multiple & Multilevel Inheritance", "Function Overloading & Operator Overloading", "Virtual Functions & Pure Virtual Abstract Classes"] },
           { name: "Unit 3: Templates & STL", topics: ["Function & Class Templates", "STL Vectors, Lists & Maps", "Iterators & Algorithms"] },
-          { name: "Unit 4: Exception Handling & File I/O", topics: ["try, catch, throw Blocks", "Standard C++ File Streams (ifstream, ofstream)", "Binary File Operations"] }
+          { name: "Unit 4: Exception Handling & File I/O", topics: ["try, catch, throw Blocks", "Standard C++ File Streams", "Binary File Operations"] }
         ]
       },
       {
@@ -905,7 +764,7 @@
         tag: "DBMS",
         name: "Database Management Systems",
         faculty: "Prof. Vikas J. Nandeshwar (VJN)",
-        badge: "Theory & Lab",
+        progress: 80,
         color: "amber",
         units: [
           { name: "Unit 1: Relational Modeling", topics: ["Entity-Relationship (ER) Diagrams", "Relational Algebra & Relational Schema", "Primary, Foreign, & Composite Keys"] },
@@ -920,7 +779,7 @@
         tag: "RAAD",
         name: "Reasoning & Aptitude Development - 3",
         faculty: "Prof. Manisha P. Narwane (MPN)",
-        badge: "Placement",
+        progress: 60,
         color: "rose",
         units: [
           { name: "Unit 1: Quantitative Aptitude", topics: ["Time, Speed & Distance Problems", "Percentages, Profit & Loss", "Permutations, Combinations & Probability"] },
@@ -933,7 +792,7 @@
         tag: "DT-1",
         name: "Design Thinking - 1",
         faculty: "Dr. Jayant Kulkarni / Prof. S. Waghmare",
-        badge: "Tutorial",
+        progress: 45,
         color: "indigo",
         units: [
           { name: "Unit 1: Empathy & Problem Definition", topics: ["User Empathy Mapping & Needfinding", "Problem Statement Framing (How Might We)", "Stakeholder Interview Analysis"] },
@@ -944,224 +803,401 @@
 
     const quizBank = {
       sat: [
-        { q: "In an LVDT, what is the output voltage at the null (center) position theoretically?", options: ["Maximum AC voltage", "Zero volts", "Pure DC offset voltage", "Equal to excitation voltage"], ans: 1, exp: "At the null position, the secondary voltages are identical in amplitude but 180° out of phase, canceling each other out to zero." },
-        { q: "Which transducer operates on the piezoelectric effect for dynamic pressure & vibration?", options: ["Quartz / PZT Crystal", "Copper Wire", "Silicon Thermistor", "Nichrome Coil"], ans: 0, exp: "PZT generates an electric potential across its crystal lattice when mechanically compressed." },
-        { q: "What is the nominal resistance of a standard PT100 RTD at 0°C?", options: ["0 Ohms", "50 Ohms", "100 Ohms", "1000 Ohms"], ans: 2, exp: "PT100 stands for Platinum resistance sensor with exactly 100 Ω nominal resistance at 0°C." }
-      ],
-      ds: [
-        { q: "In Pandas, what is the key difference between .loc[] and .iloc[]?", options: [".loc is label-based, .iloc is integer position-based", ".loc is for columns only", ".iloc is deprecated", "There is no functional difference"], ans: 0, exp: ".loc references index names or column labels, while .iloc strictly indexes by 0-based integer positions." },
-        { q: "Which Pandas function is used to discard rows containing NaN values?", options: ["df.clean()", "df.dropna()", "df.remove_nan()", "df.discard()"], ans: 1, exp: "df.dropna() removes rows or columns containing missing or null values." }
+        { q: "In an LVDT, what is the output voltage at the null (center) position theoretically?", options: ["Maximum AC voltage", "Zero volts", "Pure DC offset voltage", "Equal to excitation voltage"], ans: 1, exp: "At the null position, secondary voltages are identical in amplitude and 180° out of phase, canceling each other out to zero." },
+        { q: "Which transducer operates on the piezoelectric effect for dynamic pressure?", options: ["Quartz / PZT Crystal", "Copper Wire", "Silicon Thermistor", "Nichrome Coil"], ans: 0, exp: "PZT crystals generate charge proportional to applied mechanical strain." }
       ],
       maa: [
-        { q: "What is the register bit width of the DPTR (Data Pointer) in an 8051?", options: ["8-bit", "16-bit", "32-bit", "4-bit"], ans: 1, exp: "DPTR is a 16-bit register composed of DPH and DPL, capable of pointing to 64KB external memory." },
-        { q: "Which 8051 port has open-drain outputs requiring external pull-up resistors?", options: ["Port 0", "Port 1", "Port 2", "Port 3"], ans: 0, exp: "Port 0 lacks internal pull-ups and requires external 10kΩ pull-up resistors for normal I/O operation." }
+        { q: "What is the register bit width of the DPTR in an 8051 microcontroller?", options: ["8-bit", "16-bit", "32-bit", "4-bit"], ans: 1, exp: "DPTR is a 16-bit register composed of DPH and DPL, used to address external memory." }
       ],
-      oop: [
-        { q: "How is dynamic (runtime) polymorphism implemented in C++?", options: ["Using virtual functions & base pointers", "Using function templates", "Using function overloading", "Using friend functions"], ans: 0, exp: "Virtual functions enable runtime dispatch through the vtable when accessed via base class pointers or references." }
-      ],
-      dbms: [
-        { q: "A relational table is in 2nd Normal Form (2NF) if it is in 1NF and eliminates:", options: ["Transitive dependencies", "Partial functional dependencies on candidate keys", "Foreign keys", "Null values"], ans: 1, exp: "2NF requires that every non-prime attribute depends fully on the whole candidate key, not just a subset." }
-      ],
-      raad: [
-        { q: "If A can complete a job in 10 days and B in 15 days, working together they finish in:", options: ["5 days", "6 days", "8 days", "12.5 days"], ans: 1, exp: "1/10 + 1/15 = 5/30 = 1/6 job/day. Total time required is 6 days." }
-      ],
-      dt: [
-        { q: "What is the primary objective of the 'Empathize' stage in Design Thinking?", options: ["Build working prototypes", "Understand user pain points through observation & interviews", "Pitch to investors", "Optimize unit economics"], ans: 1, exp: "Empathize focuses on deep user observation and immersion to uncover unmet needs before jumping to solutions." }
+      ds: [
+        { q: "In Pandas, what is the key difference between .loc[] and .iloc[]?", options: [".loc is label-based, .iloc is integer position-based", ".loc is for columns only", ".iloc is deprecated", "There is no difference"], ans: 0, exp: ".loc references index names or labels, while .iloc strictly indexes by 0-based integer positions." }
       ]
     };
 
     const rawData = [
-      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL|maa|0|0",
-      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|0",
-      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2|ds|0|1",
-      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
-      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1|sat|0|0",
-      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3|ds|0|1",
-      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1|dt|0|0",
-      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1|ds|0|1",
-      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2|sat|0|0",
-      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL|maa|0|1",
-      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL|dbms|0|0",
-      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|0|0",
-      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3|oop|1|0",
-      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL|sat|0|1",
-      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2|dt|0|1",
-      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B5|maa|2|0",
-      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3|dbms|1|0",
-      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1|oop|1|0",
-      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B4|maa|2|0",
-      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|2",
-      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|0",
-      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1|dbms|1|0",
       "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL|raad|0|0",
       "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL|dbms|1|0",
       "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|1|1",
       "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|1",
       "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2|dbms|1|1",
-      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3|sat|0|0"
+      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3|sat|0|0",
+      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL|maa|0|0",
+      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|0",
+      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2|ds|0|1",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
+      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL|maa|0|1",
+      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL|dbms|0|0",
+      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL|sat|0|1",
+      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|2"
     ];
 
     let assignments = [
-      { id: "a1", course: "IC2303: SAT", courseId: "sat", unitIdx: 0, topicIdx: 0, title: "LVDT Calibration Experiment Report", due: "Next Monday", prof: "Prof. Seema Mashalkar", done: false },
-      { id: "a2", course: "IC2301: DS", courseId: "ds", unitIdx: 0, topicIdx: 1, title: "Pandas Data Cleaning on Sensor Dataset", due: "Sep 18, 2026", prof: "Prof. Rajesh Pashikanti", done: false },
-      { id: "a3", course: "IC2305: OOP", courseId: "oop", unitIdx: 1, topicIdx: 0, title: "Inheritance & Polymorphism Mini-Project Proposal", due: "Sep 22, 2026", prof: "Prof. Sheetal Katwe", done: false },
-      { id: "a4", course: "IC2307: DBMS", courseId: "dbms", unitIdx: 0, topicIdx: 0, title: "ER Diagram for Smart Campus Navigation System", due: "Sep 25, 2026", prof: "Prof. Vikas Nandeshwar", done: true },
-      { id: "a5", course: "MM1408: MAA", courseId: "maa", unitIdx: 2, topicIdx: 0, title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", prof: "Prof. Pramod Kanjalkar", done: false }
+      { id: "a1", courseId: "sat", topic: "LVDT Operating Principle", title: "LVDT Calibration Experiment Report", due: "Tomorrow", priority: "high", done: false },
+      { id: "a2", courseId: "maa", topic: "8051 Timers & Interrupts", title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", priority: "med", done: false },
+      { id: "a3", courseId: "ds", topic: "Pandas Data Cleaning", title: "Pandas Data Cleaning on Sensor Dataset", due: "Sep 18, 2026", priority: "med", done: false },
+      { id: "a4", courseId: "dbms", topic: "Entity-Relationship Modeling", title: "ER Diagram for Smart Campus Navigation", due: "Sep 25, 2026", priority: "low", done: true }
     ];
-
     if (localStorage.getItem('flux_assignments')) {
       try { assignments = JSON.parse(localStorage.getItem('flux_assignments')); } catch(e){}
     }
 
-    let syllabusChecklist = {};
-    if (localStorage.getItem('flux_syllabus')) {
-      try { syllabusChecklist = JSON.parse(localStorage.getItem('flux_syllabus')); } catch(e){}
+    let notesList = [
+      { id: "n1", courseId: "sat", topic: "LVDT Operating Principle", title: "LVDT Working Principle & Null Nulling", content: "Primary excitation AC. Secondary coils wired in series opposition (Vo = V1 - V2). Residual null voltage caused by harmonics and stray capacitance.", date: "Sep 10" },
+      { id: "n2", courseId: "maa", topic: "8051 Architecture", title: "8051 Internal Memory Map & SFRs", content: "Internal 128 bytes RAM (00H-7FH). Register banks 0-3 (00H-1FH), Bit-addressable RAM (20H-2FH), Scratchpad (30H-7FH). Special function registers located at 80H-FFH.", date: "Sep 8" }
+    ];
+    if (localStorage.getItem('flux_notes_v2')) {
+      try { notesList = JSON.parse(localStorage.getItem('flux_notes_v2')); } catch(e){}
     }
 
     let studySessions = [
-      { course: "Sensors & Transducers", topic: "LVDT Operating Principle", duration: 45, rating: 5, reflection: "Understood null voltage phase cancellation.", time: "Today 4:30 PM" }
+      { course: "Sensors and Transducers", topic: "LVDT Operating Principle", duration: 45, rating: 5, reflection: "Understood null voltage phase cancellation.", time: "Today 4:30 PM" }
     ];
     if (localStorage.getItem('flux_sessions')) {
       try { studySessions = JSON.parse(localStorage.getItem('flux_sessions')); } catch(e){}
     }
 
-    // 2. SPA VIEW ROUTER
-    const views = ['dashboard', 'timetable', 'study', 'brain', 'courses', 'assignments', 'notes'];
+    // 2. VIEW NAVIGATION ROUTER
+    const views = ['dashboard', 'subjects', 'study', 'assignments', 'notes', 'timetable', 'brain'];
 
     function switchView(target) {
       views.forEach(v => {
         const el = document.getElementById('view-' + v);
         if (el) el.classList.add('hidden');
-        const dtab = document.getElementById('dtab-' + v);
-        if (dtab) dtab.className = 'px-3 py-1.5 rounded-xl text-slate-300 hover:text-white transition flex items-center gap-1.5';
-        const mtab = document.getElementById('mtab-' + v);
-        if (mtab) mtab.className = 'flex flex-col items-center gap-1 py-1 px-2 text-slate-400';
+        const snav = document.getElementById('snav-' + v);
+        if (snav) snav.className = 'w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-slate-900 transition';
+        const mnav = document.getElementById('mnav-' + v);
+        if (mnav) mnav.className = 'flex flex-col items-center gap-1 py-1 px-2 text-slate-400';
       });
 
       const activeView = document.getElementById('view-' + target);
       if (activeView) activeView.classList.remove('hidden');
 
-      const activeDtab = document.getElementById('dtab-' + target);
-      if (activeDtab) activeDtab.className = 'px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 nav-active';
+      const activeSnav = document.getElementById('snav-' + target);
+      if (activeSnav) activeSnav.className = 'w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition nav-btn-active';
 
-      const activeMtab = document.getElementById('mtab-' + target);
-      if (activeMtab) activeMtab.className = 'flex flex-col items-center gap-1 py-1 px-2 text-cyan-400 font-bold';
+      const activeMnav = document.getElementById('mnav-' + target);
+      if (activeMnav) activeMnav.className = 'flex flex-col items-center gap-1 py-1 px-2 text-cyan-400 font-bold';
+
+      if (target === 'subjects') {
+        document.getElementById('subjects-list-container').classList.remove('hidden');
+        document.getElementById('subject-workspace-container').classList.add('hidden');
+      }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
       lucide.createIcons();
     }
 
-    // 3. STUDY ENGINE TOPIC POPULATION & TIMER
-    let currentDurationMins = 45;
-    let totalSeconds = currentDurationMins * 60;
-    let timerId = null;
-    let isRunning = false;
-    let totalStudied = 45;
-    let selectedRating = 4;
+    // 3. DASHBOARD RENDERERS
+    function renderDashboard() {
+      // Schedule preview
+      const scheduleContainer = document.getElementById('dash-schedule-list');
+      const todayClasses = rawData.filter(x => x.startsWith('Fri')).slice(0, 3);
+      scheduleContainer.innerHTML = todayClasses.map(line => {
+        const [, time, type, name, prof, room, , courseId, uidx, tidx] = line.split('|');
+        return `
+          <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-cyan-400 font-bold">${time}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">${type}</span>
+              </div>
+              <div class="font-bold text-white">${name}</div>
+              <div class="text-slate-400 text-[11px]">${prof} • Room <strong>${room}</strong></div>
+            </div>
+            <button onclick="startQuickStudy('${courseId}', ${uidx||0}, ${tidx||0}, 30)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-950 hover:text-cyan-300 hover:border-cyan-800 border border-slate-700 text-slate-300 text-[11px] font-bold transition flex items-center gap-1">
+              <i data-lucide="play" class="w-3 h-3"></i> Study
+            </button>
+          </div>
+        `;
+      }).join('');
 
-    function initStudyCourseDropdown() {
-      const select = document.getElementById('study-course-select');
-      select.innerHTML = coursesData.map(c => `
-        <option value="${c.id}">${c.code}: ${c.name} • ${c.faculty}</option>
-      `).join('');
-      populateTopicDropdown();
+      // Deliverables preview
+      const tasksContainer = document.getElementById('dash-tasks-list');
+      const pendingTasks = assignments.filter(a => !a.done);
+      document.getElementById('side-pending-badge').textContent = pendingTasks.length;
+
+      tasksContainer.innerHTML = pendingTasks.map(t => {
+        const c = coursesData.find(x => x.id === t.courseId);
+        return `
+          <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full ${t.priority === 'high' ? 'bg-rose-500' : 'bg-amber-400'}"></span>
+              <div>
+                <div class="font-bold text-white">${t.title}</div>
+                <div class="text-slate-400 text-[11px]">${c ? c.name : 'Course'} • Due: <span class="text-amber-300 font-semibold">${t.due}</span></div>
+              </div>
+            </div>
+            <button onclick="toggleAssignment('${t.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-emerald-950 hover:text-emerald-300 text-[10px] font-bold text-slate-300 border border-slate-700">Done ✓</button>
+          </div>
+        `;
+      }).join('');
+
+      lucide.createIcons();
     }
 
-    function populateTopicDropdown() {
+    // 4. SUBJECTS WORKSPACE CONTROLLER
+    function renderSubjectsOverview() {
+      const container = document.getElementById('all-courses-cards');
+      container.innerHTML = coursesData.map(c => `
+        <div onclick="openSubjectWorkspace('${c.id}')" class="glass-card p-5 rounded-3xl border border-slate-800 hover:border-cyan-500/40 cursor-pointer transition group">
+          <div class="flex justify-between items-start">
+            <div class="flex items-center gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-sm flex items-center justify-center">
+                ${c.tag}
+              </div>
+              <div>
+                <div class="font-bold text-white text-base group-hover:text-cyan-300 transition">${c.name}</div>
+                <div class="text-slate-400 text-xs">${c.code} • ${c.faculty}</div>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-cyan-400">${c.progress}%</span>
+          </div>
+
+          <div class="w-full bg-slate-800 rounded-full h-1.5 mt-4 overflow-hidden">
+            <div class="bg-cyan-500 h-1.5 rounded-full" style="width: ${c.progress}%"></div>
+          </div>
+
+          <div class="flex justify-between items-center mt-3 text-[11px] text-slate-400">
+            <span>${c.units.length} Units • Quizzes & Notes</span>
+            <span class="text-cyan-400 font-semibold group-hover:underline">Open Workspace →</span>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openSubjectWorkspace(courseId) {
+      const c = coursesData.find(x => x.id === courseId);
+      if (!c) return;
+
+      document.getElementById('subjects-list-container').classList.add('hidden');
+      const ws = document.getElementById('subject-workspace-container');
+      ws.classList.remove('hidden');
+
+      // Filter deliverables & notes belonging to this course
+      const subjectTasks = assignments.filter(a => a.courseId === c.id);
+      const subjectNotes = notesList.filter(n => n.courseId === c.id);
+
+      ws.innerHTML = `
+        <div class="flex items-center gap-3">
+          <button onclick="backToSubjectsList()" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white text-xs font-bold transition flex items-center gap-1.5">
+            ← All Subjects
+          </button>
+          <span class="text-xs text-slate-400 font-mono">${c.code} Workspace</span>
+        </div>
+
+        <!-- SUBJECT HERO -->
+        <div class="glass-card p-6 rounded-3xl border border-cyan-500/30 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div class="space-y-1">
+            <div class="text-[10px] font-mono text-cyan-400 font-bold uppercase">${c.tag} • ${c.code}</div>
+            <h1 class="text-2xl font-black text-white">${c.name}</h1>
+            <p class="text-xs text-slate-300">Professor: <strong>${c.faculty}</strong></p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button onclick="startQuickStudy('${c.id}', 0, 0, 45)" class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs shadow-md flex items-center gap-2">
+              <i data-lucide="play" class="w-4 h-4 fill-white"></i> Continue Studying (45m)
+            </button>
+            <button onclick="launchQuiz('${c.id}')" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-2">
+              <i data-lucide="target" class="w-4 h-4 text-indigo-400"></i> Practice Quiz
+            </button>
+          </div>
+        </div>
+
+        <!-- 2 COLUMNS: SYLLABUS + CONNECTED DELIVERABLES/NOTES -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
+          
+          <!-- SYLLABUS UNITS CHECKLIST -->
+          <div class="lg:col-span-7 glass-card p-6 rounded-3xl space-y-4">
+            <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+              <h3 class="font-bold text-white text-sm">Course Syllabus & Topic Mastery</h3>
+              <span class="text-cyan-400 font-bold">${c.progress}% Overall</span>
+            </div>
+            <div class="space-y-4">
+              ${c.units.map((u, uidx) => `
+                <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                  <div class="font-bold text-cyan-400 text-xs">${u.name}</div>
+                  <div class="space-y-1.5">
+                    ${u.topics.map((t, tidx) => `
+                      <div class="p-2 rounded-xl bg-slate-900 border border-slate-800/80 flex items-center justify-between">
+                        <span class="text-slate-200 font-medium">${t}</span>
+                        <button onclick="startQuickStudy('${c.id}', ${uidx}, ${tidx}, 25)" class="text-[10px] px-2 py-1 rounded bg-cyan-950 text-cyan-300 hover:bg-cyan-900 font-bold border border-cyan-800">
+                          Study 25m →
+                        </button>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- CONNECTED ASSIGNMENTS & NOTES -->
+          <div class="lg:col-span-5 space-y-6">
+            <!-- Course Assignments -->
+            <div class="glass-card p-6 rounded-3xl space-y-3">
+              <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="font-bold text-white text-sm">Course Assignments</h3>
+                <span class="text-[10px] text-slate-400">${subjectTasks.length} tasks</span>
+              </div>
+              <div class="space-y-2">
+                ${subjectTasks.length === 0 ? '<div class="text-slate-500 py-2">No deliverables due for this subject.</div>' : 
+                  subjectTasks.map(t => `
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                      <div>
+                        <div class="font-bold text-white ${t.done ? 'line-through text-slate-500' : ''}">${t.title}</div>
+                        <div class="text-[10px] text-slate-400">Due: <strong class="text-amber-400">${t.due}</strong></div>
+                      </div>
+                      <span class="text-[10px] px-2 py-0.5 rounded font-bold ${t.done ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
+                        ${t.done ? 'Done' : 'Pending'}
+                      </span>
+                    </div>
+                  `).join('')
+                }
+              </div>
+            </div>
+
+            <!-- Course Notes -->
+            <div class="glass-card p-6 rounded-3xl space-y-3">
+              <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                <h3 class="font-bold text-white text-sm">Lecture Notes</h3>
+                <button onclick="openNewNoteModal('${c.id}')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">+ Add Note</button>
+              </div>
+              <div class="space-y-2">
+                ${subjectNotes.length === 0 ? '<div class="text-slate-500 py-2">No notes created yet for this course.</div>' :
+                  subjectNotes.map(n => `
+                    <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                      <div class="font-bold text-white">${n.title}</div>
+                      <div class="text-[11px] text-slate-300 line-clamp-2">${n.content}</div>
+                      <div class="text-[10px] text-slate-500">${n.date}</div>
+                    </div>
+                  `).join('')
+                }
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function backToSubjectsList() {
+      document.getElementById('subject-workspace-container').classList.add('hidden');
+      document.getElementById('subjects-list-container').classList.remove('hidden');
+      renderSubjectsOverview();
+    }
+
+    // 5. STUDY ENGINE RUNNER
+    let activeDurationMins = 45;
+    let timerTotalSeconds = activeDurationMins * 60;
+    let studyTimerInterval = null;
+    let isStudyActive = false;
+    let activeStudyRating = 4;
+
+    function initStudyEngine() {
+      const select = document.getElementById('study-course-select');
+      select.innerHTML = coursesData.map(c => `
+        <option value="${c.id}">${c.code}: ${c.name} (${c.faculty})</option>
+      `).join('');
+      populateStudyTopics();
+      renderStudyHistory();
+    }
+
+    function populateStudyTopics() {
       const courseId = document.getElementById('study-course-select').value;
       const c = coursesData.find(x => x.id === courseId);
       const topicSelect = document.getElementById('study-topic-select');
       if (!c) return;
 
-      const options = [];
+      const opts = [];
       c.units.forEach((u, uidx) => {
         u.topics.forEach((t, tidx) => {
-          options.push(`<option value="${c.id}|${uidx}|${tidx}">${u.name} → ${t}</option>`);
+          opts.push(`<option value="${c.id}|${uidx}|${tidx}">${u.name} → ${t}</option>`);
         });
       });
-      topicSelect.innerHTML = options.join('');
+      topicSelect.innerHTML = opts.join('');
     }
 
-    function setDuration(mins) {
-      if (isRunning) return;
-      currentDurationMins = mins;
-      totalSeconds = mins * 60;
-      ['25','45','60'].forEach(m => {
-        const btn = document.getElementById('pre-' + m);
+    function setStudyDuration(mins) {
+      if (isStudyActive) return;
+      activeDurationMins = mins;
+      timerTotalSeconds = mins * 60;
+      ['25','35','45','60'].forEach(m => {
+        const btn = document.getElementById('dur-' + m);
         if (btn) {
           if (m === String(mins)) {
-            btn.className = 'px-3.5 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold shadow';
+            btn.className = 'px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold shadow';
           } else {
-            btn.className = 'px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition';
+            btn.className = 'px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition';
           }
         }
       });
-      document.getElementById('timer-desc').textContent = `${mins}-minute focus session`;
-      updateClock();
+      document.getElementById('study-clock-desc').textContent = `${mins}-minute focus session`;
+      updateClockDisplay();
     }
 
-    function updateClock() {
-      const m = Math.floor(totalSeconds / 60);
-      const s = totalSeconds % 60;
-      document.getElementById('timer-display').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    function updateClockDisplay() {
+      const m = Math.floor(timerTotalSeconds / 60);
+      const s = timerTotalSeconds % 60;
+      document.getElementById('study-clock-display').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
-    function startTimer() {
-      if (isRunning) return;
-      isRunning = true;
+    function startStudySession() {
+      if (isStudyActive) return;
+      isStudyActive = true;
       document.getElementById('session-badge').textContent = 'ACTIVE';
       document.getElementById('session-badge').className = 'text-xs font-bold px-3 py-1 rounded-xl bg-emerald-950 text-emerald-300 border border-emerald-800';
-      document.getElementById('btn-start').classList.add('hidden');
-      document.getElementById('btn-pause').classList.remove('hidden');
-      document.getElementById('btn-complete').classList.remove('hidden');
-      
-      timerId = setInterval(() => {
-        if (totalSeconds > 0) {
-          totalSeconds--;
-          updateClock();
+      document.getElementById('study-btn-start').classList.add('hidden');
+      document.getElementById('study-btn-pause').classList.remove('hidden');
+      document.getElementById('study-btn-finish').classList.remove('hidden');
+
+      studyTimerInterval = setInterval(() => {
+        if (timerTotalSeconds > 0) {
+          timerTotalSeconds--;
+          updateClockDisplay();
         } else {
-          openSessionReflectionModal();
+          openSessionReflection();
         }
       }, 1000);
     }
 
-    function pauseTimer() {
-      if (!isRunning) return;
-      isRunning = false;
-      clearInterval(timerId);
+    function pauseStudySession() {
+      if (!isStudyActive) return;
+      isStudyActive = false;
+      clearInterval(studyTimerInterval);
       document.getElementById('session-badge').textContent = 'PAUSED';
       document.getElementById('session-badge').className = 'text-xs font-bold px-3 py-1 rounded-xl bg-amber-950 text-amber-300 border border-amber-800';
-      document.getElementById('btn-pause').innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Resume';
-      document.getElementById('btn-pause').onclick = resumeTimer;
+      document.getElementById('study-btn-pause').innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Resume';
+      document.getElementById('study-btn-pause').onclick = resumeStudySession;
       lucide.createIcons();
     }
 
-    function resumeTimer() {
-      document.getElementById('btn-pause').innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
-      document.getElementById('btn-pause').onclick = pauseTimer;
+    function resumeStudySession() {
+      document.getElementById('study-btn-pause').innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
+      document.getElementById('study-btn-pause').onclick = pauseStudySession;
       lucide.createIcons();
-      startTimer();
+      startStudySession();
     }
 
-    function openSessionReflectionModal() {
-      pauseTimer();
+    function openSessionReflection() {
+      pauseStudySession();
       const topicSelect = document.getElementById('study-topic-select');
       const topicName = topicSelect.options[topicSelect.selectedIndex]?.text || "Focus Session";
-      document.getElementById('reflection-topic-summary').textContent = topicName;
+      document.getElementById('refl-topic-display').textContent = topicName;
       document.getElementById('reflection-modal').classList.remove('hidden');
       document.getElementById('reflection-modal').classList.add('flex');
     }
 
-    function closeReflectionModal() {
+    function closeSessionReflection() {
       document.getElementById('reflection-modal').classList.add('hidden');
       document.getElementById('reflection-modal').classList.remove('flex');
-      resetTimerState();
+      resetStudyTimer();
     }
 
-    function setFocusRating(r) {
-      selectedRating = r;
+    function setReflectionRating(r) {
+      activeStudyRating = r;
       for (let i = 1; i <= 5; i++) {
-        const btn = document.getElementById('rate-' + i);
+        const btn = document.getElementById('refl-rate-' + i);
         if (i === r) {
           btn.className = 'flex-1 py-2 rounded-xl bg-cyan-600 border border-cyan-500 text-white font-bold';
         } else {
@@ -1170,57 +1206,54 @@
       }
     }
 
-    function saveSessionWithReflection() {
+    function saveCompletedStudySession() {
       const topicSelect = document.getElementById('study-topic-select');
-      const fullText = topicSelect.options[topicSelect.selectedIndex]?.text || "Study Session";
+      const fullTopicText = topicSelect.options[topicSelect.selectedIndex]?.text || "Study Session";
       const courseId = document.getElementById('study-course-select').value;
       const c = coursesData.find(x => x.id === courseId);
-      const reflection = document.getElementById('reflection-text').value.trim();
+      const reflection = document.getElementById('refl-text-input').value.trim();
 
       const newSession = {
         course: c ? c.name : "Course",
-        topic: fullText,
-        duration: currentDurationMins,
-        rating: selectedRating,
-        reflection: reflection || "Completed structured study interval.",
+        topic: fullTopicText,
+        duration: activeDurationMins,
+        rating: activeStudyRating,
+        reflection: reflection || "Completed structured study session.",
         time: "Just now"
       };
 
       studySessions.unshift(newSession);
       localStorage.setItem('flux_sessions', JSON.stringify(studySessions));
 
-      totalStudied += currentDurationMins;
-      document.getElementById('dash-minutes').textContent = `${totalStudied}m`;
-
-      closeReflectionModal();
+      closeSessionReflection();
       renderStudyHistory();
-      switchView('study');
+      renderDashboard();
     }
 
-    function resetTimerState() {
-      clearInterval(timerId);
-      isRunning = false;
+    function resetStudyTimer() {
+      clearInterval(studyTimerInterval);
+      isStudyActive = false;
       document.getElementById('session-badge').textContent = 'IDLE';
       document.getElementById('session-badge').className = 'text-xs font-bold px-3 py-1 rounded-xl bg-slate-800 text-slate-400';
-      totalSeconds = currentDurationMins * 60;
-      updateClock();
-      document.getElementById('btn-start').classList.remove('hidden');
-      document.getElementById('btn-pause').classList.add('hidden');
-      document.getElementById('btn-complete').classList.add('hidden');
+      timerTotalSeconds = activeDurationMins * 60;
+      updateClockDisplay();
+      document.getElementById('study-btn-start').classList.remove('hidden');
+      document.getElementById('study-btn-pause').classList.add('hidden');
+      document.getElementById('study-btn-finish').classList.add('hidden');
     }
 
     function renderStudyHistory() {
-      const container = document.getElementById('study-history-container');
+      const container = document.getElementById('study-history-list');
       if (studySessions.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-center py-6">No study sessions logged yet. Complete your first focus block!</div>`;
+        container.innerHTML = `<div class="text-slate-500 text-center py-6">No study sessions logged yet. Complete your first focus session!</div>`;
         return;
       }
 
       container.innerHTML = studySessions.map(s => `
         <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1.5">
           <div class="flex justify-between items-center">
-            <span class="font-bold text-white text-xs">${s.course}</span>
-            <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[10px] border border-cyan-800 font-bold">${s.duration}m • Rating: ${s.rating}/5 ★</span>
+            <span class="font-bold text-white">${s.course}</span>
+            <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 font-mono text-[10px] border border-cyan-800 font-bold">${s.duration}m • ${s.rating}/5 ★</span>
           </div>
           <div class="text-[11px] text-cyan-400 truncate">${s.topic}</div>
           <div class="text-[11px] text-slate-300 italic">"${s.reflection}"</div>
@@ -1229,263 +1262,267 @@
       `).join('');
     }
 
-    // 4. CONNECTED ACTION: STUDY FROM TIMETABLE OR NUDGE
-    function startSpecificSession(courseId, unitIdx, topicIdx, mins) {
+    function startQuickStudy(courseId, unitIdx, topicIdx, mins) {
       switchView('study');
       document.getElementById('study-course-select').value = courseId;
-      populateTopicDropdown();
+      populateStudyTopics();
       if (unitIdx !== undefined && topicIdx !== undefined) {
         document.getElementById('study-topic-select').value = `${courseId}|${unitIdx}|${topicIdx}`;
       }
-      setDuration(mins || 25);
-      startTimer();
+      setStudyDuration(mins || 35);
+      startStudySession();
     }
 
-    // 5. TIMETABLE SCHEDULE LOGIC
-    let currentDay = 'Fri';
+    // 6. ASSIGNMENTS TRACKER
+    let activeAssignmentFilter = 'ALL';
 
-    function setDay(d) {
-      currentDay = d;
-      ['Mon','Tue','Wed','Thu','Fri'].forEach(x => {
-        const btn = document.getElementById('tab-' + x);
-        if (x === d) {
-          btn.className = 'py-2.5 rounded-xl bg-cyan-600 text-white shadow font-bold';
+    function setAssignmentFilter(filt) {
+      activeAssignmentFilter = filt;
+      ['ALL', 'PENDING', 'COMPLETED'].forEach(f => {
+        const btn = document.getElementById('afilt-' + f);
+        if (f === filt) {
+          btn.className = 'px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-bold';
         } else {
-          btn.className = 'py-2.5 rounded-xl text-slate-400 hover:text-white transition font-bold';
+          btn.className = 'px-3 py-1.5 rounded-lg text-slate-400 hover:text-white font-semibold';
         }
       });
-      renderTimetable();
+      renderAssignmentsFull();
     }
 
-    function renderTimetable() {
-      const container = document.getElementById('schedule-container');
-      const dashContainer = document.getElementById('dash-schedule-container');
-      const batch = document.getElementById('batch-filter').value;
-      
-      const filtered = rawData.map(line => {
-        const [day, time, type, name, prof, room, b, courseId, uidx, tidx] = line.split('|');
-        return { day, time, type, name, prof, room, batch: b, courseId: courseId || 'sat', uidx: parseInt(uidx || 0), tidx: parseInt(tidx || 0) };
-      }).filter(s => s.day === currentDay && (batch === 'ALL' || s.batch === 'ALL' || s.batch === batch));
+    function renderAssignmentsFull() {
+      const container = document.getElementById('assignments-full-list');
+      const filtered = assignments.filter(a => {
+        if (activeAssignmentFilter === 'PENDING') return !a.done;
+        if (activeAssignmentFilter === 'COMPLETED') return a.done;
+        return true;
+      });
 
       if (filtered.length === 0) {
-        const emptyHtml = '<div class="p-6 rounded-2xl bg-slate-900 text-slate-400 text-center">No scheduled slots for this batch today.</div>';
-        if (container) container.innerHTML = emptyHtml;
-        if (dashContainer) dashContainer.innerHTML = emptyHtml;
+        container.innerHTML = `<div class="text-slate-500 text-center py-6">No assignments match this filter.</div>`;
         return;
       }
 
-      const html = filtered.map(s => {
-        let badgeColor = 'bg-cyan-950 text-cyan-300 border-cyan-800';
-        if (s.type === 'Lab') badgeColor = 'bg-amber-950 text-amber-300 border-amber-800';
-        if (s.type === 'Tutorial') badgeColor = 'bg-purple-950 text-purple-300 border-purple-800';
-
+      container.innerHTML = filtered.map(a => {
+        const c = coursesData.find(x => x.id === a.courseId);
         return `
-          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-cyan-400 font-bold">${s.time}</span>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${badgeColor}">
-                  ${s.type} ${s.batch !== 'ALL' ? '(' + s.batch + ')' : ''}
-                </span>
+          <div class="p-4 rounded-2xl bg-slate-900/60 border ${a.done ? 'border-emerald-500/20 opacity-70' : 'border-slate-800'} flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" ${a.done ? 'checked' : ''} onchange="toggleAssignment('${a.id}')" class="w-4 h-4 rounded border-slate-700 text-cyan-600 focus:ring-0 cursor-pointer">
+              <div>
+                <div class="font-bold text-sm ${a.done ? 'line-through text-slate-400' : 'text-white'}">${a.title}</div>
+                <div class="text-slate-400 text-xs mt-0.5">${c ? c.name : 'Course'} • Topic: <span class="text-cyan-400">${a.topic}</span></div>
+                <div class="text-[11px] text-slate-400">Due: <strong class="${a.done ? 'text-slate-500' : 'text-amber-400'}">${a.due}</strong></div>
               </div>
-              <div class="font-bold text-white text-xs">${s.name}</div>
-              <div class="text-slate-400 text-[11px]">${s.prof} • Room <strong>${s.room}</strong></div>
             </div>
-            <div>
-              <button onclick="startSpecificSession('${s.courseId}', ${s.uidx}, ${s.tidx}, 30)" class="w-full sm:w-auto px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-950 hover:text-cyan-300 hover:border-cyan-800 border border-slate-700 text-slate-300 text-[11px] font-bold flex items-center justify-center gap-1.5 transition">
-                <i data-lucide="play" class="w-3.5 h-3.5"></i> Study Topic
+            <div class="flex items-center gap-2">
+              <button onclick="startQuickStudy('${a.courseId}', 0, 0, 35)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-950 hover:text-cyan-300 border border-slate-700 text-[11px] font-bold">
+                Prep Session (35m)
               </button>
+              <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border ${a.done ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-amber-950 text-amber-300 border-amber-800'}">
+                ${a.done ? 'Completed' : 'Pending'}
+              </span>
             </div>
           </div>
         `;
       }).join('');
-
-      if (container) container.innerHTML = html;
-      if (dashContainer) dashContainer.innerHTML = html;
-      lucide.createIcons();
-    }
-
-    // 6. COURSES & ASSIGNMENTS RENDERERS
-    function renderCourses() {
-      const container = document.getElementById('course-cards-container');
-      container.innerHTML = coursesData.map(c => {
-        let courseTopics = 0;
-        let courseDone = 0;
-        c.units.forEach((u, uidx) => {
-          u.topics.forEach((t, tidx) => {
-            courseTopics++;
-            const key = `${c.id}_u${uidx}_t${tidx}`;
-            if (syllabusChecklist[key]) courseDone++;
-          });
-        });
-
-        const pct = courseTopics > 0 ? Math.round((courseDone / courseTopics) * 100) : 0;
-
-        return `
-          <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 hover:bg-slate-900/90 transition flex flex-col gap-2.5">
-            <div class="flex items-center justify-between">
-              <div onclick="openSyllabusModal('${c.id}')" class="flex items-center gap-3 cursor-pointer flex-1">
-                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center">
-                  ${c.tag}
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm hover:text-cyan-300 transition">${c.name} <span class="text-slate-400 font-normal">(${c.code})</span></div>
-                  <div class="text-slate-400 text-[11px] mt-0.5">Faculty: <strong class="text-slate-300">${c.faculty}</strong></div>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <button onclick="launchQuiz('${c.id}')" class="px-2.5 py-1 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/45 border border-indigo-500/40 text-indigo-300 text-[11px] font-bold flex items-center gap-1 transition">
-                  <i data-lucide="target" class="w-3 h-3"></i> Quiz
-                </button>
-                <div onclick="openSyllabusModal('${c.id}')" class="text-right cursor-pointer pl-1">
-                  <span class="text-xs font-bold text-cyan-400">${pct}%</span>
-                  <div class="text-[10px] text-slate-500">done</div>
-                </div>
-              </div>
-            </div>
-            <div onclick="openSyllabusModal('${c.id}')" class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden cursor-pointer">
-              <div class="bg-cyan-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-      lucide.createIcons();
-    }
-
-    function renderAssignments() {
-      const fullContainer = document.getElementById('assignments-full-container');
-      const dashContainer = document.getElementById('dash-assignments-container');
-      const pendingCount = assignments.filter(a => !a.done).length;
-      
-      document.getElementById('dash-pending-tasks').textContent = pendingCount;
-
-      const html = assignments.map(a => `
-        <div class="p-3.5 rounded-2xl bg-slate-900/60 border ${a.done ? 'border-emerald-500/30 opacity-75' : 'border-slate-800'} flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <input type="checkbox" ${a.done ? 'checked' : ''} onchange="toggleAssignment('${a.id}')" class="w-4 h-4 rounded border-slate-700 text-cyan-600 focus:ring-0 cursor-pointer">
-            <div>
-              <div class="font-bold text-xs ${a.done ? 'line-through text-slate-400' : 'text-white'}">${a.title}</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">${a.course} • Due: <span class="${a.done ? 'text-slate-400' : 'text-amber-400 font-semibold'}">${a.due}</span></div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="startSpecificSession('${a.courseId}', ${a.unitIdx}, ${a.topicIdx}, 30)" class="text-[10px] px-2.5 py-1 rounded-lg bg-cyan-950 text-cyan-300 hover:bg-cyan-900 border border-cyan-800 font-bold transition">
-              Study Prep →
-            </button>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${a.done ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-amber-950 text-amber-300 border-amber-800'}">
-              ${a.done ? 'Submitted' : 'Pending'}
-            </span>
-          </div>
-        </div>
-      `).join('');
-
-      if (fullContainer) fullContainer.innerHTML = html;
-      if (dashContainer) dashContainer.innerHTML = html;
       lucide.createIcons();
     }
 
     function toggleAssignment(id) {
       assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
       localStorage.setItem('flux_assignments', JSON.stringify(assignments));
-      renderAssignments();
+      renderAssignmentsFull();
+      renderDashboard();
     }
 
-    // 7. SYLLABUS MODAL LOGIC
-    function openSyllabusModal(courseId) {
-      const c = coursesData.find(x => x.id === courseId);
-      if (!c) return;
-
-      document.getElementById('modal-code').textContent = c.code;
-      document.getElementById('modal-title').textContent = c.name;
-      document.getElementById('modal-faculty').textContent = `Faculty: ${c.faculty}`;
-      document.getElementById('modal-quiz-btn').onclick = () => { closeSyllabusModal(); launchQuiz(c.id); };
-
-      renderModalUnits(c);
-      document.getElementById('syllabus-modal').classList.remove('hidden');
-      document.getElementById('syllabus-modal').classList.add('flex');
-      lucide.createIcons();
-    }
-
-    function closeSyllabusModal() {
-      document.getElementById('syllabus-modal').classList.add('hidden');
-      document.getElementById('syllabus-modal').classList.remove('flex');
-      renderCourses();
-    }
-
-    function renderModalUnits(c) {
-      const container = document.getElementById('modal-units-list');
-      let total = 0;
-      let done = 0;
-
-      container.innerHTML = c.units.map((u, uidx) => {
-        const topicsHtml = u.topics.map((t, tidx) => {
-          total++;
-          const key = `${c.id}_u${uidx}_t${tidx}`;
-          const isDone = !!syllabusChecklist[key];
-          if (isDone) done++;
-
-          return `
-            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700">
-              <label class="flex items-center gap-2.5 cursor-pointer flex-1">
-                <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTopic('${c.id}', ${uidx}, ${tidx})" class="w-4 h-4 rounded border-slate-700 text-cyan-600 focus:ring-0">
-                <span class="${isDone ? 'line-through text-slate-400' : 'text-slate-200'}">${t}</span>
-              </label>
-              <button onclick="startSpecificSession('${c.id}', ${uidx}, ${tidx}, 25); closeSyllabusModal();" class="text-[10px] px-2 py-1 rounded bg-cyan-950 text-cyan-300 hover:bg-cyan-900 transition flex items-center gap-1 font-semibold ml-2">
-                Study 25m →
-              </button>
-            </div>
-          `;
-        }).join('');
-
-        return `
-          <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
-            <h4 class="font-bold text-cyan-400 text-xs uppercase tracking-wider mb-2">${u.name}</h4>
-            <div class="space-y-1.5">${topicsHtml}</div>
-          </div>
-        `;
-      }).join('');
-
-      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-      document.getElementById('modal-progress-pct').textContent = `${pct}% Completed (${done}/${total} topics)`;
-    }
-
-    function toggleTopic(courseId, uidx, tidx) {
-      const key = `${courseId}_u${uidx}_t${tidx}`;
-      syllabusChecklist[key] = !syllabusChecklist[key];
-      localStorage.setItem('flux_syllabus', JSON.stringify(syllabusChecklist));
-      const c = coursesData.find(x => x.id === courseId);
-      renderModalUnits(c);
-      renderCourses();
-    }
-
-    // 8. QUIZ ENGINE LOGIC
-    let activeQuizCourse = null;
-    let quizQuestions = [];
-    let currentQuestionIdx = 0;
-    let quizScore = 0;
-    let selectedOption = null;
-
-    function launchQuiz(courseId) {
-      activeQuizCourse = courseId;
-      const c = coursesData.find(x => x.id === courseId);
-      quizQuestions = quizBank[courseId] || [];
-      if (quizQuestions.length === 0) {
-        alert("Practice quiz for this subject will be generated shortly.");
+    // 7. CONNECTED NOTES
+    function renderNotes() {
+      const container = document.getElementById('notes-grid');
+      if (notesList.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-slate-500 text-center py-8">No lecture notes saved yet. Create a note connected to your syllabus!</div>`;
         return;
       }
 
-      currentQuestionIdx = 0;
-      quizScore = 0;
-      selectedOption = null;
+      container.innerHTML = notesList.map(n => {
+        const c = coursesData.find(x => x.id === n.courseId);
+        return `
+          <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 flex flex-col justify-between space-y-3">
+            <div class="space-y-1">
+              <div class="flex justify-between items-center text-[10px] text-slate-400">
+                <span class="font-mono text-cyan-400 font-bold">${c ? c.tag : 'Course'}</span>
+                <span>${n.date}</span>
+              </div>
+              <h4 class="font-bold text-white text-sm">${n.title}</h4>
+              <div class="text-[10px] text-indigo-400 font-medium">${n.topic}</div>
+              <p class="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">${n.content}</p>
+            </div>
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px]">
+              <button onclick="startQuickStudy('${n.courseId}', 0, 0, 25)" class="text-cyan-400 hover:underline font-bold">Study Topic →</button>
+              <button onclick="deleteNote('${n.id}')" class="text-slate-500 hover:text-rose-400">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
 
-      document.getElementById('quiz-course-title').textContent = `${c ? c.name : 'Course'} Quiz`;
+    function openNewNoteModal(prefillCourseId) {
+      const courseSelect = document.getElementById('modal-note-course');
+      courseSelect.innerHTML = coursesData.map(c => `
+        <option value="${c.id}" ${c.id === prefillCourseId ? 'selected' : ''}>${c.code}: ${c.name}</option>
+      `).join('');
+      populateModalNoteTopics();
+
+      document.getElementById('modal-note-title').value = '';
+      document.getElementById('modal-note-content').value = '';
+      document.getElementById('note-modal').classList.remove('hidden');
+      document.getElementById('note-modal').classList.add('flex');
+    }
+
+    function closeNewNoteModal() {
+      document.getElementById('note-modal').classList.add('hidden');
+      document.getElementById('note-modal').classList.remove('flex');
+    }
+
+    function populateModalNoteTopics() {
+      const courseId = document.getElementById('modal-note-course').value;
+      const c = coursesData.find(x => x.id === courseId);
+      const topicSelect = document.getElementById('modal-note-topic');
+      if (!c) return;
+
+      const opts = [];
+      c.units.forEach(u => {
+        u.topics.forEach(t => {
+          opts.push(`<option value="${t}">${u.name} → ${t}</option>`);
+        });
+      });
+      topicSelect.innerHTML = opts.join('');
+    }
+
+    function saveNewNote() {
+      const courseId = document.getElementById('modal-note-course').value;
+      const topic = document.getElementById('modal-note-topic').value;
+      const title = document.getElementById('modal-note-title').value.trim() || "Untitled Note";
+      const content = document.getElementById('modal-note-content').value.trim();
+
+      const newNote = {
+        id: 'n_' + Date.now(),
+        courseId,
+        topic,
+        title,
+        content,
+        date: "Today"
+      };
+
+      notesList.unshift(newNote);
+      localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
+
+      closeNewNoteModal();
+      renderNotes();
+    }
+
+    function deleteNote(id) {
+      if (confirm('Delete this note?')) {
+        notesList = notesList.filter(n => n.id !== id);
+        localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
+        renderNotes();
+      }
+    }
+
+    // 8. INTERACTIVE TIMETABLE
+    let currentTimetableDay = 'Fri';
+
+    function setTimetableDay(d) {
+      currentTimetableDay = d;
+      ['Mon','Tue','Wed','Thu','Fri'].forEach(x => {
+        const btn = document.getElementById('tt-tab-' + x);
+        if (x === d) {
+          btn.className = 'py-2.5 rounded-xl bg-cyan-600 text-white shadow font-bold';
+        } else {
+          btn.className = 'py-2.5 rounded-xl text-slate-400 hover:text-white transition font-bold';
+        }
+      });
+      renderTimetableFull();
+    }
+
+    function renderTimetableFull() {
+      const container = document.getElementById('timetable-slots-list');
+      const batch = document.getElementById('tt-batch-filter').value;
+
+      const filtered = rawData.map(line => {
+        const [day, time, type, name, prof, room, b, courseId, uidx, tidx] = line.split('|');
+        return { day, time, type, name, prof, room, batch: b, courseId: courseId || 'sat', uidx: parseInt(uidx || 0), tidx: parseInt(tidx || 0) };
+      }).filter(s => s.day === currentTimetableDay && (batch === 'ALL' || s.batch === 'ALL' || s.batch === batch));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="p-6 rounded-2xl bg-slate-900 text-slate-400 text-center">No scheduled lectures for this batch on this day.</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => {
+        return `
+          <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-cyan-400 font-bold">${s.time}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold border border-slate-700 bg-slate-800 text-slate-300">
+                  ${s.type} ${s.batch !== 'ALL' ? '(' + s.batch + ')' : ''}
+                </span>
+              </div>
+              <div class="font-bold text-white text-sm">${s.name}</div>
+              <div class="text-slate-400 text-xs">${s.prof} • Room <strong>${s.room}</strong></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openSubjectWorkspace('${s.courseId}')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">
+                View Subject
+              </button>
+              <button onclick="startQuickStudy('${s.courseId}', ${s.uidx}, ${s.tidx}, 35)" class="px-3.5 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow flex items-center gap-1.5">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i> Prepare / Study
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // 9. ACADEMIC BRAIN TELEMETRY
+    function renderAcademicBrain() {
+      const container = document.getElementById('subject-health-container');
+      container.innerHTML = coursesData.map(c => `
+        <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-white">${c.name} (${c.tag})</span>
+            <span class="font-mono font-bold ${c.progress < 55 ? 'text-rose-400' : 'text-cyan-400'}">${c.progress}% Health ${c.progress < 55 ? '⚠' : ''}</span>
+          </div>
+          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+            <div class="${c.progress < 55 ? 'bg-rose-500' : 'bg-cyan-500'} h-2 rounded-full" style="width: ${c.progress}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 10. DIAGNOSTIC QUIZ LOGIC
+    let activeQuizQuestions = [];
+    let quizIdx = 0;
+    let quizPoints = 0;
+    let quizOptionLocked = false;
+
+    function launchQuiz(courseId) {
+      const c = coursesData.find(x => x.id === courseId);
+      activeQuizQuestions = quizBank[courseId] || quizBank['sat'];
+      quizIdx = 0;
+      quizPoints = 0;
+      quizOptionLocked = false;
+
+      document.getElementById('quiz-course-title').textContent = `${c ? c.name : 'Course'} Diagnostic Quiz`;
       document.getElementById('quiz-modal').classList.remove('hidden');
       document.getElementById('quiz-modal').classList.add('flex');
       document.getElementById('quiz-result-box').classList.add('hidden');
       document.getElementById('quiz-question-box').classList.remove('hidden');
       document.getElementById('quiz-footer').classList.remove('hidden');
 
-      renderQuizQuestion();
+      renderQuizStep();
     }
 
     function closeQuizModal() {
@@ -1493,45 +1530,43 @@
       document.getElementById('quiz-modal').classList.remove('flex');
     }
 
-    function renderQuizQuestion() {
-      const q = quizQuestions[currentQuestionIdx];
-      document.getElementById('quiz-counter').textContent = `Question ${currentQuestionIdx + 1} of ${quizQuestions.length}`;
-      document.getElementById('quiz-score-live').textContent = `Score: ${quizScore}`;
-      document.getElementById('quiz-progress-bar').style.width = `${((currentQuestionIdx + 1) / quizQuestions.length) * 100}%`;
+    function renderQuizStep() {
+      const q = activeQuizQuestions[quizIdx];
+      document.getElementById('quiz-counter').textContent = `Question ${quizIdx + 1} of ${activeQuizQuestions.length}`;
+      document.getElementById('quiz-score-live').textContent = `Score: ${quizPoints}`;
+      document.getElementById('quiz-progress-bar').style.width = `${((quizIdx + 1) / activeQuizQuestions.length) * 100}%`;
       document.getElementById('quiz-question-text').textContent = q.q;
 
       document.getElementById('quiz-explanation-box').classList.add('hidden');
       document.getElementById('quiz-next-btn').classList.add('hidden');
-      selectedOption = null;
+      quizOptionLocked = false;
 
-      const optsContainer = document.getElementById('quiz-options-container');
-      optsContainer.innerHTML = q.options.map((opt, idx) => `
-        <button onclick="handleOptionSelect(${idx})" id="quiz-opt-${idx}" class="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 transition font-medium flex items-center justify-between">
+      const optsBox = document.getElementById('quiz-options-container');
+      optsBox.innerHTML = q.options.map((opt, i) => `
+        <button onclick="handleQuizAnswer(${i})" id="qopt-${i}" class="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition font-medium flex items-center justify-between">
           <span>${opt}</span>
-          <span id="quiz-opt-icon-${idx}"></span>
+          <span id="qicon-${i}"></span>
         </button>
       `).join('');
     }
 
-    function handleOptionSelect(idx) {
-      if (selectedOption !== null) return;
-      selectedOption = idx;
-
-      const q = quizQuestions[currentQuestionIdx];
-      const isCorrect = (idx === q.ans);
+    function handleQuizAnswer(i) {
+      if (quizOptionLocked) return;
+      quizOptionLocked = true;
+      const q = activeQuizQuestions[quizIdx];
+      const isCorrect = (i === q.ans);
 
       if (isCorrect) {
-        quizScore++;
-        document.getElementById(`quiz-opt-${idx}`).className = "w-full text-left p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold flex items-center justify-between";
-        document.getElementById(`quiz-opt-icon-${idx}`).innerHTML = "✓";
+        quizPoints++;
+        document.getElementById(`qopt-${i}`).className = "w-full text-left p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold flex items-center justify-between";
+        document.getElementById(`qicon-${i}`).innerHTML = "✓";
       } else {
-        document.getElementById(`quiz-opt-${idx}`).className = "w-full text-left p-3 rounded-xl bg-rose-950 border border-rose-500 text-rose-200 font-bold flex items-center justify-between";
-        document.getElementById(`quiz-opt-icon-${idx}`).innerHTML = "✕";
-        document.getElementById(`quiz-opt-${q.ans}`).className = "w-full text-left p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold flex items-center justify-between";
+        document.getElementById(`qopt-${i}`).className = "w-full text-left p-3 rounded-xl bg-rose-950 border border-rose-500 text-rose-200 font-bold flex items-center justify-between";
+        document.getElementById(`qicon-${i}`).innerHTML = "✕";
+        document.getElementById(`qopt-${q.ans}`).className = "w-full text-left p-3 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold flex items-center justify-between";
       }
 
-      document.getElementById('quiz-score-live').textContent = `Score: ${quizScore}`;
-      
+      document.getElementById('quiz-score-live').textContent = `Score: ${quizPoints}`;
       const expBox = document.getElementById('quiz-explanation-box');
       expBox.innerHTML = `<strong>${isCorrect ? 'Correct!' : 'Key Takeaway:'}</strong> ${q.exp}`;
       expBox.classList.remove('hidden');
@@ -1539,45 +1574,19 @@
       document.getElementById('quiz-next-btn').classList.remove('hidden');
     }
 
-    function nextQuestion() {
-      if (currentQuestionIdx < quizQuestions.length - 1) {
-        currentQuestionIdx++;
-        renderQuizQuestion();
+    function nextQuizQuestion() {
+      if (quizIdx < activeQuizQuestions.length - 1) {
+        quizIdx++;
+        renderQuizStep();
       } else {
         document.getElementById('quiz-question-box').classList.add('hidden');
         document.getElementById('quiz-next-btn').classList.add('hidden');
         document.getElementById('quiz-result-box').classList.remove('hidden');
-        document.getElementById('quiz-result-summary').textContent = 
-          `You scored ${quizScore} out of ${quizQuestions.length} (${Math.round((quizScore / quizQuestions.length) * 100)}%).`;
-        
-        let brainVal = parseInt(document.getElementById('dash-brain-score').textContent) || 94;
-        brainVal = Math.min(100, brainVal + 2);
-        document.getElementById('dash-brain-score').textContent = `${brainVal}%`;
+        document.getElementById('quiz-result-summary').textContent = `You scored ${quizPoints} out of ${activeQuizQuestions.length}. Recorded in Academic Brain.`;
       }
     }
 
-    // 9. NOTES LOGIC
-    const notesArea = document.getElementById('notes-area');
-    const saveStatus = document.getElementById('save-status');
-
-    if (localStorage.getItem('flux_notes')) {
-      notesArea.value = localStorage.getItem('flux_notes');
-    }
-
-    function saveNotes() {
-      localStorage.setItem('flux_notes', notesArea.value);
-      saveStatus.textContent = 'Saved';
-    }
-
-    function clearNotes() {
-      if (confirm('Clear scratchpad notes?')) {
-        notesArea.value = '';
-        localStorage.removeItem('flux_notes');
-        saveStatus.textContent = 'Cleared';
-      }
-    }
-
-    // 10. CALENDAR MODAL
+    // 11. CALENDAR MODAL
     function openCalendarModal() {
       document.getElementById('academic-calendar-modal').classList.remove('hidden');
       document.getElementById('academic-calendar-modal').classList.add('flex');
@@ -1589,11 +1598,13 @@
     }
 
     // INITIALIZATION
-    initStudyCourseDropdown();
-    renderCourses();
-    renderAssignments();
-    renderStudyHistory();
-    setDay('Fri');
+    renderDashboard();
+    renderSubjectsOverview();
+    initStudyEngine();
+    renderAssignmentsFull();
+    renderNotes();
+    setTimetableDay('Fri');
+    renderAcademicBrain();
     lucide.createIcons();
   </script>
 </body>
