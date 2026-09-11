@@ -54,6 +54,62 @@
   <!-- MAIN DASHBOARD -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
+    <!-- ACADEMIC RADAR & EXAM COUNTDOWN (VIT Pune Dean Academics Official Calendar) -->
+    <div class="glass-card p-5 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-900 via-slate-900/90 to-cyan-950/40 relative overflow-hidden">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        
+        <!-- Left: Semester Timeline -->
+        <div class="space-y-1.5 flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
+              Semester Radar
+            </span>
+            <span class="text-xs text-slate-300 font-semibold">AY 2026-27 • Semester 1 (SEDA)</span>
+          </div>
+          <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+            <span>Week 3 of 16</span>
+            <span class="text-xs text-slate-400 font-normal">• 16% Semester Elapsed</span>
+          </h3>
+          <!-- Timeline Bar -->
+          <div class="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden max-w-xl">
+            <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" style="width: 16%"></div>
+          </div>
+          <div class="flex justify-between text-[10px] text-slate-400 max-w-xl pt-0.5">
+            <span>Commenced: Aug 24</span>
+            <span class="text-cyan-400 font-semibold">Mid-Sem: Oct 26</span>
+            <span>End-Sem: Dec 14</span>
+          </div>
+        </div>
+
+        <!-- Middle: Live Countdowns -->
+        <div class="flex items-center gap-3">
+          <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-center min-w-[120px]">
+            <div class="text-[10px] text-slate-400 font-medium">Mid-Sem Exams</div>
+            <div class="text-xl font-black text-white mt-0.5 flex items-center justify-center gap-1">
+              <span>45</span> <span class="text-xs text-cyan-400 font-semibold">days</span>
+            </div>
+            <div class="text-[10px] text-emerald-400 font-medium">Oct 26 - 31</div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-center min-w-[140px]">
+            <div class="text-[10px] text-amber-400 font-medium flex items-center justify-center gap-1">
+              <span>🪔</span> Next Holiday
+            </div>
+            <div class="text-xs font-bold text-white mt-1 truncate">Ganesh Chaturthi</div>
+            <div class="text-[10px] text-slate-400 font-medium">Monday, Sep 14</div>
+          </div>
+        </div>
+
+        <!-- Right: Roadmap Button -->
+        <div>
+          <button onclick="openCalendarModal()" class="w-full lg:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700/80 border border-slate-700 text-slate-200 text-xs font-bold transition flex items-center justify-center gap-2">
+            <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Dean's Academic Roadmap
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     <!-- KPI ROW -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="glass-card p-4 sm:p-5 rounded-2xl">
@@ -293,7 +349,6 @@
         </button>
       </div>
 
-      <!-- Question Counter & Progress Bar -->
       <div class="py-3">
         <div class="flex justify-between items-center text-xs text-slate-400 mb-1.5">
           <span id="quiz-counter">Question 1 of 3</span>
@@ -304,7 +359,6 @@
         </div>
       </div>
 
-      <!-- Question Area -->
       <div id="quiz-question-box" class="py-3">
         <h4 id="quiz-question-text" class="text-sm font-bold text-white leading-relaxed mb-4">
           In an LVDT, what is the output voltage at the null position?
@@ -313,7 +367,6 @@
         <div id="quiz-explanation-box" class="hidden mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed"></div>
       </div>
 
-      <!-- Completion Screen -->
       <div id="quiz-result-box" class="hidden py-6 text-center space-y-3">
         <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl font-black">
           🎯
@@ -326,11 +379,139 @@
         </button>
       </div>
 
-      <!-- Footer Buttons -->
       <div id="quiz-footer" class="pt-3 border-t border-slate-800 flex justify-between items-center">
         <button onclick="closeQuizModal()" class="text-xs text-slate-400 hover:text-slate-200">Exit Quiz</button>
         <button id="quiz-next-btn" onclick="nextQuestion()" class="hidden px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
           Next Question →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEAN'S ACADEMIC CALENDAR MODAL -->
+  <div id="academic-calendar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-3xl rounded-3xl shadow-2xl p-6 relative max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-start pb-4 border-b border-slate-800">
+        <div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wide">
+            Official VIT Academic Calendar
+          </span>
+          <h3 class="text-lg font-bold text-white mt-1">A.Y. 2026-27 • Semester 1 (Direct Second Year SEDA)</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Approved by: Prof. (Dr.) Parikshit N. Mahalle, Dean - Academics</p>
+        </div>
+        <button onclick="closeCalendarModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="py-4 overflow-y-auto space-y-5 text-xs">
+        
+        <!-- Key Milestone Table -->
+        <div>
+          <h4 class="font-bold text-white text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="flag" class="w-3.5 h-3.5 text-cyan-400"></i> Key Academic Milestones
+          </h4>
+          <div class="rounded-2xl border border-slate-800 overflow-hidden bg-slate-950/60">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-900 text-slate-400 font-semibold border-b border-slate-800">
+                <tr>
+                  <th class="p-3">#</th>
+                  <th class="p-3">Parameter / Event</th>
+                  <th class="p-3">Official Dates</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                <tr>
+                  <td class="p-3 font-mono text-slate-500">1</td>
+                  <td class="p-3 font-semibold text-white">Commencement of Teaching - Learning Activities</td>
+                  <td class="p-3 text-cyan-400 font-mono">24/08/2026</td>
+                </tr>
+                <tr class="bg-cyan-950/20">
+                  <td class="p-3 font-mono text-cyan-400">2</td>
+                  <td class="p-3 font-bold text-cyan-200">Mid-Semester Examination and Reviews</td>
+                  <td class="p-3 text-cyan-300 font-mono font-bold">26/10/2026 to 31/10/2026</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono text-slate-500">3</td>
+                  <td class="p-3 font-semibold text-white">Internal Assessment (GD / PPT, Course Projects)</td>
+                  <td class="p-3 text-slate-300 font-mono">07/12/2026 to 12/12/2026</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono text-slate-500">4</td>
+                  <td class="p-3 font-semibold text-white">End of Semester</td>
+                  <td class="p-3 text-slate-300 font-mono">12/12/2026</td>
+                </tr>
+                <tr class="bg-indigo-950/20">
+                  <td class="p-3 font-mono text-indigo-400">5</td>
+                  <td class="p-3 font-bold text-indigo-200">End-Semester Examination (ESE)</td>
+                  <td class="p-3 text-indigo-300 font-mono font-bold">14/12/2026 to 26/12/2026</td>
+                </tr>
+                <tr>
+                  <td class="p-3 font-mono text-emerald-400">6</td>
+                  <td class="p-3 font-semibold text-emerald-200">Commencement of Next Semester (Sem 2)</td>
+                  <td class="p-3 text-emerald-400 font-mono">04/01/2027 (Tentative)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Official Holidays List -->
+        <div>
+          <h4 class="font-bold text-white text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="sun" class="w-3.5 h-3.5 text-amber-400"></i> Official List of Holidays
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center opacity-60">
+              <span>1. Independence Day & Parsi Navarsha</span>
+              <span class="font-mono text-slate-400">15/08/26 (Sat)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center opacity-60">
+              <span>2. Id E Milad</span>
+              <span class="font-mono text-slate-400">26/08/26 (Wed)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-amber-950/30 border border-amber-500/40 text-amber-200 font-semibold flex justify-between items-center">
+              <span>3. 🪔 Shri Ganesh Chaturthi</span>
+              <span class="font-mono text-amber-300">14/09/26 (Mon)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>4. 🌸 Gauri Pujan</span>
+              <span class="font-mono text-slate-300">18/09/26 (Fri)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>5. 🚩 Anant Chaturdashi</span>
+              <span class="font-mono text-slate-300">25/09/26 (Fri)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>6. 🇮🇳 Mahatma Gandhi Jayanti</span>
+              <span class="font-mono text-slate-300">02/10/26 (Fri)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>7. 🏹 Vijaya Dashami / Dasara</span>
+              <span class="font-mono text-slate-300">20/10/26 (Tue)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>8. 🪔 Diwali Vacation</span>
+              <span class="font-mono text-slate-300">06/11 - 12/11/26</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>9. Gurunanak Jayanti</span>
+              <span class="font-mono text-slate-300">24/11/26 (Tue)</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex justify-between items-center">
+              <span>10. 🎄 Christmas</span>
+              <span class="font-mono text-slate-300">25/12/26 (Fri)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="pt-3 border-t border-slate-800 flex justify-end">
+        <button onclick="closeCalendarModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
+          Close
         </button>
       </div>
     </div>
@@ -380,7 +561,7 @@
         units: [
           { name: "Unit 1: 8051 Architecture", topics: ["8051 Internal Memory Map & SFRs", "Pin Diagram & Oscillator Connections", "I/O Ports & Electrical Characteristics"] },
           { name: "Unit 2: Instruction Set & Assembly", topics: ["Addressing Modes (Immediate, Direct, Register)", "Data Transfer & Arithmetic Instructions", "Logical Operations & Branching"] },
-          { name: "Unit 3: Timers & Interrupts", topics: ["8051 Timers", "Interrupts", "Serial UART"] },
+          { name: "Unit 3: Timers & Interrupts", topics: ["8051 Timers & Counters", "Interrupt Structure", "Serial UART"] },
           { name: "Unit 4: Hardware Interfacing", topics: ["ADC0808 / DAC0808 Interfacing", "16x2 LCD Display Command Sequencing", "Stepper Motor Driving via ULN2003"] }
         ]
       },
@@ -640,7 +821,7 @@
       window.scrollTo({ top: 100, behavior: 'smooth' });
     }
 
-    // 4. QUIZ ENGINE
+    // QUIZ ENGINE
     let activeQuizCourse = null;
     let quizQuestions = [];
     let currentQuestionIdx = 0;
@@ -738,7 +919,7 @@
       }
     }
 
-    // 5. TIMETABLE SCHEDULE
+    // TIMETABLE SCHEDULE
     const rawData = [
       "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
       "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
@@ -819,7 +1000,7 @@
       }).join('');
     }
 
-    // 6. TIMER ENGINE
+    // TIMER ENGINE
     let currentDurationMins = 45;
     let totalSeconds = currentDurationMins * 60;
     let timerId = null;
@@ -911,7 +1092,7 @@
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
 
-    // 7. NOTES LOGIC
+    // NOTES LOGIC
     const notesArea = document.getElementById('notes-area');
     const saveStatus = document.getElementById('save-status');
 
@@ -930,6 +1111,17 @@
         localStorage.removeItem('flux_notes');
         saveStatus.textContent = 'Cleared';
       }
+    }
+
+    // DEAN'S CALENDAR MODAL
+    function openCalendarModal() {
+      document.getElementById('academic-calendar-modal').classList.remove('hidden');
+      document.getElementById('academic-calendar-modal').classList.add('flex');
+      lucide.createIcons();
+    }
+    function closeCalendarModal() {
+      document.getElementById('academic-calendar-modal').classList.add('hidden');
+      document.getElementById('academic-calendar-modal').classList.remove('flex');
     }
 
     // INITIALIZATION
