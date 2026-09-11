@@ -9,16 +9,13 @@
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; }
     .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
-    .glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #080c14; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    .glass-card:hover { border-color: rgba(255, 255, 255, 0.12); }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen pb-20">
+<body class="text-slate-100 min-h-screen pb-16">
 
   <!-- TOP APP BAR -->
-  <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-[#080c14]/90 backdrop-blur-md">
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-[#080c14]/90 backdrop-blur-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-cyan-500/20">
@@ -41,14 +38,14 @@
           <div class="text-sm font-bold text-white">Nagesh Shinde</div>
           <div class="text-[11px] text-cyan-400">Instrumentation & Control</div>
         </div>
-        <div class="w-10 h-10 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-bold text-xs">
+        <div class="w-9 h-9 rounded-full bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-bold text-xs">
           NS
         </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN DASHBOARD -->
+  <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 space-y-6">
 
     <!-- KPI ROW -->
@@ -68,25 +65,25 @@
       </div>
 
       <div class="glass-card p-4 sm:p-5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Assignments Due</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-pending-tasks">3</div>
-        <div class="text-[11px] text-amber-400 mt-1 font-medium">Upcoming deliverables</div>
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Registered Courses</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1">7</div>
+        <div class="text-[11px] text-indigo-400 mt-1 font-medium">Theory, Labs & Tut</div>
       </div>
 
       <div class="glass-card p-4 sm:p-5 rounded-2xl">
-        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Overall Syllabus</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-syllabus-pct">0%</div>
-        <div class="text-[11px] text-emerald-400 mt-1 font-medium">Unit 1 in progress</div>
+        <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Academic Brain</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1">94%</div>
+        <div class="text-[11px] text-emerald-400 mt-1 font-medium">Consistency: High</div>
       </div>
     </div>
 
-    <!-- MAIN TWO COLUMN WORKSPACE -->
+    <!-- WORKSPACE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- LEFT COLUMN (7): TIMER, COURSES WITH SYLLABUS & ASSIGNMENTS -->
+      <!-- LEFT COLUMN (7): TIMER & COURSES -->
       <div class="lg:col-span-7 space-y-6">
 
-        <!-- STUDY TIMER CARD -->
+        <!-- TIMER CARD -->
         <div class="glass-card p-6 rounded-3xl border border-cyan-500/30">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -100,13 +97,13 @@
 
           <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Target Course</label>
           <select id="subject-select" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 mb-3 focus:outline-none focus:border-cyan-500 font-medium">
-            <option value="IC2303: Sensors & Transducers">IC2303: Sensors & Transducers • Prof. Seema Mashalkar</option>
-            <option value="IC2301: Data Science">IC2301: Data Science • Prof. Rajesh Pashikanti</option>
-            <option value="MM1408: Microcontrollers">MM1408: Microcontrollers • Prof. Pramod Kanjalkar</option>
-            <option value="IC2305: OOP">IC2305: OOP • Prof. Sheetal Katwe</option>
-            <option value="IC2307: DBMS">IC2307: DBMS • Prof. Vikas Nandeshwar</option>
-            <option value="HS2001: RAAD-3">HS2001: RAAD-3 • Prof. Manisha Narwane</option>
-            <option value="IC2311: Design Thinking">IC2311: Design Thinking • Dr. Jayant Kulkarni</option>
+            <option value="IC2303: Sensors & Transducers (Prof. Seema Mashalkar)">IC2303: Sensors & Transducers • Prof. Seema Mashalkar</option>
+            <option value="IC2301: Data Science (Prof. Rajesh Pashikanti)">IC2301: Data Science • Prof. Rajesh Pashikanti</option>
+            <option value="MM1408: Microcontrollers (Prof. Pramod Kanjalkar)">MM1408: Microcontrollers • Prof. Pramod Kanjalkar</option>
+            <option value="IC2305: OOP (Prof. Sheetal Katwe)">IC2305: OOP • Prof. Sheetal Katwe</option>
+            <option value="IC2307: DBMS (Prof. Vikas Nandeshwar)">IC2307: DBMS • Prof. Vikas Nandeshwar</option>
+            <option value="HS2001: Reasoning & Aptitude (Prof. Manisha Narwane)">HS2001: RAAD-3 • Prof. Manisha Narwane</option>
+            <option value="IC2311: Design Thinking - 1 (Dr. Jayant Kulkarni)">IC2311: Design Thinking • Dr. Jayant Kulkarni</option>
           </select>
 
           <!-- Duration Presets -->
@@ -135,32 +132,75 @@
           </div>
         </div>
 
-        <!-- 7 VIT REGISTERED COURSES (CLICKABLE FOR SYLLABUS) -->
+        <!-- 7 VIT REGISTERED COURSES -->
         <div class="glass-card p-6 rounded-3xl">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i> Course Syllabus & Progress
+                <i data-lucide="layers" class="w-5 h-5 text-cyan-400"></i> Registered Courses & Faculty
               </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Click any course to inspect Unit topics and tick progress</p>
+              <p class="text-xs text-slate-400 mt-0.5">Directly mapped from your VIERP timetable</p>
             </div>
             <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
           </div>
-          <div id="course-cards-container" class="space-y-3 text-xs"></div>
-        </div>
 
-        <!-- ASSIGNMENTS & LAB DEADLINES TRACKER -->
-        <div class="glass-card p-6 rounded-3xl">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="check-square" class="w-5 h-5 text-amber-400"></i> Lab & Assignment Submissions
-              </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Track lab reports, project milestones, and submissions</p>
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Sensors and Transducers <span class="text-slate-400 font-normal">(IC2303)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Seema S. Mashalkar (SSM)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">SAT</span>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded bg-amber-950 text-amber-300 border border-amber-800">Sem 1 Deliverables</span>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Data Science <span class="text-slate-400 font-normal">(IC2301)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Rajesh Pashikanti (RP)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-950 text-blue-300 border border-blue-800">DS</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Microcontroller & Applications <span class="text-slate-400 font-normal">(MM1408)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Pramod M. Kanjalkar (PMK)</strong> • Theory & Tut</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-950 text-purple-300 border border-purple-800">MAA</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Object Oriented Programming <span class="text-slate-400 font-normal">(IC2305)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Sheetal M. Katwe (SMK)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">OOP</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Database Management Systems <span class="text-slate-400 font-normal">(IC2307)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Vikas J. Nandeshwar (VJN)</strong> • Theory & Lab</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-950 text-amber-300 border border-amber-800">DBMS</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Reasoning & Aptitude Development - 3 <span class="text-slate-400 font-normal">(HS2001)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Prof. Manisha P. Narwane (MPN)</strong> • Theory</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-950 text-rose-300 border border-rose-800">RAAD</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-white text-sm">Design Thinking - 1 <span class="text-slate-400 font-normal">(IC2311)</span></div>
+                <div class="text-slate-400 mt-0.5">Faculty: <strong class="text-slate-200">Dr. Jayant Kulkarni / Prof. S. Waghmare</strong> • Tut</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-950 text-indigo-300 border border-indigo-800">DT-1</span>
+            </div>
           </div>
-          <div id="assignments-container" class="space-y-2.5 text-xs"></div>
         </div>
 
         <!-- LECTURE NOTES SCRATCHPAD -->
@@ -228,7 +268,7 @@
           <p class="text-xs text-slate-300 leading-relaxed mb-3">
             "Prof. Seema Mashalkar covers linear range calibration in SAT. Review LVDT and capacitive sensor formulas for 25 minutes to stay ahead in your lab practical."
           </p>
-          <button onclick="startSpecificSession('IC2303: Sensors & Transducers', 25)" class="w-full py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
+          <button onclick="startSpecificSession('IC2303: Sensors & Transducers (Prof. Seema Mashalkar)', 25)" class="w-full py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
             <i data-lucide="play" class="w-3.5 h-3.5"></i> Launch 25m Sensors Revision
           </button>
         </div>
@@ -238,317 +278,10 @@
     </div>
   </main>
 
-  <!-- SYLLABUS MODAL / DRAWER -->
-  <div id="syllabus-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl shadow-2xl p-6 relative max-h-[85vh] flex flex-col">
-      <div class="flex justify-between items-start pb-4 border-b border-slate-800">
-        <div>
-          <span id="modal-code" class="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">IC2303</span>
-          <h3 id="modal-title" class="text-lg font-bold text-white mt-1">Sensors & Transducers</h3>
-          <p id="modal-faculty" class="text-xs text-slate-400 mt-0.5">Faculty: Prof. Seema Mashalkar</p>
-        </div>
-        <button onclick="closeSyllabusModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition">
-          ✕
-        </button>
-      </div>
-
-      <div class="py-3 flex items-center justify-between text-xs border-b border-slate-800/60">
-        <span class="text-slate-400">Course Syllabus Progress:</span>
-        <span id="modal-progress-pct" class="font-bold text-cyan-400">0% Completed</span>
-      </div>
-
-      <!-- Scrollable Units List -->
-      <div id="modal-units-list" class="space-y-4 py-4 overflow-y-auto flex-1 text-xs"></div>
-
-      <!-- Modal Footer -->
-      <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
-        <span class="text-[11px] text-slate-500">Progress saved locally in browser</span>
-        <button onclick="closeSyllabusModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
-          Done
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // 1. SYLLABUS DATA FOR ALL 7 VIT COURSES (Zero syntax errors)
-    const coursesData = [
-      {
-        id: "sat",
-        code: "IC2303",
-        tag: "SAT",
-        name: "Sensors and Transducers",
-        faculty: "Prof. Seema S. Mashalkar (SSM)",
-        badge: "Theory & Lab",
-        color: "cyan",
-        units: [
-          { name: "Unit 1: Motion & Displacement", topics: ["LVDT Operating Principle & Characteristics", "Strain Gauges & Wheatstone Bridge", "Potentiometers & Optical Encoders"] },
-          { name: "Unit 2: Pressure & Force", topics: ["Bourdon Tubes & Bellows", "Diaphragms & Piezoelectric Crystals", "Capacitive Pressure Transducers"] },
-          { name: "Unit 3: Temperature Sensors", topics: ["RTD (PT100) & Callendar-Van Dusen Formula", "Thermocouples & Seebeck Effect", "Thermistors & Optical Pyrometers"] },
-          { name: "Unit 4: Flow & Level Sensors", topics: ["Electromagnetic Flowmeters", "Ultrasonic Transceivers & Time-of-Flight", "Capacitive Level Probes"] }
-        ]
-      },
-      {
-        id: "ds",
-        code: "IC2301",
-        tag: "DS",
-        name: "Data Science",
-        faculty: "Prof. Rajesh Pashikanti (RP)",
-        badge: "Theory & Lab",
-        color: "blue",
-        units: [
-          { name: "Unit 1: Python for Data Science", topics: ["NumPy Array Computations & Vectorization", "Pandas DataFrames & Series", "Data Cleaning & Missing Value Imputation"] },
-          { name: "Unit 2: Exploratory Data Analysis", topics: ["Matplotlib & Seaborn Visualizations", "Descriptive Statistics & Outlier Detection", "Correlation Heatmaps & Feature Selection"] },
-          { name: "Unit 3: Statistical Inference", topics: ["Normal Distribution & Central Limit Theorem", "Hypothesis Testing (t-tests, z-tests)", "Confidence Intervals & p-values"] },
-          { name: "Unit 4: Supervised Learning", topics: ["Linear Regression & Gradient Descent", "Logistic Regression for Classification", "Model Evaluation Metrics (RMSE, Accuracy, F1)"] }
-        ]
-      },
-      {
-        id: "maa",
-        code: "MM1408",
-        tag: "MAA",
-        name: "Microcontroller & Applications",
-        faculty: "Prof. Pramod M. Kanjalkar (PMK)",
-        badge: "Theory & Tut",
-        color: "purple",
-        units: [
-          { name: "Unit 1: 8051 Architecture", topics: ["8051 Internal Memory Map & SFRs", "Pin Diagram & Oscillator Connections", "I/O Ports & Electrical Characteristics"] },
-          { name: "Unit 2: Instruction Set & Assembly", topics: ["Addressing Modes (Immediate, Direct, Register)", "Data Transfer & Arithmetic Instructions", "Logical Operations & Branching"] },
-          { name: "Unit 3: Timers & Interrupts", topics: },
-          { name: "Unit 4: Hardware Interfacing", topics: ["ADC0808 / DAC0808 Interfacing", "16x2 LCD Display Command Sequencing", "Stepper Motor Driving via ULN2003"] }
-        ]
-      },
-      {
-        id: "oop",
-        code: "IC2305",
-        tag: "OOP",
-        name: "Object Oriented Programming",
-        faculty: "Prof. Sheetal M. Katwe (SMK)",
-        badge: "Theory & Lab",
-        color: "emerald",
-        units: [
-          { name: "Unit 1: OOP Fundamentals", topics: ["Classes, Objects & Encapsulation", "Constructors, Destructors & Copy Constructors", "Memory Management (new / delete)"] },
-          { name: "Unit 2: Inheritance & Polymorphism", topics: ["Single, Multiple & Multilevel Inheritance", "Function Overloading & Operator Overloading", "Virtual Functions & Pure Virtual Abstract Classes"] },
-          { name: "Unit 3: Templates & STL", topics: ["Function & Class Templates", "STL Vectors, Lists & Maps", "Iterators & Algorithms"] },
-          { name: "Unit 4: Exception Handling & File I/O", topics: ["try, catch, throw Blocks", "Standard C++ File Streams (ifstream, ofstream)", "Binary File Operations"] }
-        ]
-      },
-      {
-        id: "dbms",
-        code: "IC2307",
-        tag: "DBMS",
-        name: "Database Management Systems",
-        faculty: "Prof. Vikas J. Nandeshwar (VJN)",
-        badge: "Theory & Lab",
-        color: "amber",
-        units: [
-          { name: "Unit 1: Relational Modeling", topics: ["Entity-Relationship (ER) Diagrams", "Relational Algebra & Relational Schema", "Primary, Foreign, & Composite Keys"] },
-          { name: "Unit 2: SQL Mastery", topics: ["DDL, DML & DCL Commands", "Complex Subqueries & Nested SELECT", "INNER, LEFT, RIGHT & FULL OUTER Joins"] },
-          { name: "Unit 3: Normalization", topics: ["Functional Dependencies", "1NF, 2NF, 3NF Normal Forms", "Boyce-Codd Normal Form (BCNF)"] },
-          { name: "Unit 4: Transactions & Concurrency", topics: ["ACID Properties & Transaction States", "Serializability & Conflict Equivalence", "Two-Phase Locking (2PL) Protocol"] }
-        ]
-      },
-      {
-        id: "raad",
-        code: "HS2001",
-        tag: "RAAD",
-        name: "Reasoning & Aptitude Development - 3",
-        faculty: "Prof. Manisha P. Narwane (MPN)",
-        badge: "Placement",
-        color: "rose",
-        units: [
-          { name: "Unit 1: Quantitative Aptitude", topics: ["Time, Speed & Distance Problems", "Percentages, Profit & Loss", "Permutations, Combinations & Probability"] },
-          { name: "Unit 2: Logical Reasoning", topics: ["Blood Relations & Direction Sense", "Syllogisms & Deductive Logic", "Seating Arrangement & Matrix Puzzles"] }
-        ]
-      },
-      {
-        id: "dt",
-        code: "IC2311",
-        tag: "DT-1",
-        name: "Design Thinking - 1",
-        faculty: "Dr. Jayant Kulkarni / Prof. S. Waghmare",
-        badge: "Tutorial",
-        color: "indigo",
-        units: [
-          { name: "Unit 1: Empathy & Problem Definition", topics: ["User Empathy Mapping & Needfinding", "Problem Statement Framing (How Might We)", "Stakeholder Interview Analysis"] },
-          { name: "Unit 2: Ideation & Prototyping", topics: ["Brainstorming & SCAMPER Technique", "Low-Fidelity Hardware/Software Prototyping", "User Feedback & Iterative Testing"] }
-        ]
-      }
-    ];
+    lucide.createIcons();
 
-    // 2. DELIVERABLES & ASSIGNMENTS LIST
-    let assignments = [
-      { id: "a1", course: "IC2303: SAT", title: "LVDT Calibration Experiment Report", due: "Next Monday", prof: "Prof. Seema Mashalkar", done: false },
-      { id: "a2", course: "IC2301: DS", title: "Pandas Data Cleaning on Sensor Dataset", due: "Sep 18, 2026", prof: "Prof. Rajesh Pashikanti", done: false },
-      { id: "a3", course: "IC2305: OOP", title: "Inheritance & Polymorphism Mini-Project Proposal", due: "Sep 22, 2026", prof: "Prof. Sheetal Katwe", done: false },
-      { id: "a4", course: "IC2307: DBMS", title: "ER Diagram for Smart Campus Navigation System", due: "Sep 25, 2026", prof: "Prof. Vikas Nandeshwar", done: true },
-      { id: "a5", course: "MM1408: MAA", title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", prof: "Prof. Pramod Kanjalkar", done: false }
-    ];
-
-    if (localStorage.getItem('flux_assignments')) {
-      try { assignments = JSON.parse(localStorage.getItem('flux_assignments')); } catch(e){}
-    }
-
-    let syllabusChecklist = {};
-    if (localStorage.getItem('flux_syllabus')) {
-      try { syllabusChecklist = JSON.parse(localStorage.getItem('flux_syllabus')); } catch(e){}
-    }
-
-    function renderCourses() {
-      const container = document.getElementById('course-cards-container');
-      let totalTopics = 0;
-      let completedTopics = 0;
-
-      container.innerHTML = coursesData.map(c => {
-        let courseTopics = 0;
-        let courseDone = 0;
-        c.units.forEach((u, uidx) => {
-          u.topics.forEach((t, tidx) => {
-            totalTopics++;
-            courseTopics++;
-            const key = `${c.id}_u${uidx}_t${tidx}`;
-            if (syllabusChecklist[key]) {
-              completedTopics++;
-              courseDone++;
-            }
-          });
-        });
-
-        const pct = courseTopics > 0 ? Math.round((courseDone / courseTopics) * 100) : 0;
-
-        return `
-          <div onclick="openSyllabusModal('${c.id}')" class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 hover:bg-slate-900/90 transition cursor-pointer flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center">
-                  ${c.tag}
-                </div>
-                <div>
-                  <div class="font-bold text-white text-sm hover:text-cyan-300 transition">${c.name} <span class="text-slate-400 font-normal">(${c.code})</span></div>
-                  <div class="text-slate-400 text-[11px] mt-0.5">Faculty: <strong class="text-slate-300">${c.faculty}</strong></div>
-                </div>
-              </div>
-              <div class="text-right">
-                <span class="text-xs font-bold text-cyan-400">${pct}%</span>
-                <div class="text-[10px] text-slate-500">done</div>
-              </div>
-            </div>
-            <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-              <div class="bg-cyan-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      const overallPct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-      document.getElementById('stat-syllabus-pct').textContent = `${overallPct}%`;
-    }
-
-    function renderAssignments() {
-      const container = document.getElementById('assignments-container');
-      const pendingCount = assignments.filter(a => !a.done).length;
-      document.getElementById('stat-pending-tasks').textContent = pendingCount;
-
-      container.innerHTML = assignments.map(a => `
-        <div class="p-3 rounded-2xl bg-slate-900/60 border ${a.done ? 'border-emerald-500/30 opacity-75' : 'border-slate-800'} flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <input type="checkbox" ${a.done ? 'checked' : ''} onchange="toggleAssignment('${a.id}')" class="w-4 h-4 rounded border-slate-700 text-cyan-600 focus:ring-0 cursor-pointer">
-            <div>
-              <div class="font-bold text-xs ${a.done ? 'line-through text-slate-400' : 'text-white'}">${a.title}</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">${a.course} • Due: <span class="${a.done ? 'text-slate-400' : 'text-amber-400 font-semibold'}">${a.due}</span></div>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${a.done ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-amber-950 text-amber-300 border-amber-800'}">
-            ${a.done ? 'Submitted' : 'Pending'}
-          </span>
-        </div>
-      `).join('');
-    }
-
-    function toggleAssignment(id) {
-      assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
-      localStorage.setItem('flux_assignments', JSON.stringify(assignments));
-      renderAssignments();
-    }
-
-    let activeCourseId = null;
-
-    function openSyllabusModal(courseId) {
-      activeCourseId = courseId;
-      const c = coursesData.find(x => x.id === courseId);
-      if (!c) return;
-
-      document.getElementById('modal-code').textContent = c.code;
-      document.getElementById('modal-title').textContent = c.name;
-      document.getElementById('modal-faculty').textContent = `Faculty: ${c.faculty}`;
-
-      renderModalUnits(c);
-      document.getElementById('syllabus-modal').classList.remove('hidden');
-      document.getElementById('syllabus-modal').classList.add('flex');
-    }
-
-    function closeSyllabusModal() {
-      document.getElementById('syllabus-modal').classList.add('hidden');
-      document.getElementById('syllabus-modal').classList.remove('flex');
-      renderCourses();
-    }
-
-    function renderModalUnits(c) {
-      const container = document.getElementById('modal-units-list');
-      let total = 0;
-      let done = 0;
-
-      container.innerHTML = c.units.map((u, uidx) => {
-        const topicsHtml = u.topics.map((t, tidx) => {
-          total++;
-          const key = `${c.id}_u${uidx}_t${tidx}`;
-          const isDone = !!syllabusChecklist[key];
-          if (isDone) done++;
-
-          return `
-            <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700">
-              <label class="flex items-center gap-2.5 cursor-pointer flex-1">
-                <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTopic('${c.id}', ${uidx}, ${tidx})" class="w-4 h-4 rounded border-slate-700 text-cyan-600 focus:ring-0">
-                <span class="${isDone ? 'line-through text-slate-400' : 'text-slate-200'}">${t}</span>
-              </label>
-              <button onclick="startTopicSession('${c.name}', '${t}')" class="text-[10px] px-2 py-1 rounded bg-cyan-950 text-cyan-300 hover:bg-cyan-900 transition flex items-center gap-1 font-semibold ml-2">
-                Study 25m →
-              </button>
-            </div>
-          `;
-        }).join('');
-
-        return `
-          <div class="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800">
-            <h4 class="font-bold text-cyan-400 text-xs uppercase tracking-wider mb-2">${u.name}</h4>
-            <div class="space-y-1.5">${topicsHtml}</div>
-          </div>
-        `;
-      }).join('');
-
-      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-      document.getElementById('modal-progress-pct').textContent = `${pct}% Completed (${done}/${total} topics)`;
-    }
-
-    function toggleTopic(courseId, uidx, tidx) {
-      const key = `${courseId}_u${uidx}_t${tidx}`;
-      syllabusChecklist[key] = !syllabusChecklist[key];
-      localStorage.setItem('flux_syllabus', JSON.stringify(syllabusChecklist));
-      const c = coursesData.find(x => x.id === courseId);
-      renderModalUnits(c);
-      renderCourses();
-    }
-
-    function startTopicSession(courseName, topicName) {
-      closeSyllabusModal();
-      document.getElementById('subject-select').value = "IC2303: Sensors & Transducers";
-      setDuration(25);
-      startTimer();
-      window.scrollTo({ top: 100, behavior: 'smooth' });
-    }
-
-    // 3. COMPLETE TIMETABLE SLOTS
     const rawData = [
       "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
       "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
@@ -628,8 +361,9 @@
         `;
       }).join('');
     }
+    setDay('Fri');
 
-    // 4. TIMER ENGINE
+    // TIMER ENGINE
     let currentDurationMins = 45;
     let totalSeconds = currentDurationMins * 60;
     let timerId = null;
@@ -714,14 +448,14 @@
       alert(`🎉 Session Completed!\n+${currentDurationMins} minutes added to your focus stats.\nCourse: ${document.getElementById('subject-select').value}`);
     }
 
-    function startSpecificSession(courseKey, mins) {
-      document.getElementById('subject-select').value = courseKey;
+    function startSpecificSession(subject, mins) {
+      document.getElementById('subject-select').value = subject;
       setDuration(mins);
       startTimer();
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
 
-    // 5. NOTES LOGIC
+    // AUTO-SAVING NOTES LOGIC
     const notesArea = document.getElementById('notes-area');
     const saveStatus = document.getElementById('save-status');
 
@@ -741,12 +475,6 @@
         saveStatus.textContent = 'Cleared';
       }
     }
-
-    // INIT
-    renderCourses();
-    renderAssignments();
-    setDay('Fri');
-    lucide.createIcons();
   </script>
 </body>
 </html>
