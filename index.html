@@ -10,7 +10,6 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; }
     .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
     .glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
-    /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #080c14; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
@@ -76,7 +75,7 @@
 
       <div class="glass-card p-4 sm:p-5 rounded-2xl">
         <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Overall Syllabus</div>
-        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-syllabus-pct">18%</div>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="stat-syllabus-pct">0%</div>
         <div class="text-[11px] text-emerald-400 mt-1 font-medium">Unit 1 in progress</div>
       </div>
     </div>
@@ -84,7 +83,7 @@
     <!-- MAIN TWO COLUMN WORKSPACE -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- LEFT COLUMN (7): TIMER & REGISTERED COURSES WITH SYLLABUS -->
+      <!-- LEFT COLUMN (7): TIMER & COURSES -->
       <div class="lg:col-span-7 space-y-6">
 
         <!-- STUDY TIMER CARD -->
@@ -136,7 +135,7 @@
           </div>
         </div>
 
-        <!-- 7 VIT REGISTERED COURSES (CLICKABLE FOR SYLLABUS) -->
+        <!-- 7 VIT REGISTERED COURSES -->
         <div class="glass-card p-6 rounded-3xl">
           <div class="flex items-center justify-between mb-4">
             <div>
@@ -147,8 +146,6 @@
             </div>
             <span class="text-xs font-mono font-semibold px-2.5 py-1 rounded bg-slate-800 text-cyan-300">7 Courses</span>
           </div>
-
-          <!-- Courses List Container -->
           <div id="course-cards-container" class="space-y-3 text-xs"></div>
         </div>
 
@@ -163,8 +160,6 @@
             </div>
             <span class="text-xs font-semibold px-2.5 py-1 rounded bg-amber-950 text-amber-300 border border-amber-800">Sem 1 Deliverables</span>
           </div>
-
-          <!-- Assignment List -->
           <div id="assignments-container" class="space-y-2.5 text-xs"></div>
         </div>
 
@@ -243,7 +238,7 @@
     </div>
   </main>
 
-  <!-- SYLLABUS MODAL / DRAWER -->
+  <!-- SYLLABUS MODAL -->
   <div id="syllabus-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl shadow-2xl p-6 relative max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-start pb-4 border-b border-slate-800">
@@ -262,10 +257,8 @@
         <span id="modal-progress-pct" class="font-bold text-cyan-400">0% Completed</span>
       </div>
 
-      <!-- Scrollable Units List -->
       <div id="modal-units-list" class="space-y-4 py-4 overflow-y-auto flex-1 text-xs"></div>
 
-      <!-- Modal Footer -->
       <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
         <span class="text-[11px] text-slate-500">Progress saved locally in browser</span>
         <button onclick="closeSyllabusModal()" class="px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition">
@@ -275,11 +268,7 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
-    lucide.createIcons();
-
-    // 1. SYLLABUS DATA FOR ALL 7 VIT COURSES
     const coursesData = [
       {
         id: "sat",
@@ -322,7 +311,7 @@
         units: [
           { name: "Unit 1: 8051 Architecture", topics: ["8051 Internal Memory Map & SFRs", "Pin Diagram & Oscillator Connections", "I/O Ports & Electrical Characteristics"] },
           { name: "Unit 2: Instruction Set & Assembly", topics: ["Addressing Modes (Immediate, Direct, Register)", "Data Transfer & Arithmetic Instructions", "Logical Operations & Branching"] },
-          { name: "Unit 3: Timers & Interrupts", topics: },
+          { name: "Unit 3: Timers & Interrupts", topics: ["8051 Timers", "Interrupts", "Serial UART"] },
           { name: "Unit 4: Hardware Interfacing", topics: ["ADC0808 / DAC0808 Interfacing", "16x2 LCD Display Command Sequencing", "Stepper Motor Driving via ULN2003"] }
         ]
       },
@@ -384,7 +373,6 @@
       }
     ];
 
-    // 2. DELIVERABLES & ASSIGNMENTS LIST
     let assignments = [
       { id: "a1", course: "IC2303: SAT", title: "LVDT Calibration Experiment Report", due: "Next Monday", prof: "Prof. Seema Mashalkar", done: false },
       { id: "a2", course: "IC2301: DS", title: "Pandas Data Cleaning on Sensor Dataset", due: "Sep 18, 2026", prof: "Prof. Rajesh Pashikanti", done: false },
@@ -393,18 +381,42 @@
       { id: "a5", course: "MM1408: MAA", title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", prof: "Prof. Pramod Kanjalkar", done: false }
     ];
 
-    // Load saved assignments from localStorage
-    if (localStorage.getItem('flux_assignments')) {
-      try { assignments = JSON.parse(localStorage.getItem('flux_assignments')); } catch(e){}
-    }
+    const rawData = [
+      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
+      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
+      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2",
+      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1",
+      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3",
+      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1",
+      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1",
+      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2",
+      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL",
+      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL",
+      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
+      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3",
+      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL",
+      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2",
+      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B5",
+      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3",
+      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1",
+      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B4",
+      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
+      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
+      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1",
+      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL",
+      "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL",
+      "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
+      "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
+      "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2",
+      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3"
+    ];
 
-    // Load saved syllabus checklist from localStorage
     let syllabusChecklist = {};
     if (localStorage.getItem('flux_syllabus')) {
       try { syllabusChecklist = JSON.parse(localStorage.getItem('flux_syllabus')); } catch(e){}
     }
 
-    // Render Courses in Left Column
     function renderCourses() {
       const container = document.getElementById('course-cards-container');
       let totalTopics = 0;
@@ -431,7 +443,7 @@
           <div onclick="openSyllabusModal('${c.id}')" class="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-cyan-500/40 hover:bg-slate-900/90 transition cursor-pointer flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-${c.color}-500/10 border border-${c.color}-500/20 text-${c.color}-400 font-black text-xs flex items-center justify-center">
+                <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center">
                   ${c.tag}
                 </div>
                 <div>
@@ -444,7 +456,6 @@
                 <div class="text-[10px] text-slate-500">done</div>
               </div>
             </div>
-            <!-- Progress Bar -->
             <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
               <div class="bg-cyan-500 h-1.5 rounded-full transition-all duration-300" style="width: ${pct}%"></div>
             </div>
@@ -456,7 +467,6 @@
       document.getElementById('stat-syllabus-pct').textContent = `${overallPct}%`;
     }
 
-    // Render Assignments List
     function renderAssignments() {
       const container = document.getElementById('assignments-container');
       const pendingCount = assignments.filter(a => !a.done).length;
@@ -484,7 +494,6 @@
       renderAssignments();
     }
 
-    // SYLLABUS MODAL LOGIC
     let activeCourseId = null;
 
     function openSyllabusModal(courseId) {
@@ -504,7 +513,7 @@
     function closeSyllabusModal() {
       document.getElementById('syllabus-modal').classList.add('hidden');
       document.getElementById('syllabus-modal').classList.remove('flex');
-      renderCourses(); // refresh course cards progress bar
+      renderCourses();
     }
 
     function renderModalUnits(c) {
@@ -555,47 +564,11 @@
 
     function startTopicSession(courseName, topicName) {
       closeSyllabusModal();
-      document.getElementById('subject-select').value = `${courseName} (${topicName})`;
+      document.getElementById('subject-select').value = "IC2303: Sensors & Transducers";
       setDuration(25);
       startTimer();
       window.scrollTo({ top: 100, behavior: 'smooth' });
     }
-
-    // INITIAL RENDER
-    renderCourses();
-    renderAssignments();
-
-    // 3. TIMETABLE SCHEDULE
-    const rawData = [
-      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL",
-      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
-      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2",
-      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2",
-      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1",
-      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3",
-      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1",
-      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1",
-      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2",
-      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL",
-      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL",
-      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
-      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3",
-      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL",
-      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2",
-      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B5",
-      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3",
-      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1",
-      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B4",
-      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL",
-      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
-      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1",
-      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL",
-      "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL",
-      "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL",
-      "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL",
-      "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2",
-      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3"
-    ];
 
     let currentDay = 'Fri';
 
@@ -645,9 +618,7 @@
         `;
       }).join('');
     }
-    setDay('Fri');
 
-    // 4. TIMER ENGINE
     let currentDurationMins = 45;
     let totalSeconds = currentDurationMins * 60;
     let timerId = null;
@@ -739,7 +710,6 @@
       window.scrollTo({ top: 120, behavior: 'smooth' });
     }
 
-    // 5. NOTES LOGIC
     const notesArea = document.getElementById('notes-area');
     const saveStatus = document.getElementById('save-status');
 
@@ -759,6 +729,12 @@
         saveStatus.textContent = 'Cleared';
       }
     }
+
+    // INIT
+    renderCourses();
+    renderAssignments();
+    setDay('Fri');
+    lucide.createIcons();
   </script>
 </body>
 </html>
