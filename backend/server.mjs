@@ -174,4 +174,4 @@ const server = createServer(async (req, res) => {
   } catch (caught) { console.error(caught); return fail(res, 500, 'Internal server error.'); }
 });
 const port = Number(process.env.PORT || 8001);
-server.listen(port, '127.0.0.1', () => console.log(`FLUX ONE local API listening at http://127.0.0.1:${port}`));
+server.listen(port, '0.0.0.0', () => console.log(`FLUX ONE API listening on 0.0.0.0:${port}`));
