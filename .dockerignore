@@ -1,3 +1,7 @@
 .git
 backend/data
 *.log
+node_modules
+.env
+.env.*
+tests
