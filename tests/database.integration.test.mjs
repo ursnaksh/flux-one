@@ -122,6 +122,47 @@ test('accounts and all student data persist and remain isolated across server re
     bobToken = (await request('/api/v1/auth/login', { method: 'POST', data: bob })).access_token;
   });
 
+  await t.test('class roster import is private, updatable and batch-aware', async () => {
+    const imported = await request('/api/v1/class-roster/import', {
+      method: 'POST', token, status: 201,
+      data: { rows: [
+        { pnr: '20260001001', display_name: 'Alice Student', email: alice.email, roll_number: '042', batch: 'B2' },
+        { pnr: '20260001002', display_name: 'Bob Student', email: bob.email, roll_number: '043', batch: 'B2' },
+        { pnr: '20260001003', display_name: 'Charlie Student', roll_number: '044', batch: 'B1' },
+      ] },
+    });
+    assert.equal(imported.imported, 3);
+    assert.equal(imported.updated, 0);
+    assert.deepEqual(imported.summary.batches, { B1: 1, B2: 2, B3: 0, unknown: 0 });
+    const summary = await request('/api/v1/class-roster/summary', { token });
+    assert.equal(summary.total, 3);
+    assert.equal(summary.owner, true);
+    const roster = await request('/api/v1/class-roster', { token });
+    assert.equal(roster.length, 3);
+    assert.equal(roster[0].pnr, '20260001001');
+
+    const updated = await request('/api/v1/class-roster/import', {
+      method: 'POST', token, status: 201,
+      data: { rows: [{ pnr: '20260001003', display_name: 'Charlie Updated', roll_number: '044', batch: 'B3' }] },
+    });
+    assert.equal(updated.imported, 0);
+    assert.equal(updated.updated, 1);
+    assert.equal((await request('/api/v1/class-roster/summary', { token })).batches.B3, 1);
+
+    await request('/api/v1/class-roster/import', {
+      method: 'POST', token, status: 422,
+      data: { rows: [{ pnr: '20260001004', display_name: '' }, { pnr: '20260001004', display_name: 'Duplicate' }] },
+    });
+    assert.equal((await request('/api/v1/class-roster/summary', { token })).total, 3);
+
+    await request('/api/v1/profile', { method: 'PUT', token: bobToken, data: { display_name: 'Bob Student', prn: '20260001002', roll_number: '043', batch: 'B2' } });
+    const bobMatch = await request('/api/v1/class-roster/me', { token: bobToken });
+    assert.equal(bobMatch.display_name, 'Bob Student');
+    assert.equal(bobMatch.pnr, '20260001002');
+    await request('/api/v1/class-roster', { token: bobToken, status: 403 });
+    assert.equal((await request('/api/v1/class-roster/summary', { token: bobToken })).owner, false);
+  });
+
   await t.test('notes can be saved, filtered and deleted', async () => {
     const note = await request('/api/v1/notes', {
       method: 'POST', token, status: 201,
