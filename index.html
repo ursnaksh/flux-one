@@ -177,14 +177,13 @@
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 uppercase tracking-wider">
               Academic Command Center
             </span>
-            <span class="text-xs text-slate-400 font-medium">Friday • Sep 11, 2026</span>
+              <span id="dash-date-label" class="text-xs text-slate-400 font-medium">Loading today's plan…</span>
           </div>
           <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
             Ready for your next focus sprint, <span id="dash-greeting-name">Student</span>?
           </h1>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            Week 3 of 16 • <strong>45 days until Mid-Sem Exams</strong> (Oct 26). 
-            Next class is at 12:00 PM (DBMS). You have a 45-minute study window right now.
+          <p id="dash-plan-summary" class="text-xs text-slate-300 leading-relaxed">
+            Your official SY IC-SEDA timetable and academic-calendar milestones are loading.
           </p>
         </div>
 
@@ -204,19 +203,15 @@
               <i data-lucide="sparkles" class="w-4 h-4"></i>
               <span>FLUX INSIGHT • Priority Study Recommendation</span>
             </div>
-            <h3 class="text-sm font-bold text-white">
-              You've studied Sensors 3 times this week, but Control Systems only once.
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed max-w-2xl">
-              Recommended: <strong>Microcontrollers & Applications</strong> (8051 Timers & Mode-2 Simulation due Sep 28). Diagnostic test accuracy is 60%.
-            </p>
+            <h3 id="study-insight-title" class="text-sm font-bold text-white">Your recommendations will be based on your own study activity.</h3>
+            <p id="study-insight-detail" class="text-xs text-slate-300 leading-relaxed max-w-2xl">No demo subjects, deadlines, quiz scores, or study counts are used here.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="startQuickStudy('maa', 2, 0, 35)" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
-              <i data-lucide="play" class="w-3.5 h-3.5"></i> Study 8051 (35m)
+            <button onclick="startQuickStudy('maa', 0, 0, 35)" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> Start a 35m session
             </button>
-            <button onclick="launchQuiz('maa')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition">
-              Diagnostic Quiz
+            <button onclick="switchView('subjects')" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs transition">
+              Browse subjects
             </button>
           </div>
         </div>
@@ -230,9 +225,9 @@
           <div class="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h2 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Today's Classes (Friday)
+                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> <span id="dash-schedule-title">Today's Classes</span>
               </h2>
-              <p id="dash-batch-label" class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Batch B2 Schedule</p>
+              <p id="dash-batch-label" class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Choose your batch to personalize labs and tutorials</p>
             </div>
             <button onclick="switchView('timetable')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">
               Full Timetable →
@@ -247,9 +242,9 @@
           <div class="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h2 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="alert-circle" class="w-4 h-4 text-amber-400"></i> Upcoming Deliverables
+                <i data-lucide="calendar-days" class="w-4 h-4 text-amber-400"></i> Academic Calendar & Tasks
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">Labs, proposals & reports</p>
+              <p class="text-xs text-slate-400 mt-0.5">Official semester milestones and your own tasks</p>
             </div>
             <button onclick="switchView('assignments')" class="text-xs text-amber-400 hover:text-amber-300 font-bold">
               View All Tasks →
@@ -266,27 +261,27 @@
         <div onclick="switchView('brain')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Discipline Streak</div>
           <div class="text-2xl sm:text-3xl font-black text-white mt-1 flex items-center gap-1.5">
-            <span>3</span> <span class="text-orange-500">🔥</span>
+            <span id="dash-streak-days">0</span> <span class="text-orange-500">🔥</span>
           </div>
-          <div class="text-[11px] text-emerald-400 mt-1 font-medium">● Active today</div>
+          <div id="dash-streak-detail" class="text-[11px] text-slate-400 mt-1 font-medium">Complete a session to begin</div>
         </div>
 
         <div onclick="switchView('study')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Today's Focus</div>
-          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-focus-mins">45m</div>
-          <div class="text-[11px] text-cyan-400 mt-1 font-medium">Target: 90m (50%)</div>
+          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-focus-mins">0m</div>
+          <div class="text-[11px] text-cyan-400 mt-1 font-medium">Record a session to track focus</div>
         </div>
 
         <div onclick="switchView('brain')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Academic Brain</div>
-          <div class="text-2xl sm:text-3xl font-black text-cyan-400 mt-1" id="dash-brain-pct">94%</div>
-          <div class="text-[11px] text-emerald-400 mt-1 font-medium">Consistency: High</div>
+          <div class="text-2xl sm:text-3xl font-black text-cyan-400 mt-1" id="dash-brain-pct">0%</div>
+          <div class="text-[11px] text-slate-400 mt-1 font-medium">Based on your activity</div>
         </div>
 
         <div onclick="switchView('subjects')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition">
           <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Semester Coverage</div>
-          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-syllabus-cov">61%</div>
-          <div class="text-[11px] text-indigo-400 mt-1 font-medium">Across 7 IC subjects</div>
+          <div class="text-2xl sm:text-3xl font-black text-white mt-1" id="dash-syllabus-cov">0%</div>
+          <div class="text-[11px] text-indigo-400 mt-1 font-medium">Across 7 SY IC-SEDA subjects</div>
         </div>
       </div>
 
@@ -447,9 +442,9 @@
           <div class="flex items-center gap-2 text-xs">
             <span class="text-slate-400">Batch:</span>
             <select id="tt-batch-filter" onchange="renderTimetableFull()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 font-semibold focus:outline-none focus:border-cyan-500">
-              <option value="ALL">All Batches</option>
+              <option value="ALL" selected>All Batches</option>
               <option value="B1">Batch B1</option>
-              <option value="B2" selected>Batch B2</option>
+              <option value="B2">Batch B2</option>
               <option value="B3">Batch B3</option>
             </select>
           </div>
@@ -474,13 +469,13 @@
         <div class="flex items-center justify-between pb-4 border-b border-slate-800">
           <div>
             <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 uppercase tracking-wide">
-              Intelligence Telemetry
+              Your study activity
             </span>
-            <h2 class="text-2xl font-black text-white mt-1">Academic Brain</h2>
+            <h2 class="text-2xl font-black text-white mt-1">Academic Progress</h2>
           </div>
           <div class="text-right">
-            <div class="text-4xl font-black text-cyan-400">94%</div>
-            <div class="text-[10px] text-slate-400 font-semibold uppercase">Overall Academic Health</div>
+            <div class="text-4xl font-black text-cyan-400">0%</div>
+            <div class="text-[10px] text-slate-400 font-semibold uppercase">Starts with your activity</div>
           </div>
         </div>
 
@@ -488,30 +483,30 @@
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 text-xs">
           <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
             <div class="text-[10px] text-slate-400 font-semibold uppercase">Study Consistency</div>
-            <div class="text-xl font-black text-white mt-1">82%</div>
+            <div class="text-xl font-black text-white mt-1">0%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-cyan-400 h-1.5 rounded-full" style="width: 82%"></div>
+              <div class="bg-cyan-400 h-1.5 rounded-full" style="width: 0%"></div>
             </div>
           </div>
           <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
             <div class="text-[10px] text-slate-400 font-semibold uppercase">Focus Quality</div>
-            <div class="text-xl font-black text-white mt-1">76%</div>
+            <div class="text-xl font-black text-white mt-1">0%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-emerald-400 h-1.5 rounded-full" style="width: 76%"></div>
+              <div class="bg-emerald-400 h-1.5 rounded-full" style="width: 0%"></div>
             </div>
           </div>
           <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
             <div class="text-[10px] text-slate-400 font-semibold uppercase">Syllabus Coverage</div>
-            <div class="text-xl font-black text-white mt-1">91%</div>
+            <div class="text-xl font-black text-white mt-1">0%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-indigo-400 h-1.5 rounded-full" style="width: 91%"></div>
+              <div class="bg-indigo-400 h-1.5 rounded-full" style="width: 0%"></div>
             </div>
           </div>
           <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800">
             <div class="text-[10px] text-slate-400 font-semibold uppercase">Assignment Health</div>
-            <div class="text-xl font-black text-white mt-1">88%</div>
+            <div class="text-xl font-black text-white mt-1">0%</div>
             <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
-              <div class="bg-purple-400 h-1.5 rounded-full" style="width: 88%"></div>
+              <div class="bg-purple-400 h-1.5 rounded-full" style="width: 0%"></div>
             </div>
           </div>
         </div>
@@ -530,16 +525,12 @@
         <div class="glass-card p-6 rounded-3xl border border-emerald-500/20 space-y-3">
           <div class="flex items-center gap-2">
             <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">✓</div>
-            <h4 class="font-bold text-white text-sm">Strengths & High Retention</h4>
+            <h4 class="font-bold text-white text-sm">Strengths</h4>
           </div>
           <div class="space-y-2 text-slate-300">
             <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-              <div class="font-bold text-white">Sensors: LVDT Operating Principle</div>
-              <div class="text-[11px] text-slate-400">65m studied • 92% diagnostic quiz score</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-              <div class="font-bold text-white">Consistent 45-minute daily focus sprints</div>
-              <div class="text-[11px] text-slate-400">Streak: 3 days active</div>
+              <div class="font-bold text-white">No evidence yet</div>
+              <div class="text-[11px] text-slate-400">Complete study sessions and quizzes to build a real progress profile.</div>
             </div>
           </div>
         </div>
@@ -547,22 +538,15 @@
         <div class="glass-card p-6 rounded-3xl border border-rose-500/20 space-y-3">
           <div class="flex items-center gap-2">
             <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold">⚠</div>
-            <h4 class="font-bold text-white text-sm">Needs Attention</h4>
+            <h4 class="font-bold text-white text-sm">Next step</h4>
           </div>
           <div class="space-y-2 text-slate-300">
             <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
               <div>
-                <div class="font-bold text-white">Microcontrollers: 8051 Timers</div>
-                <div class="text-[11px] text-slate-400">Simulation Due Sep 28 • Only 1 session</div>
+                <div class="font-bold text-white">Start with a real subject</div>
+                <div class="text-[11px] text-slate-400">Your study history will replace this message with evidence-based recommendations.</div>
               </div>
-              <button onclick="startQuickStudy('maa', 2, 0, 35)" class="px-2.5 py-1 rounded-lg bg-rose-950 text-rose-200 border border-rose-800 font-bold">Study 35m →</button>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-              <div>
-                <div class="font-bold text-white">Phase-Sensitive Demodulation</div>
-                <div class="text-[11px] text-slate-400">Low accuracy on AC bridge nulling</div>
-              </div>
-              <button onclick="startQuickStudy('sat', 0, 0, 25)" class="px-2.5 py-1 rounded-lg bg-rose-950 text-rose-200 border border-rose-800 font-bold">Revise 25m →</button>
+              <button onclick="switchView('subjects')" class="px-2.5 py-1 rounded-lg bg-rose-950 text-rose-200 border border-rose-800 font-bold">Choose subject →</button>
             </div>
           </div>
         </div>
@@ -878,6 +862,18 @@
       }
     ];
 
+    // Official VIT Pune, SY IC-SEDA, Semester I, Academic Year 2026-27.
+    // Progress stays at zero until the signed-in student creates their own activity.
+    coursesData.forEach(course => { course.progress = 0; });
+
+    const academicMilestones = [
+      { title: "Mid-Semester Examination & Reviews", start: "2026-10-26", end: "2026-10-31" },
+      { title: "Internal Assessment (GD/PPT, CP)", start: "2026-12-07", end: "2026-12-12" },
+      { title: "End of Semester", start: "2026-12-12", end: "2026-12-12" },
+      { title: "End-Semester Examination", start: "2026-12-14", end: "2026-12-26" },
+      { title: "Tentative start of next semester", start: "2027-01-04", end: "2027-01-04" }
+    ];
+
     const quizBank = {
       sat: [
         { q: "In an LVDT, what is the output voltage at the null (center) position theoretically?", options: ["Maximum AC voltage", "Zero volts", "Pure DC offset voltage", "Equal to excitation voltage"], ans: 1, exp: "At the null position, secondary voltages are identical in amplitude and 180° out of phase, canceling each other out to zero." },
@@ -892,57 +888,50 @@
     };
 
     const rawData = [
-      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL|maa|0|0",
-      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|0",
-      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2|ds|0|1",
-      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
-      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1|sat|0|0",
-      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3|ds|0|1",
-      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1|dt|0|0",
-      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1|ds|0|1",
-      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2|sat|0|0",
-      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL|maa|0|1",
-      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL|dbms|0|0",
-      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|0|0",
-      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3|oop|1|0",
-      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL|sat|0|1",
-      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2|dt|0|0",
-      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B2|maa|2|0",
-      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3|dbms|1|1",
-      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1|oop|1|0",
-      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B1|maa|2|0",
-      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|2",
-      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|0",
-      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1|dbms|1|1",
-      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL|raad|0|0",
-      "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL|dbms|1|0",
-      "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|1|1",
-      "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|1",
-      "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2|dbms|1|1",
-      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3|sat|0|0"
+      "Mon|11:00 - 12:00 PM|Theory|Microcontroller & Applications (MM1408)|PMK|C204|ALL|maa|0|0",
+      "Mon|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|SSM|C204|ALL|sat|0|0",
+      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|RP|C304|B2|ds|0|1",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|SMK|C304|B2|oop|0|0",
+      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|SSM|C307|B1|sat|0|0",
+      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|RP|C305|B3|ds|0|1",
+      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tutorial (IC2311)|JVK|TBA|B1|dt|0|0",
+      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|RP|C304|B1|ds|0|1",
+      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|SSM|C307|B2|sat|0|0",
+      "Tue|11:00 - 12:00 PM|Theory|Microcontroller & Applications (MM1408)|PMK|C301|ALL|maa|0|0",
+      "Tue|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|VJN|C301|ALL|dbms|0|0",
+      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|SMK|C301|ALL|oop|0|0",
+      "Tue|04:00 - 06:00 PM|Lab|Data Science Lab (IC2301)|RP|C304|B1|ds|0|1",
+      "Tue|04:00 - 06:00 PM|Lab|Sensors & Transducers Lab (IC2303)|SSM|C307|B2|sat|0|0",
+      "Wed|12:00 - 02:00 PM|Lab|OOP Lab (IC2305)|SMK|C308|B3|oop|0|0",
+      "Wed|02:00 - 03:00 PM|Theory|Sensors & Transducers (IC2303)|SSM|C301|ALL|sat|0|0",
+      "Wed|03:00 - 04:00 PM|Tutorial|Design Thinking - 1 Tutorial (IC2311)|JVK|C314|B2|dt|0|0",
+      "Wed|04:00 - 05:00 PM|Tutorial|Microcontroller & Applications Tutorial (MM1408)|PMK|C314|B5|maa|0|0",
+      "Wed|04:00 - 06:00 PM|Lab|Database Management Systems Lab (IC2307)|VJN|C305|B3|dbms|0|0",
+      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|SMK|C308|B1|oop|0|0",
+      "Thu|12:00 - 01:00 PM|Tutorial|Microcontroller & Applications Tutorial (MM1408)|PMK|C314|B4|maa|0|0",
+      "Thu|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|SSM|C204|ALL|sat|0|0",
+      "Thu|03:00 - 04:00 PM|Theory|Data Science (IC2301)|RP|C301|ALL|ds|0|0",
+      "Thu|04:00 - 06:00 PM|Lab|Database Management Systems Lab (IC2307)|VJN|C305|B1|dbms|0|0",
+      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development - 3 (HS2001)|MPN|C204|ALL|raad|0|0",
+      "Fri|11:00 - 12:00 PM|Tutorial|Design Thinking - 1 Tutorial (IC2311)|SVW|TBA|B3|dt|0|0",
+      "Fri|01:00 - 02:00 PM|Theory|Database Management Systems (IC2307)|VJN|C204|ALL|dbms|0|0",
+      "Fri|02:00 - 03:00 PM|Theory|Object Oriented Programming (IC2305)|SMK|C301|ALL|oop|0|0",
+      "Fri|03:00 - 04:00 PM|Theory|Data Science (IC2301)|RP|C301|ALL|ds|0|0",
+      "Fri|04:00 - 06:00 PM|Lab|Database Management Systems Lab (IC2307)|VJN|C305|B2|dbms|0|0",
+      "Fri|04:00 - 06:00 PM|Lab|Sensors & Transducers Lab (IC2303)|SSM|C307|B3|sat|0|0"
     ];
 
-    let assignments = [
-      { id: "a1", courseId: "sat", topic: "LVDT Operating Principle", title: "LVDT Calibration Experiment Report", due: "Tomorrow", priority: "high", done: false },
-      { id: "a2", courseId: "maa", topic: "8051 Timers & Interrupts", title: "8051 Assembly Timer Mode-2 Simulation", due: "Sep 28, 2026", priority: "med", done: false },
-      { id: "a3", courseId: "ds", topic: "Pandas Data Cleaning", title: "Pandas Data Cleaning on Sensor Dataset", due: "Sep 18, 2026", priority: "med", done: false },
-      { id: "a4", courseId: "dbms", topic: "Entity-Relationship Modeling", title: "ER Diagram for Smart Campus Navigation", due: "Sep 25, 2026", priority: "low", done: true }
-    ];
+    let assignments = [];
     if (localStorage.getItem('flux_assignments')) {
       try { assignments = JSON.parse(localStorage.getItem('flux_assignments')); } catch(e){}
     }
 
-    let notesList = [
-      { id: "n1", courseId: "sat", topic: "LVDT Operating Principle", title: "LVDT Working Principle & Null Nulling", content: "Primary excitation AC. Secondary coils wired in series opposition (Vo = V1 - V2). Residual null voltage caused by harmonics and stray capacitance.", date: "Sep 10" },
-      { id: "n2", courseId: "maa", topic: "8051 Architecture", title: "8051 Internal Memory Map & SFRs", content: "Internal 128 bytes RAM (00H-7FH). Register banks 0-3 (00H-1FH), Bit-addressable RAM (20H-2FH), Scratchpad (30H-7FH). Special function registers located at 80H-FFH.", date: "Sep 8" }
-    ];
+    let notesList = [];
     if (localStorage.getItem('flux_notes_v2')) {
       try { notesList = JSON.parse(localStorage.getItem('flux_notes_v2')); } catch(e){}
     }
 
-    let studySessions = [
-      { course: "Sensors and Transducers", topic: "LVDT Operating Principle", duration: 45, rating: 5, reflection: "Understood null voltage phase cancellation.", time: "Today 4:30 PM" }
-    ];
+    let studySessions = [];
     if (localStorage.getItem('flux_sessions')) {
       try { studySessions = JSON.parse(localStorage.getItem('flux_sessions')); } catch(e){}
     }
@@ -980,14 +969,44 @@
 
     // 3. DASHBOARD RENDERERS
     function renderDashboard() {
+      const today = new Date();
+      const scheduleDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const scheduleDayNames = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
+      const todayCode = scheduleDays[today.getDay()];
+      const studentProfile = getStudentProfile();
+      const selectedBatch = (studentProfile && studentProfile.batch) || 'ALL';
+      const batchLabel = selectedBatch === 'ALL' ? 'All batches' : 'Batch ' + selectedBatch;
+      const formatDate = (isoDate) => new Date(isoDate + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const nextMilestone = academicMilestones.find(milestone => new Date(milestone.end + 'T23:59:59') >= today);
+      const dayDifference = nextMilestone ? Math.max(0, Math.ceil((new Date(nextMilestone.start + 'T00:00:00') - new Date(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000)) : null;
+      document.getElementById('dash-date-label').textContent = scheduleDayNames[todayCode] + ' • ' + today.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('dash-schedule-title').textContent = todayCode === 'Sat' || todayCode === 'Sun' ? 'Weekend Schedule' : 'Today\'s Classes (' + scheduleDayNames[todayCode] + ')';
+      document.getElementById('dash-batch-label').textContent = 'SY IC-SEDA • ' + batchLabel + ' Schedule';
+      document.getElementById('dash-plan-summary').textContent = nextMilestone
+        ? 'SY IC-SEDA, Semester I • ' + dayDifference + ' day' + (dayDifference === 1 ? '' : 's') + ' until ' + nextMilestone.title + ' (' + formatDate(nextMilestone.start) + ').'
+        : 'SY IC-SEDA, Semester I • Official timetable and calendar are loaded.';
+
+      const completedMinutes = studySessions.reduce((total, session) => total + Number(session.duration || 0), 0);
+      document.getElementById('dash-focus-mins').textContent = completedMinutes + 'm';
+      document.getElementById('dash-streak-days').textContent = studySessions.length ? '1' : '0';
+      document.getElementById('dash-streak-detail').textContent = studySessions.length ? 'Activity recorded' : 'Complete a session to begin';
+      document.getElementById('dash-syllabus-cov').textContent = '0%';
+      const insightTitle = document.getElementById('study-insight-title');
+      const insightDetail = document.getElementById('study-insight-detail');
+      if (studySessions.length) {
+        const lastSession = studySessions[0];
+        insightTitle.textContent = 'Continue building your own study evidence.';
+        insightDetail.textContent = 'Your latest recorded session was ' + (lastSession.course || 'a study session') + '. FLUX will use your completed sessions instead of demo recommendations.';
+      } else {
+        insightTitle.textContent = 'Your recommendations will be based on your own study activity.';
+        insightDetail.textContent = 'Start a session in any SY IC-SEDA subject to create your first real recommendation.';
+      }
+
       // Schedule preview
       const scheduleContainer = document.getElementById('dash-schedule-list');
-      const studentProfile = getStudentProfile();
-      const selectedBatch = (studentProfile && studentProfile.batch) || 'B2';
-      document.getElementById('dash-batch-label').textContent = `SY IC-SEDA • ${selectedBatch} Schedule`;
       const todayClasses = rawData.filter(line => {
         const [day, , , , , , rawBatch] = line.split('|');
-        return day === 'Fri' && (rawBatch === 'ALL' || normalizeBatch(rawBatch) === selectedBatch);
+        return day === todayCode && (selectedBatch === 'ALL' || rawBatch === 'ALL' || normalizeBatch(rawBatch) === selectedBatch);
       }).slice(0, 3);
       scheduleContainer.innerHTML = todayClasses.map(line => {
         const [, time, type, name, prof, room, , courseId, uidx, tidx] = line.split('|');
@@ -1007,8 +1026,11 @@
           </div>
         `;
       }).join('');
+      if (!todayClasses.length) {
+        scheduleContainer.innerHTML = '<div class="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 text-slate-400">No SY IC-SEDA classes are scheduled for ' + scheduleDayNames[todayCode] + '.</div>';
+      }
 
-      // Deliverables preview
+      // Personal tasks, with official calendar milestones when no personal tasks exist.
       const tasksContainer = document.getElementById('dash-tasks-list');
       const pendingTasks = assignments.filter(a => !a.done);
       document.getElementById('side-pending-badge').textContent = pendingTasks.length;
@@ -1028,6 +1050,15 @@
           </div>
         `;
       }).join('');
+      if (!pendingTasks.length) {
+        const upcomingMilestones = academicMilestones.filter(milestone => new Date(milestone.end + 'T23:59:59') >= today).slice(0, 3);
+        tasksContainer.innerHTML = upcomingMilestones.map(milestone =>
+          '<div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800">' +
+            '<div class="font-bold text-white">' + milestone.title + '</div>' +
+            '<div class="text-slate-400 text-[11px]">Official academic calendar • <span class="text-amber-300 font-semibold">' + formatDate(milestone.start) + (milestone.end !== milestone.start ? ' – ' + formatDate(milestone.end) : '') + '</span></div>' +
+          '</div>'
+        ).join('') || '<div class="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 text-slate-400">No upcoming official milestones.</div>';
+      }
 
       lucide.createIcons();
     }
@@ -1576,7 +1607,11 @@
     }
 
     // 8. INTERACTIVE TIMETABLE
-    let currentTimetableDay = 'Fri';
+    const defaultTimetableDay = () => {
+      const currentDay = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
+      return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(currentDay) ? currentDay : 'Mon';
+    };
+    let currentTimetableDay = defaultTimetableDay();
 
     function setTimetableDay(d) {
       currentTimetableDay = d;
@@ -1924,7 +1959,7 @@
       document.getElementById('auth-view').classList.add('hidden');
       document.getElementById('app-view').classList.remove('hidden');
       applyUserProfile(user);
-      renderDashboard(); renderSubjectsOverview(); initStudyEngine(); renderAssignmentsFull(); renderNotes(); setTimetableDay('Fri'); renderAcademicBrain(); switchView('dashboard'); lucide.createIcons();
+      renderDashboard(); renderSubjectsOverview(); initStudyEngine(); renderAssignmentsFull(); renderNotes(); setTimetableDay(defaultTimetableDay()); renderAcademicBrain(); switchView('dashboard'); lucide.createIcons();
       loadLiveData();
       if (!getStudentProfile(user)) openStudentProfileModal();
     }
