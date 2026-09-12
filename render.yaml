@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: flux-one
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    disk:
+      name: flux-one-data
+      mountPath: /app/backend/data
+      sizeGB: 1

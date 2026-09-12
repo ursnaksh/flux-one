@@ -19,7 +19,39 @@
     .nav-btn-active { color: #38bdf8; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex bg-[#080c14]">
+<body class="text-slate-100 min-h-screen bg-[#080c14]">
+
+  <!-- ==================== AUTHENTICATION VIEW (GATED) ==================== -->
+  <div id="auth-view" class="min-h-screen w-full flex items-center justify-center p-4 bg-[#080c14] relative overflow-hidden">
+    <div class="bg-slate-900/95 border border-slate-800 backdrop-blur-xl w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 relative z-10 flex flex-col">
+      <div class="text-center pb-5 border-b border-slate-800/80">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 border border-cyan-400/30 text-white font-black text-xl shadow-lg shadow-cyan-500/20 mb-2.5">⚡</div>
+        <h2 class="text-2xl font-black text-white tracking-tight">FLUX ONE</h2>
+        <p class="text-[10px] text-cyan-400 font-mono font-bold tracking-widest uppercase mt-0.5">Student Companion OS</p>
+        <p class="text-xs text-slate-400 mt-2">Sign in to access your command center, timetable, and study engine.</p>
+      </div>
+      <div class="flex border-b border-slate-800 mt-5 mb-5 text-xs">
+        <button type="button" id="auth-tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-2.5 font-bold text-cyan-400 border-b-2 border-cyan-400 transition">Log In</button>
+        <button type="button" id="auth-tab-register" onclick="switchAuthTab('register')" class="flex-1 pb-2.5 font-bold text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition">Create Account</button>
+      </div>
+      <div id="auth-error-box" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-300 text-xs mb-4"><span id="auth-error-text"></span></div>
+      <div id="auth-success-box" class="hidden p-3 rounded-xl bg-emerald-950/40 border border-emerald-800 text-emerald-300 text-xs mb-4"><span id="auth-success-text"></span></div>
+      <form id="login-form" onsubmit="handleAuthLogin(event)" class="space-y-4 text-xs">
+        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address</label><input type="email" id="login-email" required placeholder="student@example.com" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
+        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label><input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
+        <div class="pt-2"><button type="submit" id="btn-submit-login" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-xs shadow-md transition">Log In &amp; Enter</button></div>
+      </form>
+      <form id="register-form" onsubmit="handleAuthRegister(event)" class="hidden space-y-3.5 text-xs">
+        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Display Name</label><input type="text" id="reg-name" required placeholder="e.g. Alex Sharma" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
+        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address</label><input type="email" id="reg-email" required placeholder="student@example.com" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
+        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label><input type="password" id="reg-password" required placeholder="Choose a password" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
+        <div class="pt-2"><button type="submit" id="btn-submit-register" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white font-bold text-xs shadow-md transition">Create Account</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== AUTHENTICATED APP CONTAINER ==================== -->
+  <div id="app-view" class="hidden min-h-screen w-full flex bg-[#080c14]">
 
   <!-- ==================== DESKTOP SIDEBAR ==================== -->
   <aside class="hidden md:flex flex-col w-64 border-r border-slate-800/80 bg-[#080c14]/95 fixed inset-y-0 z-40 p-4 justify-between">
@@ -73,18 +105,20 @@
 
     <!-- Student Profile Pill -->
     <div class="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center justify-center">
-          NS
+      <div class="flex items-center gap-2.5 overflow-hidden">
+        <div class="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-bold text-xs flex items-center justify-center shrink-0" id="user-avatar-pill">
+          ST
         </div>
         <div class="overflow-hidden">
-          <div class="text-xs font-bold text-white truncate">Nagesh Shinde</div>
-          <div class="text-[10px] text-cyan-400 truncate">VIT Pune • SY IC</div>
+          <div class="text-xs font-bold text-white truncate" id="user-name-pill">Student</div>
+          <div class="text-[10px] text-cyan-400 truncate" id="user-role-pill">VIT Pune • SY IC</div>
         </div>
       </div>
-      <button onclick="openCalendarModal()" title="Dean's Calendar" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white">
-        <i data-lucide="calendar-range" class="w-3.5 h-3.5"></i>
-      </button>
+      <div class="flex items-center gap-1 shrink-0">
+        <button onclick="openStudentProfileModal()" title="Edit Student Profile" class="p-1.5 rounded-lg bg-slate-800 hover:bg-cyan-950 text-slate-400 hover:text-cyan-300 transition"><i data-lucide="user-cog" class="w-3.5 h-3.5"></i></button>
+        <button onclick="openCalendarModal()" title="Dean's Calendar" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"><i data-lucide="calendar-range" class="w-3.5 h-3.5"></i></button>
+        <button onclick="handleLogout()" title="Log Out" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 transition"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></button>
+      </div>
     </div>
   </aside>
 
@@ -124,10 +158,12 @@
         <div class="font-bold text-sm text-white">FLUX ONE</div>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 font-mono border border-cyan-800">SY IC-SEDA</span>
-        <button onclick="openCalendarModal()" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs">
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 font-mono border border-cyan-800" id="mobile-user-name">Student</span>
+        <button onclick="openCalendarModal()" title="Dean's Calendar" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 text-xs">
           <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
         </button>
+        <button onclick="openStudentProfileModal()" title="Edit Student Profile" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-cyan-300 text-xs"><i data-lucide="user-cog" class="w-3.5 h-3.5"></i></button>
+        <button onclick="handleLogout()" title="Log Out" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-rose-400 text-xs"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></button>
       </div>
     </header>
 
@@ -144,7 +180,7 @@
             <span class="text-xs text-slate-400 font-medium">Friday • Sep 11, 2026</span>
           </div>
           <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Ready for your next focus sprint, Nagesh?
+            Ready for your next focus sprint, <span id="dash-greeting-name">Student</span>?
           </h1>
           <p class="text-xs text-slate-300 leading-relaxed">
             Week 3 of 16 • <strong>45 days until Mid-Sem Exams</strong> (Oct 26). 
@@ -196,7 +232,7 @@
               <h2 class="text-base font-bold text-white flex items-center gap-2">
                 <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Today's Classes (Friday)
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Batch B2 Schedule</p>
+              <p id="dash-batch-label" class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Batch B2 Schedule</p>
             </div>
             <button onclick="switchView('timetable')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">
               Full Timetable →
@@ -411,9 +447,9 @@
           <div class="flex items-center gap-2 text-xs">
             <span class="text-slate-400">Batch:</span>
             <select id="tt-batch-filter" onchange="renderTimetableFull()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 font-semibold focus:outline-none focus:border-cyan-500">
-              <option value="ALL">All Batches (B1, B2, B3)</option>
+              <option value="ALL">All Batches</option>
               <option value="B1">Batch B1</option>
-              <option value="B2" selected>Batch B2 (Nagesh)</option>
+              <option value="B2" selected>Batch B2</option>
               <option value="B3">Batch B3</option>
             </select>
           </div>
@@ -534,6 +570,47 @@
     </div>
 
   </main>
+  </div><!-- END #app-view -->
+
+  <!-- ==================== STUDENT PROFILE ONBOARDING ==================== -->
+  <div id="student-profile-modal" class="fixed inset-0 z-[70] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-6 sm:p-8">
+      <div class="flex items-start gap-3 pb-5 border-b border-slate-800">
+        <div class="w-11 h-11 rounded-2xl shrink-0 flex items-center justify-center bg-cyan-950 border border-cyan-500/40 text-cyan-300"><i data-lucide="graduation-cap" class="w-5 h-5"></i></div>
+        <div>
+          <h2 class="text-lg font-black text-white">Complete your student profile</h2>
+          <p class="text-xs text-slate-400 mt-1">Your batch personalizes the timetable and study schedule.</p>
+        </div>
+      </div>
+      <form id="student-profile-form" onsubmit="saveStudentProfile(event)" class="mt-5 space-y-4 text-xs">
+        <div>
+          <label for="profile-display-name" class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Display Name</label>
+          <input id="profile-display-name" type="text" required class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="profile-prn" class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">PRN Number</label>
+            <input id="profile-prn" type="text" required autocomplete="off" placeholder="e.g. 1234567890" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+          </div>
+          <div>
+            <label for="profile-roll-number" class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Roll Number</label>
+            <input id="profile-roll-number" type="text" required autocomplete="off" placeholder="e.g. 42" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+          </div>
+        </div>
+        <div>
+          <label for="profile-batch" class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Batch</label>
+          <select id="profile-batch" required class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+            <option value="" disabled>Select your batch</option>
+            <option value="B1">Batch B1</option>
+            <option value="B2">Batch B2</option>
+            <option value="B3">Batch B3</option>
+          </select>
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed">PRN, roll number, and batch are stored only in this browser for this account.</p>
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-xs shadow-md transition">Save Profile &amp; Personalize</button>
+      </form>
+    </div>
+  </div>
 
   <!-- ==================== POST-SESSION REFLECTION MODAL ==================== -->
   <div id="reflection-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
@@ -815,20 +892,34 @@
     };
 
     const rawData = [
+      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL|maa|0|0",
+      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|0",
+      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2|ds|0|1",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
+      "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1|sat|0|0",
+      "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3|ds|0|1",
+      "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1|dt|0|0",
+      "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1|ds|0|1",
+      "Mon|05:00 - 07:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B2|sat|0|0",
+      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL|maa|0|1",
+      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL|dbms|0|0",
+      "Tue|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|0|0",
+      "Wed|11:00 - 01:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B3|oop|1|0",
+      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL|sat|0|1",
+      "Wed|02:00 - 03:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B2|dt|0|0",
+      "Wed|03:00 - 04:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B2|maa|2|0",
+      "Wed|04:00 - 06:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B3|dbms|1|1",
+      "Thu|09:00 - 11:00 AM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C308|B1|oop|1|0",
+      "Thu|11:00 - 12:00 PM|Tutorial|Microcontroller Tutorial (MM1408)|Prof. Pramod Kanjalkar (PMK)|C314|B1|maa|2|0",
+      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|2",
+      "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|0",
+      "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1|dbms|1|1",
       "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL|raad|0|0",
       "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL|dbms|1|0",
       "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|1|1",
       "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|1",
       "Fri|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B2|dbms|1|1",
-      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3|sat|0|0",
-      "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL|maa|0|0",
-      "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|0",
-      "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2|ds|0|1",
-      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
-      "Tue|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C301|ALL|maa|0|1",
-      "Tue|11:00 - 12:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C301|ALL|dbms|0|0",
-      "Wed|01:00 - 02:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C301|ALL|sat|0|1",
-      "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|2"
+      "Fri|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B3|sat|0|0"
     ];
 
     let assignments = [
@@ -891,7 +982,13 @@
     function renderDashboard() {
       // Schedule preview
       const scheduleContainer = document.getElementById('dash-schedule-list');
-      const todayClasses = rawData.filter(x => x.startsWith('Fri')).slice(0, 3);
+      const studentProfile = getStudentProfile();
+      const selectedBatch = (studentProfile && studentProfile.batch) || 'B2';
+      document.getElementById('dash-batch-label').textContent = `SY IC-SEDA • ${selectedBatch} Schedule`;
+      const todayClasses = rawData.filter(line => {
+        const [day, , , , , , rawBatch] = line.split('|');
+        return day === 'Fri' && (rawBatch === 'ALL' || normalizeBatch(rawBatch) === selectedBatch);
+      }).slice(0, 3);
       scheduleContainer.innerHTML = todayClasses.map(line => {
         const [, time, type, name, prof, room, , courseId, uidx, tidx] = line.split('|');
         return `
@@ -1093,6 +1190,7 @@
     let studyTimerInterval = null;
     let isStudyActive = false;
     let activeStudyRating = 4;
+    let activeBackendSessionId = null;
 
     function initStudyEngine() {
       const select = document.getElementById('study-course-select');
@@ -1142,7 +1240,7 @@
       document.getElementById('study-clock-display').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
 
-    function startStudySession() {
+    async function startStudySession() {
       if (isStudyActive) return;
       isStudyActive = true;
       document.getElementById('session-badge').textContent = 'ACTIVE';
@@ -1159,6 +1257,18 @@
           openSessionReflection();
         }
       }, 1000);
+
+      const courseId = document.getElementById('study-course-select').value;
+      const course = coursesData.find(c => c.id === courseId);
+      const topicSelect = document.getElementById('study-topic-select');
+      const topic = topicSelect.options[topicSelect.selectedIndex]?.text || 'Focus Session';
+      if (!activeBackendSessionId) {
+        const backendSession = await fluxApi.startSession({
+          course_code: course ? course.code : courseId,
+          topic
+        });
+        if (backendSession && backendSession.id) activeBackendSessionId = backendSession.id;
+      }
     }
 
     function pauseStudySession() {
@@ -1169,13 +1279,15 @@
       document.getElementById('session-badge').className = 'text-xs font-bold px-3 py-1 rounded-xl bg-amber-950 text-amber-300 border border-amber-800';
       document.getElementById('study-btn-pause').innerHTML = '<i data-lucide="play" class="w-4 h-4"></i> Resume';
       document.getElementById('study-btn-pause').onclick = resumeStudySession;
+      if (activeBackendSessionId) fluxApi.pauseSession(activeBackendSessionId);
       lucide.createIcons();
     }
 
-    function resumeStudySession() {
+    async function resumeStudySession() {
       document.getElementById('study-btn-pause').innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
       document.getElementById('study-btn-pause').onclick = pauseStudySession;
       lucide.createIcons();
+      if (activeBackendSessionId) await fluxApi.resumeSession(activeBackendSessionId);
       startStudySession();
     }
 
@@ -1214,19 +1326,27 @@
       const reflection = document.getElementById('refl-text-input').value.trim();
 
       const sessionPayload = {
-        user_name: "Nagesh Shinde",
-        course_code: c ? `${c.code}: ${c.name}` : "Course",
+        course_code: c ? c.code : "Course",
         topic: fullTopicText,
         duration_minutes: activeDurationMins,
         rating: activeStudyRating,
         reflection: reflection || "Completed structured study session."
       };
 
-      // Save directly to your FastAPI SQLite backend:
-      await fluxApi.saveSession(sessionPayload);
+      if (!activeBackendSessionId) {
+        const started = await fluxApi.startSession({ course_code: sessionPayload.course_code, topic: sessionPayload.topic });
+        activeBackendSessionId = started && started.id;
+      }
+      if (activeBackendSessionId) {
+        await fluxApi.completeSession(activeBackendSessionId, {
+          focus_rating: sessionPayload.rating,
+          reflection: sessionPayload.reflection
+        });
+        activeBackendSessionId = null;
+      }
 
       studySessions.unshift({
-        course: sessionPayload.course_code,
+        course: c ? `${c.code}: ${c.name}` : sessionPayload.course_code,
         topic: sessionPayload.topic,
         duration: sessionPayload.duration_minutes,
         rating: sessionPayload.rating,
@@ -1335,26 +1455,19 @@
       }).join('');
       lucide.createIcons();
     }
-    // Sync live data from backend on startup
-(async function loadLiveData() {
-  const overview = await fluxApi.getDashboard();
-  if (overview && overview.stats) {
-    document.getElementById('dash-focus-mins').textContent = `${overview.stats.total_study_minutes}m`;
-    document.getElementById('dash-brain-pct').textContent = `${overview.stats.academic_brain_score}%`;
-  }
-})();
-
     async function toggleAssignment(id) {
-  assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
-  
-  // If the assignment is an integer ID from SQLite, sync to backend:
-  const numericId = parseInt(id.replace(/\D/g, ''));
-  if (numericId) {
-    await fluxApi.toggleAssignment(numericId);
-  }
-
-  renderAssignmentsFull();
-  renderDashboard();
+      const assignment = assignments.find(a => a.id === id);
+      if (!assignment) return;
+      assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
+      if (assignment.remote) {
+        const updated = await fluxApi.toggleAssignment(id);
+        if (updated) {
+          assignments = assignments.map(a => a.id === id ? { ...a, done: String(updated.status).toLowerCase() === 'completed' } : a);
+        }
+      }
+      localStorage.setItem('flux_assignments', JSON.stringify(assignments));
+      renderAssignmentsFull();
+      renderDashboard();
 }
 
     // 7. CONNECTED NOTES
@@ -1436,23 +1549,26 @@
     content: content
   };
 
-  // Save to SQLite database
-  await fluxApi.createNote(notePayload);
+  const savedNote = await fluxApi.createNote(notePayload);
 
   notesList.unshift({
-    id: 'n_' + Date.now(),
+    id: (savedNote && savedNote.id) || 'n_' + Date.now(),
     courseId,
     topic,
     title,
     content,
-    date: "Today"
+    date: "Today",
+    remote: Boolean(savedNote && savedNote.id)
   });
 
+  localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
   closeNewNoteModal();
   renderNotes();
 }
-    function deleteNote(id) {
+    async function deleteNote(id) {
       if (confirm('Delete this note?')) {
+        const note = notesList.find(n => n.id === id);
+        if (note && note.remote) await fluxApi.deleteNote(id);
         notesList = notesList.filter(n => n.id !== id);
         localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
         renderNotes();
@@ -1480,7 +1596,8 @@
       const batch = document.getElementById('tt-batch-filter').value;
 
       const filtered = rawData.map(line => {
-        const [day, time, type, name, prof, room, b, courseId, uidx, tidx] = line.split('|');
+        const [day, time, type, name, prof, room, rawB, courseId, uidx, tidx] = line.split('|');
+        const b = normalizeBatch(rawB);
         return { day, time, type, name, prof, room, batch: b, courseId: courseId || 'sat', uidx: parseInt(uidx || 0), tidx: parseInt(tidx || 0) };
       }).filter(s => s.day === currentTimetableDay && (batch === 'ALL' || s.batch === 'ALL' || s.batch === batch));
 
@@ -1627,23 +1744,248 @@
       document.getElementById('academic-calendar-modal').classList.remove('flex');
     }
 
-    // INITIALIZATION
-    renderDashboard();
-    renderSubjectsOverview();
-    initStudyEngine();
-    renderAssignmentsFull();
-    renderNotes();
-    setTimetableDay('Fri');
-    renderAcademicBrain();
-    lucide.createIcons();
+    // BATCH NORMALIZATION (B4->B1, B5->B2, B6->B3)
+    function normalizeBatch(b) {
+      if (b === 'B4') return 'B1';
+      if (b === 'B5') return 'B2';
+      if (b === 'B6') return 'B3';
+      return b;
+    }
+
+    // AUTHENTICATION & SESSION CONTROLLER
+    let currentUser = null;
+
+    function switchAuthTab(tab) {
+      const loginTab = document.getElementById('auth-tab-login');
+      const regTab = document.getElementById('auth-tab-register');
+      const loginForm = document.getElementById('login-form');
+      const regForm = document.getElementById('register-form');
+      hideAuthMessages();
+      const loginActive = tab === 'login';
+      loginTab.className = `flex-1 pb-2.5 font-bold ${loginActive ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-slate-400 border-b-2 border-transparent hover:text-slate-200'} transition`;
+      regTab.className = `flex-1 pb-2.5 font-bold ${loginActive ? 'text-slate-400 border-b-2 border-transparent hover:text-slate-200' : 'text-cyan-400 border-b-2 border-cyan-400'} transition`;
+      loginForm.classList.toggle('hidden', !loginActive);
+      regForm.classList.toggle('hidden', loginActive);
+    }
+
+    function showAuthError(msg) {
+      document.getElementById('auth-success-box').classList.add('hidden');
+      document.getElementById('auth-error-text').textContent = msg;
+      document.getElementById('auth-error-box').classList.remove('hidden');
+    }
+
+    function showAuthSuccess(msg) {
+      document.getElementById('auth-error-box').classList.add('hidden');
+      document.getElementById('auth-success-text').textContent = msg;
+      document.getElementById('auth-success-box').classList.remove('hidden');
+    }
+
+    function hideAuthMessages() {
+      document.getElementById('auth-error-box').classList.add('hidden');
+      document.getElementById('auth-success-box').classList.add('hidden');
+    }
+
+    async function handleAuthRegister(event) {
+      event.preventDefault();
+      const display_name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const btn = document.getElementById('btn-submit-register');
+      hideAuthMessages();
+      if (!display_name || !email || !password) return showAuthError('Please fill in display name, email, and password.');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/auth/register`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, display_name, password }) });
+        if (res.ok) {
+          switchAuthTab('login');
+          document.getElementById('login-email').value = email;
+          document.getElementById('login-password').value = '';
+          showAuthSuccess('Account created! Please log in.');
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showAuthError(err.detail || 'Registration failed.');
+        }
+      } catch (_) { showAuthError('Cannot connect to backend server at ' + API_BASE); }
+      finally { btn.disabled = false; }
+    }
+
+    async function handleAuthLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-submit-login');
+      hideAuthMessages();
+      if (!email || !password) return showAuthError('Please enter both email and password.');
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.access_token) {
+            localStorage.setItem('flux_access_token', data.access_token);
+            showAppView((await fetchCurrentUser()) || { email, display_name: email.split('@')[0] });
+          }
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showAuthError(err.detail || 'Invalid email or password.');
+        }
+      } catch (_) { showAuthError('Cannot connect to backend server at ' + API_BASE); }
+      finally { btn.disabled = false; }
+    }
+
+    async function fetchCurrentUser() {
+      const token = localStorage.getItem('flux_access_token');
+      if (!token) return null;
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
+        if (res.ok) return await res.json();
+        if (res.status === 401) localStorage.removeItem('flux_access_token');
+      } catch (e) { console.error(e); }
+      return null;
+    }
+
+    function getStudentProfileStorageKey(user = currentUser) {
+      const identifier = user && (user.id || user.email) ? (user.id || user.email) : 'guest';
+      return `flux_student_profile_${identifier}`;
+    }
+
+    function getStudentProfile(user = currentUser) {
+      try {
+        const saved = localStorage.getItem(getStudentProfileStorageKey(user));
+        return saved ? JSON.parse(saved) : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function applyUserProfile(user) {
+      if (!user) return;
+      const profile = getStudentProfile(user);
+      const name = (profile && profile.displayName) || user.display_name || user.email || 'Student';
+      const batch = profile && profile.batch;
+      document.getElementById('user-name-pill').textContent = name;
+      document.getElementById('user-role-pill').textContent = profile
+        ? `PRN: ${profile.prn} • Roll: ${profile.rollNumber} • ${batch}`
+        : 'VIT Pune • SY IC';
+
+      const parts = name.trim().split(/\s+/);
+      const firstInitial = parts[0] && parts[0][0] ? parts[0][0].toUpperCase() : 'S';
+      const lastInitial = parts.length > 1 && parts[parts.length - 1][0] ? parts[parts.length - 1][0].toUpperCase() : '';
+      document.getElementById('user-avatar-pill').textContent = firstInitial + lastInitial;
+      document.getElementById('mobile-user-name').textContent = batch ? `${batch} · ${name}` : name;
+      document.getElementById('dash-greeting-name').textContent = name;
+
+      if (batch) document.getElementById('tt-batch-filter').value = batch;
+    }
+
+    function openStudentProfileModal() {
+      if (!currentUser) return;
+      const profile = getStudentProfile();
+      document.getElementById('profile-display-name').value = (profile && profile.displayName) || currentUser.display_name || currentUser.email || '';
+      document.getElementById('profile-prn').value = (profile && profile.prn) || '';
+      document.getElementById('profile-roll-number').value = (profile && profile.rollNumber) || '';
+      document.getElementById('profile-batch').value = (profile && profile.batch) || '';
+      document.getElementById('student-profile-modal').classList.remove('hidden');
+      document.getElementById('student-profile-modal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeStudentProfileModal() {
+      document.getElementById('student-profile-modal').classList.add('hidden');
+      document.getElementById('student-profile-modal').classList.remove('flex');
+    }
+
+    async function saveStudentProfile(event) {
+      event.preventDefault();
+      const profile = {
+        displayName: document.getElementById('profile-display-name').value.trim(),
+        prn: document.getElementById('profile-prn').value.trim(),
+        rollNumber: document.getElementById('profile-roll-number').value.trim(),
+        batch: document.getElementById('profile-batch').value
+      };
+
+      if (!profile.displayName || !profile.prn || !profile.rollNumber || !profile.batch) return;
+      localStorage.setItem(getStudentProfileStorageKey(), JSON.stringify(profile));
+      const savedProfile = await fluxApi.updateProfile({
+        display_name: profile.displayName,
+        prn: profile.prn,
+        roll_number: profile.rollNumber,
+        batch: profile.batch
+      });
+      if (savedProfile) currentUser = { ...currentUser, ...savedProfile };
+      applyUserProfile(currentUser);
+      closeStudentProfileModal();
+      renderDashboard();
+      setTimetableDay(currentTimetableDay);
+    }
+
+    function showAppView(user) {
+      currentUser = user;
+      document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('app-view').classList.remove('hidden');
+      applyUserProfile(user);
+      renderDashboard(); renderSubjectsOverview(); initStudyEngine(); renderAssignmentsFull(); renderNotes(); setTimetableDay('Fri'); renderAcademicBrain(); switchView('dashboard'); lucide.createIcons();
+      loadLiveData();
+      if (!getStudentProfile(user)) openStudentProfileModal();
+    }
+
+    function showAuthView(tab = 'login') {
+      document.getElementById('app-view').classList.add('hidden');
+      document.getElementById('auth-view').classList.remove('hidden');
+      hideAuthMessages(); switchAuthTab(tab); lucide.createIcons();
+    }
+
+    function handleLogout() { localStorage.removeItem('flux_access_token'); currentUser = null; showAuthView('login'); }
+
+    async function checkAuthAndInit() {
+      const token = localStorage.getItem('flux_access_token');
+      if (token) {
+        const user = await fetchCurrentUser();
+        if (user) return showAppView(user);
+        localStorage.removeItem('flux_access_token');
+      }
+      showAuthView('login');
+    }
     // Set your API URL (localhost for local dev, or your tunnel/cloud URL later)
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = window.location.hostname === '127.0.0.1' && window.location.port === '3000'
+  ? 'http://127.0.0.1:8001/api/v1'
+  : `${window.location.origin}/api/v1`;
 
 const fluxApi = {
+  getHeaders() {
+    const headers = { "Content-Type": "application/json" };
+    const token = localStorage.getItem("flux_access_token");
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return headers;
+  },
+  async getProfile() {
+    try {
+      const res = await fetch(`${API_BASE}/profile`, { headers: this.getHeaders() });
+      if (res.status === 401) { handleLogout(); return null; }
+      return res.ok ? await res.json() : null;
+    } catch (e) {
+      return null;
+    }
+  },
+  async updateProfile(profileData) {
+    try {
+      const res = await fetch(`${API_BASE}/profile`, {
+        method: "PUT",
+        headers: this.getHeaders(),
+        body: JSON.stringify(profileData)
+      });
+      if (res.status === 401) { handleLogout(); return null; }
+      return res.ok ? await res.json() : null;
+    } catch (e) {
+      console.error("Failed to save student profile", e);
+      return null;
+    }
+  },
   // 1. Dashboard Stats
   async getDashboard() {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/dashboard/overview`);
+      const res = await fetch(`${API_BASE}/dashboard/overview`, { headers: this.getHeaders() });
+      if (res.status === 401) { handleLogout(); return null; }
       return await res.json();
     } catch (e) {
       console.warn("Backend offline, falling back to local data", e);
@@ -1651,24 +1993,72 @@ const fluxApi = {
     }
   },
 
-  // 2. Complete Study Session
-  async saveSession(sessionData) {
+  // 2. Study sessions
+  async startSession(sessionData) {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/sessions/complete`, {
+      const res = await fetch(`${API_BASE}/sessions/start`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: this.getHeaders(),
         body: JSON.stringify(sessionData)
       });
+      if (res.status === 401) { handleLogout(); return null; }
+      if (!res.ok) throw new Error(`Unable to start study session (${res.status})`);
       return await res.json();
     } catch (e) {
-      console.error("Failed to save session to backend", e);
+      console.error("Failed to start study session", e);
+      return null;
+    }
+  },
+
+  async pauseSession(sessionId) {
+    try {
+      const res = await fetch(`${API_BASE}/sessions/${sessionId}/pause`, { method: "POST", headers: this.getHeaders() });
+      return res.ok ? await res.json() : null;
+    } catch (e) {
+      console.error("Failed to pause study session", e);
+      return null;
+    }
+  },
+
+  async resumeSession(sessionId) {
+    try {
+      const res = await fetch(`${API_BASE}/sessions/${sessionId}/resume`, { method: "POST", headers: this.getHeaders() });
+      return res.ok ? await res.json() : null;
+    } catch (e) {
+      console.error("Failed to resume study session", e);
+      return null;
+    }
+  },
+
+  async completeSession(sessionId, completionData) {
+    try {
+      const res = await fetch(`${API_BASE}/sessions/${sessionId}/complete`, {
+        method: "POST",
+        headers: this.getHeaders(),
+        body: JSON.stringify(completionData)
+      });
+      if (res.status === 401) { handleLogout(); return null; }
+      if (!res.ok) throw new Error(`Unable to complete study session (${res.status})`);
+      return await res.json();
+    } catch (e) {
+      console.error("Failed to complete study session", e);
+      return null;
+    }
+  },
+
+  async getSessionHistory() {
+    try {
+      const res = await fetch(`${API_BASE}/sessions/history`, { headers: this.getHeaders() });
+      return res.ok ? await res.json() : null;
+    } catch (e) {
+      return null;
     }
   },
 
   // 3. Assignments
   async getAssignments() {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/assignments`);
+      const res = await fetch(`${API_BASE}/assignments`, { headers: this.getHeaders() });
       return await res.json();
     } catch (e) {
       return null;
@@ -1677,8 +2067,8 @@ const fluxApi = {
 
   async toggleAssignment(id) {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/assignments/${id}/toggle`, {
-        method: "PATCH"
+      const res = await fetch(`${API_BASE}/assignments/${id}/toggle`, {
+        method: "PATCH", headers: this.getHeaders()
       });
       return await res.json();
     } catch (e) {
@@ -1690,9 +2080,9 @@ const fluxApi = {
   async getNotes(courseCode = null) {
     try {
       const url = courseCode 
-        ? `${API_BASE}/api/v1/notes?course_code=${encodeURIComponent(courseCode)}` 
-        : `${API_BASE}/api/v1/notes`;
-      const res = await fetch(url);
+        ? `${API_BASE}/notes?course_code=${encodeURIComponent(courseCode)}`
+        : `${API_BASE}/notes`;
+      const res = await fetch(url, { headers: this.getHeaders() });
       return await res.json();
     } catch (e) {
       return null;
@@ -1701,17 +2091,106 @@ const fluxApi = {
 
   async createNote(noteData) {
     try {
-      const res = await fetch(`${API_BASE}/api/v1/notes`, {
+      const res = await fetch(`${API_BASE}/notes`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: this.getHeaders(),
         body: JSON.stringify(noteData)
       });
       return await res.json();
     } catch (e) {
       console.error("Failed to create note", e);
     }
+  },
+
+  async deleteNote(id) {
+    try {
+      const res = await fetch(`${API_BASE}/notes/${id}`, { method: "DELETE", headers: this.getHeaders() });
+      return res.ok;
+    } catch (e) {
+      console.error("Failed to delete note", e);
+      return false;
+    }
   }
 };
+
+    async function loadLiveData() {
+      const [remoteProfile, overview, remoteAssignments, remoteNotes, remoteSessions] = await Promise.all([
+        fluxApi.getProfile(),
+        fluxApi.getDashboard(),
+        fluxApi.getAssignments(),
+        fluxApi.getNotes(),
+        fluxApi.getSessionHistory()
+      ]);
+
+      if (remoteProfile && remoteProfile.prn && remoteProfile.roll_number && remoteProfile.batch && currentUser) {
+        currentUser = { ...currentUser, ...remoteProfile };
+        localStorage.setItem(getStudentProfileStorageKey(currentUser), JSON.stringify({
+          displayName: remoteProfile.display_name,
+          prn: remoteProfile.prn,
+          rollNumber: remoteProfile.roll_number,
+          batch: remoteProfile.batch
+        }));
+        applyUserProfile(currentUser);
+        closeStudentProfileModal();
+      }
+
+      if (overview && overview.stats) {
+        document.getElementById('dash-focus-mins').textContent = `${overview.stats.total_study_minutes}m`;
+        document.getElementById('dash-brain-pct').textContent = `${overview.stats.academic_brain_score}%`;
+      }
+
+      const courseIdFor = (courseCode) => {
+        const course = coursesData.find(c => c.code === courseCode || c.name === courseCode);
+        return course ? course.id : 'sat';
+      };
+      const displayDate = (value, fallback = 'Not scheduled') => value ? new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : fallback;
+
+      if (Array.isArray(remoteAssignments)) {
+        assignments = remoteAssignments.map(a => ({
+          id: a.id,
+          courseId: courseIdFor(a.course_code),
+          topic: a.topic || 'General',
+          title: a.title,
+          due: displayDate(a.due_at),
+          priority: (a.priority || 'med').toLowerCase(),
+          done: String(a.status).toLowerCase() === 'completed',
+          remote: true
+        }));
+        localStorage.setItem('flux_assignments', JSON.stringify(assignments));
+      }
+
+      if (Array.isArray(remoteNotes)) {
+        notesList = remoteNotes.map(n => ({
+          id: n.id,
+          courseId: courseIdFor(n.course_code),
+          topic: n.topic,
+          title: n.title,
+          content: n.content,
+          date: displayDate(n.created_at, 'Today'),
+          remote: true
+        }));
+        localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
+      }
+
+      if (Array.isArray(remoteSessions)) {
+        studySessions = remoteSessions.filter(s => String(s.state).toLowerCase() === 'completed').map(s => ({
+          course: s.course_code,
+          topic: s.topic,
+          duration: Math.max(1, Math.round((s.duration_seconds || 0) / 60)),
+          rating: s.focus_rating || 0,
+          reflection: s.reflection || 'Completed study session.',
+          time: displayDate(s.completed_at, 'Completed')
+        }));
+        localStorage.setItem('flux_sessions', JSON.stringify(studySessions));
+      }
+
+      renderDashboard();
+      renderAssignmentsFull();
+      renderNotes();
+      renderStudyHistory();
+    }
+    // INITIALIZATION
+    checkAuthAndInit();
   </script>
 </body>
 </html>
