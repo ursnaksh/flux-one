@@ -30,6 +30,16 @@ connection cannot silently switch production back to temporary SQLite storage.
 Use the internal connection URL as supplied by Render; the PostgreSQL driver
 also accepts TLS settings in a connection URL when a provider requires them.
 
+## Private class roster
+
+After signing in, open **Class Roster**. The first valid import claims the roster
+owner account. Import a CSV or JSON `rows` array with `pnr`, `display_name`,
+`email`, `roll_number`, and optional `batch` (`B1`, `B2`, or `B3`). Imports are
+upserts, so sending the same class again updates changed details. The owner can
+see a masked preview; other authenticated students receive only batch totals
+and a match for their own profile. PNRs are never included in the aggregate
+summary. Only upload records when the students have agreed to this private use.
+
 The `render.yaml` file provides a Blueprint for a new deployment. Adding this
 file to an existing manually configured service does **not** automatically
 create or attach its database; use the steps above for the existing service.

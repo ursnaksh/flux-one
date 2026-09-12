@@ -40,6 +40,11 @@ try {
     course_code TEXT NOT NULL, course_name TEXT NOT NULL, term TEXT, created_at TEXT NOT NULL,
     UNIQUE(user_id, course_code)
   );
+  CREATE TABLE IF NOT EXISTS class_roster (
+    id TEXT PRIMARY KEY, pnr TEXT UNIQUE NOT NULL, display_name TEXT NOT NULL,
+    email TEXT, roll_number TEXT, batch TEXT CHECK(batch IN ('B1', 'B2', 'B3')),
+    created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+  );
 `);
 
   await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO NOTHING').run('jwt_secret', randomBytes(48).toString('base64url'));
@@ -80,6 +85,38 @@ async function requireUser(req, res) {
   const user = await authenticatedUser(req);
   if (!user) { fail(res, 401, 'Authentication is required.'); return null; }
   return user;
+}
+async function requireClassRosterOwner(res, user, { claim = false } = {}) {
+  // The first authenticated importer claims ownership atomically. This keeps
+  // the roster private without requiring another account or admin dashboard.
+  if (claim) await db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO NOTHING').run('class_roster_owner_id', user.id);
+  const owner = await db.prepare('SELECT value FROM settings WHERE key = ?').get('class_roster_owner_id');
+  if (!owner || owner.value !== user.id) {
+    fail(res, 403, 'Only the class roster owner can import or view roster records.');
+    return false;
+  }
+  return true;
+}
+function normalizeRosterRow(row, index) {
+  const pnr = String(row?.pnr || '').trim();
+  const displayName = String(row?.display_name || row?.displayName || '').trim();
+  const email = String(row?.email || '').trim().toLowerCase();
+  const rollNumber = String(row?.roll_number || row?.rollNumber || '').trim();
+  const batch = String(row?.batch || '').trim().toUpperCase();
+  const errors = [];
+  if (!pnr || pnr.length > 64) errors.push('PNR is required and must be at most 64 characters.');
+  if (!displayName || displayName.length > 200) errors.push('Display name is required and must be at most 200 characters.');
+  if (email && (!email.includes('@') || email.length > 254)) errors.push('Email must be valid when provided.');
+  if (batch && !['B1', 'B2', 'B3'].includes(batch)) errors.push('Batch must be B1, B2, or B3 when provided.');
+  return { row: { pnr, display_name: displayName, email: email || null, roll_number: rollNumber || null, batch: batch || null }, errors: errors.map(detail => ({ row: index + 1, detail })) };
+}
+function rosterSummary(rows, owner = false, claimed = owner) {
+  const batches = { B1: 0, B2: 0, B3: 0, unknown: 0 };
+  for (const row of rows) {
+    const batch = ['B1', 'B2', 'B3'].includes(row.batch) ? row.batch : 'unknown';
+    batches[batch] += 1;
+  }
+  return { total: rows.length, batches, owner, claimed };
 }
 function body(req) {
   return new Promise((resolve, reject) => {
@@ -180,6 +217,46 @@ const server = createServer(async (req, res) => {
     }
     const noteMatch = route.match(/^\/api\/v1\/notes\/([^/]+)$/);
     if (req.method === 'DELETE' && noteMatch) { const user = await requireUser(req, res); if (!user) return; const result = await db.prepare('DELETE FROM notes WHERE id = ? AND user_id = ?').run(noteMatch[1], user.id); return result.changes ? res.writeHead(204).end() : fail(res, 404, 'Note not found.'); }
+    if (route === '/api/v1/class-roster/summary' && req.method === 'GET') {
+      const user = await requireUser(req, res); if (!user) return;
+      const rows = await db.prepare('SELECT batch FROM class_roster').all();
+      const owner = await db.prepare('SELECT value FROM settings WHERE key = ?').get('class_roster_owner_id');
+      return send(res, 200, rosterSummary(rows, owner?.value === user.id, Boolean(owner?.value)));
+    }
+    if (route === '/api/v1/class-roster/me' && req.method === 'GET') {
+      const user = await requireUser(req, res); if (!user) return;
+      let match = user.prn ? await db.prepare('SELECT * FROM class_roster WHERE pnr = ?').get(user.prn) : null;
+      if (!match && user.email) match = await db.prepare('SELECT * FROM class_roster WHERE lower(email) = lower(?)').get(user.email);
+      return send(res, 200, match || null);
+    }
+    if (route === '/api/v1/class-roster' && req.method === 'GET') {
+      const user = await requireUser(req, res); if (!user) return;
+      if (!(await requireClassRosterOwner(res, user))) return;
+      return send(res, 200, await db.prepare('SELECT * FROM class_roster ORDER BY roll_number, display_name').all());
+    }
+    if (route === '/api/v1/class-roster/import' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      if (!Array.isArray(data.rows) || !data.rows.length || data.rows.length > 100) return fail(res, 422, 'Provide between 1 and 100 roster rows.');
+      const normalized = data.rows.map(normalizeRosterRow);
+      const errors = normalized.flatMap(item => item.errors);
+      const seen = new Set();
+      normalized.forEach((item, index) => {
+        if (seen.has(item.row.pnr)) errors.push({ row: index + 1, detail: 'Duplicate PNR in the import.' });
+        seen.add(item.row.pnr);
+      });
+      if (errors.length) return send(res, 422, { detail: 'Roster validation failed.', errors });
+      if (!(await requireClassRosterOwner(res, user, { claim: true }))) return;
+      let imported = 0; let updated = 0;
+      for (const { row } of normalized) {
+        const existing = await db.prepare('SELECT id FROM class_roster WHERE pnr = ?').get(row.pnr);
+        const timestamp = now();
+        await db.prepare('INSERT INTO class_roster (id,pnr,display_name,email,roll_number,batch,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(pnr) DO UPDATE SET display_name = excluded.display_name, email = excluded.email, roll_number = excluded.roll_number, batch = excluded.batch, updated_at = excluded.updated_at').run(randomUUID(), row.pnr, row.display_name, row.email, row.roll_number, row.batch, timestamp, timestamp);
+        if (existing) updated += 1; else imported += 1;
+      }
+      const rows = await db.prepare('SELECT batch FROM class_roster').all();
+      return send(res, 201, { imported, updated, total: rows.length, summary: rosterSummary(rows, true, true) });
+    }
     if (route === '/api/v1/enrollments') { const user = await requireUser(req, res); if (!user) return; if (req.method === 'GET') return send(res, 200, await db.prepare('SELECT * FROM enrollments WHERE user_id = ? ORDER BY course_code').all(user.id)); if (req.method === 'POST') { const data = await body(req); const code = String(data.course_code || '').trim(); const name = String(data.course_name || '').trim(); if (!code || !name) return fail(res, 422, 'Course code and course name are required.'); const record = { id: randomUUID(), user_id: user.id, course_code: code, course_name: name, term: data.term || null, created_at: now() }; await db.prepare('INSERT INTO enrollments (id,user_id,course_code,course_name,term,created_at) VALUES (?,?,?,?,?,?) ON CONFLICT(user_id,course_code) DO UPDATE SET course_name = excluded.course_name, term = excluded.term').run(record.id, record.user_id, record.course_code, record.course_name, record.term, record.created_at); return send(res, 201, record); } }
     return fail(res, 404, 'Route not found.');
   } catch { console.error('An API request failed.'); return fail(res, 500, 'Internal server error.'); }
