@@ -28,7 +28,17 @@
   html[data-theme="solar-focus"] { filter: sepia(0.35) hue-rotate(-25deg) saturate(1.25); }
   @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
-</style>
+
+  /* FLUX ONE Zero-Shift Theme Engine */
+  html[data-theme="sakura"] { filter: hue-rotate(150deg) saturate(1.1); }
+  html[data-theme="sakura"] img, html[data-theme="sakura"] video { filter: hue-rotate(-150deg); }
+  html[data-theme="solar"] { filter: sepia(0.35) hue-rotate(-25deg) saturate(1.25); }
+  html[data-theme="solar"] img, html[data-theme="solar"] video { filter: sepia(0) hue-rotate(25deg); }
+  html[data-theme="terminal"] { filter: hue-rotate(270deg) saturate(1.6); }
+  html[data-theme="terminal"] * { font-family: 'JetBrains Mono', 'Fira Code', monospace !important; }
+  html[data-theme="default"] { filter: none; }
+
+  </style>
 </head>
 <body class="text-slate-100 min-h-screen bg-[#080c14]">
 
@@ -2185,6 +2195,29 @@ window.applyTheme = function(themeName) {
       origOpenProfile();
       const sel = document.getElementById('profile-theme');
       if (sel) sel.value = localStorage.getItem('flux_theme') || 'flux-neon';
+    };
+  }
+})();
+</script>
+
+
+<script>
+window.setFluxTheme = function(themeName) {
+  document.documentElement.setAttribute('data-theme', themeName || 'default');
+  localStorage.setItem('flux_theme', themeName || 'default');
+  const sel = document.getElementById('profile-theme');
+  if (sel) sel.value = themeName || 'default';
+};
+(function() {
+  const current = localStorage.getItem('flux_theme') || 'default';
+  window.setFluxTheme(current);
+  // Auto-sync select when profile modal opens
+  const origOpen = window.openStudentProfileModal;
+  if (typeof origOpen === 'function') {
+    window.openStudentProfileModal = function() {
+      origOpen();
+      const sel = document.getElementById('profile-theme');
+      if (sel) sel.value = localStorage.getItem('flux_theme') || 'default';
     };
   }
 })();
