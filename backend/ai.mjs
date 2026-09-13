@@ -1,6 +1,6 @@
 ﻿import { createHash } from 'node:crypto';
 
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL = 'gemini-2.5-flash';
 const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';
 const MAX_PROMPT_LENGTH = 12000;
 const INVALID_MODEL_ALIASES = new Set([

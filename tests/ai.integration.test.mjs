@@ -74,9 +74,9 @@ test('AI status uses a supported default and replaces known retired or invalid a
   const previousModel = process.env.GEMINI_MODEL;
   try {
     delete process.env.GEMINI_MODEL;
-    assert.equal(getAiStatus().model, 'gemini-2.5-flash-lite');
+    assert.equal(getAiStatus().model, 'gemini-2.5-flash');
     process.env.GEMINI_MODEL = 'gemini-3.6-flash';
-    assert.equal(getAiStatus().model, 'gemini-2.5-flash-lite');
+    assert.equal(getAiStatus().model, 'gemini-2.5-flash');
     process.env.GEMINI_MODEL = 'models/gemini-2.5-flash';
     assert.equal(getAiStatus().model, 'gemini-2.5-flash');
   } finally {
