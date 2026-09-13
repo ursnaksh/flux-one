@@ -37,7 +37,7 @@
       <div id="auth-error-box" class="hidden p-3 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-300 text-xs mb-4"><span id="auth-error-text"></span></div>
       <div id="auth-success-box" class="hidden p-3 rounded-xl bg-emerald-950/40 border border-emerald-800 text-emerald-300 text-xs mb-4"><span id="auth-success-text"></span></div>
       <form id="login-form" onsubmit="handleAuthLogin(event)" class="space-y-4 text-xs">
-        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address</label><input type="email" id="login-email" required placeholder="student@example.com" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
+        <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">PNR or Email Address</label><input type="text" id="login-email" required autocomplete="username" placeholder="Your PNR or student@example.com" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
         <div><label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label><input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition"></div>
         <div class="pt-2"><button type="submit" id="btn-submit-login" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-xs shadow-md transition">Log In &amp; Enter</button></div>
       </form>
@@ -506,7 +506,7 @@
         <div id="roster-owner-panel" class="hidden border-t border-slate-800 pt-5 space-y-4">
           <div>
             <h3 id="roster-owner-heading" class="text-sm font-bold text-white">Owner import</h3>
-            <p class="text-xs text-slate-400 mt-1">Import a CSV or JSON file with these columns: <code class="text-cyan-300">pnr, display_name, email, roll_number, batch</code>. Batch is optional, but use B1, B2, or B3 to personalize the timetable.</p>
+            <p class="text-xs text-slate-400 mt-1">Import a CSV or JSON file with these columns: <code class="text-cyan-300">pnr, display_name, email, roll_number, batch, initial_password</code>. Batch personalizes the timetable. Each row creates an account that can sign in with its PNR; leave <code class="text-cyan-300">initial_password</code> blank to use the PNR as the first password.</p>
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <label class="flex items-center justify-center min-h-28 rounded-2xl border border-dashed border-slate-700 bg-slate-950/50 hover:border-cyan-500/60 cursor-pointer transition text-xs text-slate-300 text-center px-4">
@@ -1728,14 +1728,14 @@
 
     async function handleAuthLogin(event) {
       event.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
+      const identifier = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
       const btn = document.getElementById('btn-submit-login');
       hideAuthMessages();
-      if (!email || !password) return showAuthError('Please enter both email and password.');
+      if (!identifier || !password) return showAuthError('Please enter your PNR or email and password.');
       btn.disabled = true;
       try {
-        const res = await fetch(`${API_BASE}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const res = await fetch(`${API_BASE}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier, password }) });
         if (res.ok) {
           const data = await res.json();
           if (data.access_token) {
@@ -2010,7 +2010,7 @@ const fluxApi = {
         status.textContent = `Saving ${rows.length} roster rows…`;
         const result = await fluxApi.importClassRoster(rows);
         if (!result) throw new Error('The roster could not be saved.');
-        status.textContent = `Saved ${result.total} students (${result.imported} new, ${result.updated} updated).`;
+        status.textContent = `Saved ${result.total} students · ${result.accounts_created || 0} accounts created · ${result.accounts_updated || 0} accounts updated. PNR login is ready.`;
         document.getElementById('roster-paste').value = '';
         document.getElementById('roster-file').value = '';
         document.getElementById('roster-file-label').textContent = 'Choose roster CSV/JSON';

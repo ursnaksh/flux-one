@@ -66,11 +66,19 @@ also accepts TLS settings in a connection URL when a provider requires them.
 
 After signing in, open **Class Roster**. The first valid import claims the roster
 owner account. Import a CSV or JSON `rows` array with `pnr`, `display_name`,
-`email`, `roll_number`, and optional `batch` (`B1`, `B2`, or `B3`). Imports are
+`email`, `roll_number`, optional `batch` (`B1`, `B2`, or `B3`), and optional
+`initial_password`. Imports are
 upserts, so sending the same class again updates changed details. The owner can
 see a masked preview; other authenticated students receive only batch totals
 and a match for their own profile. PNRs are never included in the aggregate
 summary. Only upload records when the students have agreed to this private use.
+
+Each valid roster row also provisions or updates its student account. Students
+can sign in with their PNR in the **PNR or Email Address** field. If the row has
+an `initial_password` value, that is the first password; otherwise the PNR is
+used as the initial password. Give each student their first password privately
+and ask them to change it before sharing the app. The import response reports
+account counts but never returns passwords or PNRs.
 
 The `render.yaml` file provides a Blueprint for a new deployment. Adding this
 file to an existing manually configured service does **not** automatically

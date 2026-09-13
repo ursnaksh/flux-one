@@ -133,6 +133,9 @@ test('accounts and all student data persist and remain isolated across server re
     });
     assert.equal(imported.imported, 3);
     assert.equal(imported.updated, 0);
+    assert.equal(imported.accounts_created, 1);
+    assert.equal(imported.accounts_updated, 2);
+    assert.ok((await request('/api/v1/auth/login', { method: 'POST', data: { identifier: '20260001003', password: '20260001003' } })).access_token);
     assert.deepEqual(imported.summary.batches, { B1: 1, B2: 2, B3: 0, unknown: 0 });
     const summary = await request('/api/v1/class-roster/summary', { token });
     assert.equal(summary.total, 3);
@@ -156,6 +159,7 @@ test('accounts and all student data persist and remain isolated across server re
     assert.equal((await request('/api/v1/class-roster/summary', { token })).total, 3);
 
     await request('/api/v1/profile', { method: 'PUT', token: bobToken, data: { display_name: 'Bob Student', prn: '20260001002', roll_number: '043', batch: 'B2' } });
+    assert.ok((await request('/api/v1/auth/login', { method: 'POST', data: { identifier: '20260001002', password: bob.password } })).access_token);
     const bobMatch = await request('/api/v1/class-roster/me', { token: bobToken });
     assert.equal(bobMatch.display_name, 'Bob Student');
     assert.equal(bobMatch.pnr, '20260001002');
