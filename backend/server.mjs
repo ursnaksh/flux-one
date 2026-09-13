@@ -131,7 +131,7 @@ async function provisionRosterAccount(row) {
   account ||= emailAccount;
   const timestamp = now();
   if (account) {
-    await db.prepare('UPDATE users SET display_name = ?, prn = ?, roll_number = ?, batch = ? WHERE id = ?').run(row.display_name, row.pnr, row.roll_number, row.batch, account.id);
+    await db.prepare('UPDATE users SET email = COALESCE(?, email), display_name = ?, prn = ?, roll_number = ?, batch = ? WHERE id = ?').run(row.email, row.display_name, row.pnr, row.roll_number, row.batch, account.id);
     return { created: false, id: account.id };
   }
   const salt = randomBytes(16).toString('hex');
