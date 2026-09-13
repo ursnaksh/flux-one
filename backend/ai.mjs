@@ -127,7 +127,11 @@ async function callGemini({ prompt, kind }) {
       headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey() },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.25, responseFormat: { text: { mimeType: 'application/json', schema: schemaFor(kind) } } }
+        generationConfig: {
+          temperature: 0.25,
+          responseMimeType: 'application/json',
+          responseSchema: schemaFor(kind)
+        }
       }),
       signal: AbortSignal.timeout(25000)
     });
