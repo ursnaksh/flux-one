@@ -17,7 +17,18 @@
     ::-webkit-scrollbar-track { background: #080c14; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
     .nav-btn-active { color: #38bdf8; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; }
-  </style>
+  
+  /* FLUX ONE Zero-Layout-Shift Theme Tokens */
+  html[data-theme="flux-neon"] { filter: none; }
+  html[data-theme="rose-quartz"] { filter: hue-rotate(130deg) saturate(0.95); }
+  html[data-theme="terminal"] { filter: hue-rotate(270deg) saturate(1.6); }
+  html[data-theme="terminal"] * { font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace !important; }
+  html[data-theme="academic-minimal"] { filter: invert(0.92) hue-rotate(180deg); }
+  html[data-theme="academic-minimal"] img, html[data-theme="academic-minimal"] video { filter: invert(1) hue-rotate(180deg); }
+  html[data-theme="solar-focus"] { filter: sepia(0.35) hue-rotate(-25deg) saturate(1.25); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+</style>
 </head>
 <body class="text-slate-100 min-h-screen bg-[#080c14]">
 
@@ -688,6 +699,16 @@
             <option value="B1">Batch B1</option>
             <option value="B2">Batch B2</option>
             <option value="B3">Batch B3</option>
+          </select>
+        </div>
+        <div>
+          <label for="profile-theme" class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Workspace Theme / Command-Center Style</label>
+          <select id="profile-theme" onchange="window.applyTheme && window.applyTheme(this.value)" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+            <option value="flux-neon">Flux Neon (Cyber Dark & Cyan - Default)</option>
+            <option value="rose-quartz">Rose Quartz (Soft Lavender & Rose)</option>
+            <option value="terminal">Terminal (Phosphor Green Monospace)</option>
+            <option value="academic-minimal">Academic Minimal (Paper White & Navy)</option>
+            <option value="solar-focus">Solar Focus (Warm Amber Study Light)</option>
           </select>
         </div>
         <p class="text-[11px] text-slate-500 leading-relaxed">Your profile is saved to your account and stays available when you sign in on another device.</p>
@@ -2146,5 +2167,28 @@ const fluxApi = {
 
   </script>
   <script src="assets/workspace.js"></script>
+
+<script>
+window.applyTheme = function(themeName) {
+  document.documentElement.setAttribute('data-theme', themeName || 'flux-neon');
+  localStorage.setItem('flux_theme', themeName || 'flux-neon');
+  const sel = document.getElementById('profile-theme');
+  if (sel) sel.value = themeName || 'flux-neon';
+};
+(function() {
+  const saved = localStorage.getItem('flux_theme') || 'flux-neon';
+  window.applyTheme(saved);
+  // Auto-fill in profile modal if opened
+  const origOpenProfile = window.openStudentProfileModal;
+  if (typeof origOpenProfile === 'function') {
+    window.openStudentProfileModal = function() {
+      origOpenProfile();
+      const sel = document.getElementById('profile-theme');
+      if (sel) sel.value = localStorage.getItem('flux_theme') || 'flux-neon';
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
