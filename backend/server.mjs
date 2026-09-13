@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { openDatabase } from './database.mjs';
 import { initializeStudentData, handleStudentData, getCatalog, getProgress, recordActivity } from './student-data.mjs';
-import { generateDynamicQuiz, generateFlightBriefing, generateTopicExplanation, generatePostLectureDebrief, generateVivaQuestions, getAiStatus, AiConfigurationError, AiInputError, AiOutputError, AiProviderError } from './ai.mjs';
+import { answerTopicDoubt, generateDynamicQuiz, generateFlightBriefing, generateTopicExplanation, generatePostLectureDebrief, generateVivaQuestions, getAiStatus, AiConfigurationError, AiInputError, AiOutputError, AiProviderError } from './ai.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(root, 'data');
@@ -235,7 +235,20 @@ const server = createServer(async (req, res) => {
       const user = await requireUser(req, res); if (!user) return;
       return send(res, 200, getAiStatus());
     }
-        if (route === '/api/v1/ai/topic-explain' && req.method === 'POST') {
+        if (route === '/api/v1/ai/topic-doubt' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      const question = String(data.question || '').trim();
+      if (!question) return fail(res, 422, 'Question is required.');
+      try {
+        const catalog = await getCatalog(db);
+        const result = await answerTopicDoubt({ db, catalog, courseId: data.course_id, topic: data.topic, question });
+        const course = catalog.courses.find(item => item.id === data.course_id);
+        await recordActivity(db, user.id, 'ai_topic_doubt', 'AI doubt answered', 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
+        return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
+      } catch (error) { return aiFailure(res, error); }
+    }
+    if (route === '/api/v1/ai/topic-explain' && req.method === 'POST') {
       const user = await requireUser(req, res); if (!user) return;
       const data = await body(req);
       try {

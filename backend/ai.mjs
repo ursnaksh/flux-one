@@ -1,13 +1,8 @@
 ﻿import { createHash } from 'node:crypto';
 
-const DEFAULT_MODEL = 'gemini-3.6-flash';
+const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 const MAX_PROMPT_LENGTH = 12000;
-const INVALID_MODEL_ALIASES = new Set([
-  'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash',
-  // Google no longer makes this model available to new API users.
-  'gemini-2.5-flash'
-]);
 
 export class AiInputError extends Error { constructor(message) { super(message); this.name = 'AiInputError'; } }
 export class AiConfigurationError extends Error { constructor(message) { super(message); this.name = 'AiConfigurationError'; } }
@@ -15,16 +10,18 @@ export class AiProviderError extends Error { constructor(message) { super(messag
 export class AiOutputError extends Error { constructor(message) { super(message); this.name = 'AiOutputError'; } }
 
 function modelName() {
-  const configured = String(process.env.GEMINI_MODEL || '').trim().replace(/^models\//, '');
-  if (!configured || INVALID_MODEL_ALIASES.has(configured)) return DEFAULT_MODEL;
-  return configured;
+  let name = String(process.env.GEMINI_MODEL || DEFAULT_MODEL).trim();
+  if (!name || name.includes('2.5') || name.includes('lite') || name === 'gemini-pro') {
+    name = DEFAULT_MODEL;
+  }
+  return name.replace(/^models\//, '');
 }
 
 const apiKey = () => String(process.env.GEMINI_API_KEY || '').trim();
 
 export function getAiStatus() {
   return {
-    provider: 'Google Gemini',
+    provider: 'Google Gemini (Interactions API)',
     model: modelName(),
     configured: Boolean(apiKey()),
     cache: 'database'
@@ -74,6 +71,17 @@ function schemaFor(kind) {
       check_question: { type: 'string' }
     },
     required: ['title', 'mode', 'overview', 'key_points', 'engineering_application', 'exam_tip', 'check_question']
+  };
+  if (kind === 'topic_doubt') return {
+    type: 'object',
+    properties: {
+      direct_answer: { type: 'string' },
+      explanation_steps: { type: 'array', items: { type: 'string' }, minItems: 2, maxItems: 5 },
+      key_formula_or_rule: { type: 'string' },
+      example_or_code: { type: 'string' },
+      follow_up_thought: { type: 'string' }
+    },
+    required: ['direct_answer', 'explanation_steps', 'key_formula_or_rule', 'follow_up_thought']
   };
   if (kind === 'post_lecture') return {
     type: 'object',
@@ -141,10 +149,10 @@ function schemaFor(kind) {
 function normalizeJsonText(text) {
   const trimmed = String(text || '').trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return (fenced ? fenced[1] : trimmed).trim();
+  return (fenced ? fenced : trimmed).trim();
 }
 
-function assertString(value, label, max = 1500) {
+function assertString(value, label, max = 2000) {
   if (typeof value !== 'string' || !value.trim() || value.length > max) throw new AiOutputError(`Gemini returned an invalid ${label}.`);
   return value.trim();
 }
@@ -158,7 +166,7 @@ function validateOutput(kind, value) {
     return {
       title: assertString(value.title, 'briefing title', 180),
       hook: assertString(value.hook, 'briefing hook', 1200),
-      concepts: concepts.map(concept => assertString(concept, 'briefing concept', 350)),
+      concepts: concepts.map(concept => assertString(concept, 'briefing concept', 400)),
       check_question: assertString(value.check_question, 'check question', 600),
       recommended_minutes: Number.isInteger(value.recommended_minutes) ? Math.min(5, Math.max(2, value.recommended_minutes)) : 3
     };
@@ -171,10 +179,22 @@ function validateOutput(kind, value) {
       title: assertString(value.title, 'topic title', 180),
       mode: String(value.mode || 'deep'),
       overview: assertString(value.overview, 'overview', 1500),
-      key_points: pts.map(p => assertString(p, 'key point', 400)),
+      key_points: pts.map(p => assertString(p, 'key point', 450)),
       engineering_application: assertString(value.engineering_application, 'application', 1000),
       exam_tip: assertString(value.exam_tip, 'exam tip', 800),
       check_question: assertString(value.check_question, 'check question', 600)
+    };
+  }
+
+  if (kind === 'topic_doubt') {
+    const steps = value.explanation_steps;
+    if (!Array.isArray(steps) || steps.length < 2) throw new AiOutputError('Gemini returned invalid doubt steps.');
+    return {
+      direct_answer: assertString(value.direct_answer, 'direct answer', 1500),
+      explanation_steps: steps.map(s => assertString(s, 'explanation step', 500)),
+      key_formula_or_rule: String(value.key_formula_or_rule || '').trim(),
+      example_or_code: String(value.example_or_code || '').trim(),
+      follow_up_thought: String(value.follow_up_thought || '').trim()
     };
   }
 
@@ -186,7 +206,7 @@ function validateOutput(kind, value) {
     return {
       title: assertString(value.title, 'debrief title', 180),
       recap: assertString(value.recap, 'recap', 1200),
-      core_takeaways: takeaways.map(t => assertString(t, 'takeaway', 350)),
+      core_takeaways: takeaways.map(t => assertString(t, 'takeaway', 400)),
       check_questions: qList.map(q => ({
         question: assertString(q.question, 'question', 400),
         expected_answer: assertString(q.expected_answer, 'answer', 500),
@@ -226,14 +246,16 @@ function validateOutput(kind, value) {
   };
 }
 
-async function callGemini({ prompt, kind }) {
+async function executeGeminiCall({ prompt, kind }) {
   const key = apiKey();
   if (!key) throw new AiConfigurationError('AI is not configured yet. Add GEMINI_API_KEY to the server environment.');
   if (prompt.length > MAX_PROMPT_LENGTH) throw new AiInputError('The selected academic context is too large.');
   
   const targetModel = modelName();
   const endpointTemplate = String(process.env.GEMINI_API_ENDPOINT || DEFAULT_ENDPOINT).trim() || DEFAULT_ENDPOINT;
-  const endpoint = endpointTemplate.replace('{model}', encodeURIComponent(targetModel));
+  const endpoint = endpointTemplate.includes('{model}') 
+    ? endpointTemplate.replace('{model}', encodeURIComponent(targetModel))
+    : endpointTemplate;
   
   let response;
   try {
@@ -260,24 +282,45 @@ async function callGemini({ prompt, kind }) {
   if (!response.ok) {
     const status = response.status;
     const errText = await response.text().catch(() => '');
-    let providerMessage = '';
-    try { providerMessage = JSON.parse(errText)?.error?.message || ''; } catch { /* Provider returned plain text. */ }
-    console.error(`Gemini API error (${status}) on model [${targetModel}]: ${providerMessage || 'No provider detail'}`);
+    console.error(`Gemini API Error (${status}) on model [${targetModel}]:`, errText);
 
     if (status === 401 || status === 403) throw new AiConfigurationError('Gemini rejected the server key. Check GEMINI_API_KEY in Render.');
     if (status === 429) throw new AiProviderError('Gemini rate limit reached. Try again in a moment.');
-    if (status === 404) throw new AiConfigurationError(`Gemini model ${targetModel} is unavailable through the Interactions API.`);
-    throw new AiProviderError(`Gemini returned an upstream error (${status}).${providerMessage ? ` ${providerMessage}` : ''}`);
+    throw new AiProviderError(`Gemini returned an upstream error (${status}):${errText}`);
   }
 
   let payload;
   try { payload = await response.json(); } catch { throw new AiProviderError('Gemini returned an unreadable response.'); }
-  const text = payload?.steps?.filter(step => step.type === 'model_output')
+  
+  let text = payload?.steps?.filter(step => step.type === 'model_output')
     .flatMap(step => Array.isArray(step.content) ? step.content : [])
     .map(content => content?.type === 'text' ? content.text || '' : '').join('').trim();
+  
+  if (!text) {
+    text = payload?.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
+  }
+  
   if (!text) throw new AiOutputError('Gemini returned no generated content.');
   try { return validateOutput(kind, JSON.parse(normalizeJsonText(text))); }
   catch (error) { if (error instanceof AiOutputError) throw error; throw new AiOutputError('Gemini returned malformed JSON.'); }
+}
+
+// Auto-retry wrapper with exponential backoff (eliminates transient 500/503/429 network errors)
+async function callGemini({ prompt, kind }) {
+  let attempt = 0;
+  const maxRetries = 2;
+  while (true) {
+    try {
+      return await executeGeminiCall({ prompt, kind });
+    } catch (err) {
+      attempt++;
+      if (attempt > maxRetries || err.name === 'AiInputError' || err.name === 'AiConfigurationError') {
+        throw err;
+      }
+      console.warn(`[Gemini Auto-Retry] Attempt ${attempt} failed: ${err.message}. Retrying in ${attempt}s...`);
+      await new Promise(res => setTimeout(res, 1000 * attempt));
+    }
+  }
 }
 
 async function fromCache(db, cacheKey, kind) {
@@ -305,7 +348,7 @@ export async function generateFlightBriefing({ db, catalog, courseId, topic, sch
   const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
   const focus = selected || allTopics[0];
   const week = semesterWeek();
-  const schedule = catalog.timetable.filter(line => line.split('|')[7] === course.id || line.split('|')[0] === course.id).slice(0, 4).map(line => line.split('|').slice(0, 7).join(' | '));
+  const schedule = catalog.timetable.filter(line => line.split('|') === course.id || line.split('|')[0] === course.id).slice(0, 4).map(line => line.split('|').slice(0, 7).join(' | '));
   const when = scheduledAt ? new Date(scheduledAt) : null;
   if (scheduledAt && (!when || Number.isNaN(when.getTime()))) throw new AiInputError('scheduled_at must be a valid date.');
   const cacheKey = `ai:${catalog.id}:v${catalog.version}:flight:${slug(course.id)}:${slug(focus.name)}:w${week}`;
@@ -336,6 +379,21 @@ export async function generateTopicExplanation({ db, catalog, courseId, topic, m
     'Return strictly JSON matching the response schema.'
   ].join('\n');
   return generateCached({ db, kind: 'topic_explain', cacheKey, prompt, ttlHours: 30 * 24 });
+}
+
+export async function answerTopicDoubt({ db, catalog, courseId, topic, question }) {
+  const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
+  const focus = selected || allTopics[0];
+  const qSlug = slug(question).slice(0, 40);
+  const cacheKey = `ai:${catalog.id}:v${catalog.version}:doubt:${slug(course.id)}:${slug(focus.name)}:${qSlug}`;
+  const prompt = [
+    `You are FLUX ONE, an expert engineering faculty tutor for ${course.name} (${course.code}) at VIT Pune.`,
+    `A student studying the syllabus topic "${focus.name}" (${focus.unit}) asks this specific doubt: "${question}".`,
+    'Provide a clear, technically rigorous answer adhering to engineering syllabus standards.',
+    'Include: direct_answer (concise answer to the student’s question), explanation_steps (2 to 4 structured steps or derivation steps), key_formula_or_rule (the exact formula, equation, or theorem), example_or_code (a concrete numerical example, circuit/code snippet, or industrial scenario), and follow_up_thought (a thoughtful follow-up concept for exam prep).',
+    'Return strictly valid JSON matching the schema.'
+  ].join('\n');
+  return generateCached({ db, kind: 'topic_doubt', cacheKey, prompt, ttlHours: 30 * 24 });
 }
 
 export async function generatePostLectureDebrief({ db, catalog, courseId, topic, scheduledAt }) {
