@@ -1,0 +1,12 @@
+[1mdiff --git a/backend/ai.mjs b/backend/ai.mjs[m
+[1mindex f811a22..2619b92 100644[m
+[1m--- a/backend/ai.mjs[m
+[1m+++ b/backend/ai.mjs[m
+[36m@@ -1,6 +1,6 @@[m
+ import { createHash } from 'node:crypto';[m
+ [m
+[31m-const DEFAULT_MODEL = 'gemini-flash-latest';[m
+[32m+[m[32mconst DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';[m
+ const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';[m
+ const MAX_PROMPT_LENGTH = 12000;[m
+ [m
