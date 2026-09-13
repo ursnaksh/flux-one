@@ -237,6 +237,8 @@
         </div>
       </div>
 
+      <div id="ai-dashboard-briefing-panel" class="hidden glass-card p-6 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/30 via-slate-900 to-indigo-950/30"></div>
+
       <!-- QUESTION 3: WHAT DO I HAVE TO DO? (TODAY'S SCHEDULE + URGENT TASKS) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -953,9 +955,14 @@
               <div class="font-bold text-white">${name}</div>
               <div class="text-slate-400 text-[11px]">${prof} • Room <strong>${room}</strong></div>
             </div>
-            <button onclick="startQuickStudy('${courseId}', ${uidx||0}, ${tidx||0}, 30)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-950 hover:text-cyan-300 hover:border-cyan-800 border border-slate-700 text-slate-300 text-[11px] font-bold transition flex items-center gap-1">
-              <i data-lucide="play" class="w-3 h-3"></i> Study
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button onclick="generateFlightBriefing('${courseId}')" class="px-2.5 py-1.5 rounded-xl bg-cyan-950/60 hover:bg-cyan-900 hover:text-cyan-200 border border-cyan-800 text-cyan-300 text-[11px] font-bold transition flex items-center gap-1" title="Generate a 3-minute AI briefing">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Brief
+              </button>
+              <button onclick="startQuickStudy('${courseId}', ${uidx||0}, ${tidx||0}, 30)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-950 hover:text-cyan-300 hover:border-cyan-800 border border-slate-700 text-slate-300 text-[11px] font-bold transition flex items-center gap-1">
+                <i data-lucide="play" class="w-3 h-3"></i> Study
+              </button>
+            </div>
           </div>
         `;
       }).join('');
@@ -1056,15 +1063,23 @@
             <h1 class="text-2xl font-black text-white">${c.name}</h1>
             <p class="text-xs text-slate-300">Professor: <strong>${c.faculty}</strong></p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 flex-wrap justify-end">
             <button onclick="startQuickStudy('${c.id}', 0, 0, 45)" class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs shadow-md flex items-center gap-2">
               <i data-lucide="play" class="w-4 h-4 fill-white"></i> Continue Studying (45m)
+            </button>
+            <button onclick="generateFlightBriefing('${c.id}')" class="px-4 py-3 rounded-xl bg-cyan-950 hover:bg-cyan-900 text-cyan-200 border border-cyan-800 text-xs font-bold flex items-center gap-2" title="Generate a 3-minute pre-class primer">
+              <i data-lucide="sparkles" class="w-4 h-4"></i> AI Briefing
             </button>
             <button onclick="launchQuiz('${c.id}')" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-2">
               <i data-lucide="target" class="w-4 h-4 text-indigo-400"></i> Practice Quiz
             </button>
+            <button onclick="generateAiQuiz('${c.id}')" class="px-4 py-3 rounded-xl bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 text-xs font-bold flex items-center gap-2" title="Generate a fresh Gemini quiz">
+              <i data-lucide="brain-circuit" class="w-4 h-4"></i> AI Quiz
+            </button>
           </div>
         </div>
+
+        <div id="ai-briefing-panel" class="hidden glass-card p-6 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/30 via-slate-900 to-indigo-950/30"></div>
 
         <!-- 2 COLUMNS: SYLLABUS + CONNECTED DELIVERABLES/NOTES -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs">
@@ -1553,27 +1568,76 @@
     let quizIdx = 0;
     let quizPoints = 0;
     let quizOptionLocked = false;
+    let activeQuizSource = 'catalog';
+    let activeQuizCacheKey = null;
 
-    function launchQuiz(courseId) {
+    function openQuizQuestions(courseId, questions, title, source = 'catalog', cacheKey = null) {
       const c = coursesData.find(x => x.id === courseId);
-      activeQuizQuestions = quizBank[courseId] || [];
-      if (!activeQuizQuestions.length) return showAppError('Practice questions for this subject are not available yet.');
+      activeQuizQuestions = questions;
+      if (!activeQuizQuestions.length) return showAppError('No questions were returned for this subject.');
       activeQuizCourse = courseId;
+      activeQuizSource = source;
+      activeQuizCacheKey = cacheKey;
       quizAnswers = [];
       quizAttemptId = crypto.randomUUID();
       quizIdx = 0;
       quizPoints = 0;
       quizOptionLocked = false;
       document.getElementById('quiz-next-btn').textContent = 'Next Question →';
-
-      document.getElementById('quiz-course-title').textContent = `${c ? c.name : 'Course'} Diagnostic Quiz`;
+      document.getElementById('quiz-course-title').textContent = title || `${c ? c.name : 'Course'} Diagnostic Quiz`;
       document.getElementById('quiz-modal').classList.remove('hidden');
       document.getElementById('quiz-modal').classList.add('flex');
       document.getElementById('quiz-result-box').classList.add('hidden');
       document.getElementById('quiz-question-box').classList.remove('hidden');
       document.getElementById('quiz-footer').classList.remove('hidden');
-
       renderQuizStep();
+    }
+
+    function launchQuiz(courseId) {
+      const c = coursesData.find(x => x.id === courseId);
+      activeQuizQuestions = quizBank[courseId] || [];
+      if (!activeQuizQuestions.length) return showAppError('Practice questions for this subject are not available yet.');
+      openQuizQuestions(courseId, activeQuizQuestions.map(question => ({ q: question.q, options: question.options, ans: question.ans, exp: question.exp })), `${c ? c.name : 'Course'} Diagnostic Quiz`);
+    }
+
+    async function generateFlightBriefing(courseId, topic = null) {
+      const subjectPanel = document.getElementById('ai-briefing-panel');
+      const panel = currentView === 'subjects' && subjectPanel ? subjectPanel : document.getElementById('ai-dashboard-briefing-panel');
+      const panelId = panel?.id || 'ai-briefing-panel';
+      try {
+        if (panel) {
+          panel.classList.remove('hidden');
+          panel.innerHTML = '<div class="text-sm text-cyan-200 font-semibold flex items-center gap-2"><span class="animate-pulse">●</span> Preparing your 3-minute briefing…</div>';
+        }
+        const result = await fluxApi.getFlightBriefing({ course_id: courseId, ...(topic ? { topic } : {}) });
+        if (!panel) return;
+        panel.innerHTML = `
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-[10px] uppercase tracking-wider text-cyan-300 font-bold">AI Flight Briefing · ${result.cached ? 'cached' : 'fresh'}</div>
+              <h3 class="text-lg font-black text-white mt-1">${escapeRosterHtml(result.title)}</h3>
+              <p class="text-xs text-slate-300 mt-2 leading-relaxed">${escapeRosterHtml(result.hook)}</p>
+            </div>
+            <button onclick="document.getElementById('${panelId}').classList.add('hidden')" class="text-slate-400 hover:text-white">✕</button>
+          </div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${result.concepts.map((concept, index) => `<div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-200"><span class="text-cyan-400 font-bold mr-1">${index + 1}.</span>${escapeRosterHtml(concept)}</div>`).join('')}
+          </div>
+          <div class="mt-4 p-3 rounded-xl bg-indigo-950/40 border border-indigo-800/70 text-xs text-indigo-100"><strong>Check yourself:</strong> ${escapeRosterHtml(result.check_question)}</div>
+          <div class="mt-3 text-[10px] text-slate-500">${result.recommended_minutes} minutes · ${escapeRosterHtml(result.course_name || '')} · Gemini ${escapeRosterHtml(result.model || '')}</div>
+        `;
+      } catch (error) {
+        if (panel) panel.innerHTML = `<div class="text-xs text-rose-300">${escapeRosterHtml(error.message || 'The AI briefing could not be generated.')}</div>`;
+        else showAppError(error.message || 'The AI briefing could not be generated.');
+      }
+    }
+
+    async function generateAiQuiz(courseId, topic = null) {
+      try {
+        const result = await fluxApi.generateAiQuiz({ course_id: courseId, ...(topic ? { topic } : {}), difficulty: 'mixed', count: 5 });
+        const questions = result.questions.map(question => ({ q: question.question, options: question.options, ans: question.answer_index, exp: question.explanation }));
+        openQuizQuestions(courseId, questions, `${result.course_name || 'Course'} · AI Quiz`, 'ai', result.cache_key);
+      } catch (error) { showAppError(error.message || 'The AI quiz could not be generated.'); }
     }
 
     function closeQuizModal() {
@@ -1595,7 +1659,7 @@
       const optsBox = document.getElementById('quiz-options-container');
       optsBox.innerHTML = q.options.map((opt, i) => `
         <button onclick="handleQuizAnswer(${i})" id="qopt-${i}" class="w-full text-left p-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition font-medium flex items-center justify-between">
-          <span>${opt}</span>
+          <span>${escapeRosterHtml(opt)}</span>
           <span id="qicon-${i}"></span>
         </button>
       `).join('');
@@ -1620,7 +1684,7 @@
 
       document.getElementById('quiz-score-live').textContent = `Score: ${quizPoints}`;
       const expBox = document.getElementById('quiz-explanation-box');
-      expBox.innerHTML = `<strong>${isCorrect ? 'Correct!' : 'Key Takeaway:'}</strong> ${q.exp}`;
+      expBox.innerHTML = `<strong>${isCorrect ? 'Correct!' : 'Key Takeaway:'}</strong> ${escapeRosterHtml(q.exp)}`;
       expBox.classList.remove('hidden');
 
       document.getElementById('quiz-next-btn').classList.remove('hidden');
@@ -1638,7 +1702,9 @@
         const summary = document.getElementById('quiz-result-summary');
         summary.textContent = 'Saving your attempt…';
         try {
-          const attempt = await fluxApi.request('/quizzes/attempts', 'POST', { id: quizAttemptId, course_id: activeQuizCourse, answers: quizAnswers });
+          const attempt = activeQuizSource === 'ai'
+            ? await fluxApi.saveAiQuizAttempt({ id: quizAttemptId, course_id: activeQuizCourse, cache_key: activeQuizCacheKey, answers: quizAnswers })
+            : await fluxApi.request('/quizzes/attempts', 'POST', { id: quizAttemptId, course_id: activeQuizCourse, answers: quizAnswers });
           summary.textContent = `You scored ${attempt.score} out of ${attempt.total}. Saved to your progress.`;
           await loadLiveData();
         } catch (error) {
@@ -1914,7 +1980,11 @@ const fluxApi = {
   getClassRosterSummary() { return this.request('/class-roster/summary'); },
   getClassRosterMe() { return this.request('/class-roster/me'); },
   async getClassRoster() { return { rows: await this.request('/class-roster') }; },
-  importClassRoster(rows) { return this.request('/class-roster/import', 'POST', { rows }); }
+  importClassRoster(rows) { return this.request('/class-roster/import', 'POST', { rows }); },
+  getAiStatus() { return this.request('/ai/status'); },
+  getFlightBriefing(data) { return this.request('/ai/flight-briefing', 'POST', data); },
+  generateAiQuiz(data) { return this.request('/ai/quiz', 'POST', data); },
+  saveAiQuizAttempt(data) { return this.request('/ai/quiz-attempts', 'POST', data); }
 };
 
     function parseCsvLine(line) {
