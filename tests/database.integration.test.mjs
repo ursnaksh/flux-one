@@ -163,6 +163,55 @@ test('accounts and all student data persist and remain isolated across server re
     assert.equal((await request('/api/v1/class-roster/summary', { token: bobToken })).owner, false);
   });
 
+  await t.test('activity events are recorded safely and remain private', async () => {
+    const created = await request('/api/v1/activity/events', {
+      method: 'POST', token, status: 201,
+      data: { event_type: 'click', view: 'dashboard', target: 'start-study', metadata: { course_code: 'IC2301', secret: 'do-not-store' } },
+    });
+    assert.equal(created.event_type, 'click');
+    assert.equal(created.target, 'start-study');
+    assert.deepEqual(created.metadata, { course_code: 'IC2301', source: 'client' });
+    await request('/api/v1/activity/events', {
+      method: 'POST', token, data: { event_type: 'not-supported', target: 'x' }, status: 422,
+    });
+    const events = await request('/api/v1/activity/events', { token });
+    assert.ok(events.length > 1);
+    assert.equal(events[0].id, created.id);
+    assert.ok(!(await request('/api/v1/activity/events', { token: bobToken })).some(event => event.id === created.id));
+    await request('/api/v1/activity/events?limit=NaN', { token, status: 422 });
+    await request('/api/v1/activity/events?limit=1.5', { token, status: 422 });
+    await request('/api/v1/activity/events', { method: 'POST', token, status: 422, data: { event_type: 'click', view: 'notes', target: 'secret@example.test' } });
+    await request('/api/v1/activity/events', { method: 'POST', token, status: 422, data: { event_type: 'note_create', view: 'notes', target: 'saveNewNote' } });
+    await request('/api/v1/activity/preferences', { method: 'PUT', token, data: { capture_clicks: false } });
+    assert.equal((await request('/api/v1/activity/events', { method: 'POST', token, data: { event_type: 'click', view: 'notes', target: 'saveNewNote' } })).accepted, 0);
+    assert.equal((await request('/api/v1/activity/preferences', { token: bobToken })).capture_clicks, true);
+    await request('/api/v1/activity/preferences', { method: 'PUT', token, data: { capture_clicks: true } });
+  });
+
+  await t.test('class catalog, topic completion and server-graded quiz results persist privately', async () => {
+    await request('/api/v1/catalog', { status: 401 });
+    const catalog = await request('/api/v1/catalog', { token });
+    assert.equal(catalog.courses.length, 7);
+    assert.equal(catalog.timetable.length, 31);
+    assert.equal(catalog.milestones.length, 6);
+    assert.ok(!catalog.courses.some(course => /control systems/i.test(course.name)));
+    assert.deepEqual(catalog, await request('/api/v1/catalog', { token: bobToken }));
+    assert.equal((await request('/api/v1/progress', { token })).stats.topic_coverage, 0);
+    await request('/api/v1/progress/topics', { method: 'PUT', token, status: 422, data: { course_id: 'sat', unit_index: 999, topic_index: 0, completed: true } });
+    const progress = await request('/api/v1/progress/topics', { method: 'PUT', token, data: { course_id: 'sat', unit_index: 0, topic_index: 0, completed: true } });
+    assert.equal(progress.courses.find(course => course.course_id === 'sat').completed, 1);
+    assert.equal((await request('/api/v1/progress', { token: bobToken })).topics.length, 0);
+    const quiz = { id: 'abc12300-0000-4000-8000-000000000001', course_id: 'sat', answers: [1, 0], score: 999 };
+    const saved = await request('/api/v1/quizzes/attempts', { method: 'POST', token, status: 201, data: quiz });
+    assert.equal(saved.score, 2);
+    assert.equal(saved.total, 2);
+    await request('/api/v1/quizzes/attempts', { method: 'POST', token, data: quiz });
+    assert.equal((await request('/api/v1/progress', { token })).quizzes.length, 1);
+    await request('/api/v1/quizzes/attempts', { method: 'POST', token: bobToken, status: 409, data: quiz });
+    assert.equal((await request('/api/v1/progress', { token: bobToken })).quizzes.length, 0);
+    await request('/api/v1/quizzes/attempts', { method: 'POST', token, status: 422, data: { ...quiz, answers: [42] } });
+  });
+
   await t.test('notes can be saved, filtered and deleted', async () => {
     const note = await request('/api/v1/notes', {
       method: 'POST', token, status: 201,
@@ -213,6 +262,9 @@ test('accounts and all student data persist and remain isolated across server re
     });
     sessionId = session.id;
     assert.equal(session.state, 'active');
+    assert.equal((await request('/api/v1/sessions/active', { token })).id, session.id);
+    assert.equal((await request('/api/v1/sessions/active', { token })).target_seconds, 2700);
+    assert.equal(await request('/api/v1/sessions/active', { token: bobToken }), null);
     assert.ok((await request(`/api/v1/sessions/${sessionId}/heartbeat`, { method: 'POST', token })).last_heartbeat_at);
     assert.equal((await request(`/api/v1/sessions/${sessionId}/pause`, { method: 'POST', token })).state, 'paused');
     assert.equal((await request(`/api/v1/sessions/${sessionId}/resume`, { method: 'POST', token })).state, 'active');
@@ -225,6 +277,9 @@ test('accounts and all student data persist and remain isolated across server re
     assert.equal(completed.reflection, 'I understand persistence.');
     assert.equal(typeof completed.duration_seconds, 'number');
     assert.ok(completed.duration_seconds >= 0);
+    const retried = await request(`/api/v1/sessions/${sessionId}/complete`, { method: 'POST', token, data: { focus_rating: 1 } });
+    assert.equal(retried.focus_rating, 4);
+    assert.equal(await request('/api/v1/sessions/active', { token }), null);
     assert.equal((await request('/api/v1/sessions/history', { token }))[0].id, sessionId);
     assert.equal(typeof (await request('/api/v1/dashboard/overview', { token })).stats.total_study_minutes, 'number');
   });
@@ -265,6 +320,12 @@ test('accounts and all student data persist and remain isolated across server re
     assert.equal(session.id, sessionId);
     assert.equal(session.reflection, 'I understand persistence.');
     assert.equal((await request('/api/v1/enrollments', { token }))[0].course_name, 'Database Systems');
+    assert.ok((await request('/api/v1/activity/events', { token })).some(event => event.event_type === 'click'));
+    assert.equal((await request('/api/v1/catalog', { token })).timetable.length, 31);
+    const progress = await request('/api/v1/progress', { token });
+    assert.equal(progress.courses.find(course => course.course_id === 'sat').completed, 1);
+    assert.equal(progress.quizzes[0].score, 2);
+    assert.equal(progress.stats.completed_sessions, 1);
     assert.deepEqual(await request('/api/v1/notes', { token: bobToken }), []);
     assert.ok((await request('/api/v1/auth/login', { method: 'POST', data: alice })).access_token);
   });
