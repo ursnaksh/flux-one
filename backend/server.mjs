@@ -242,7 +242,7 @@ const server = createServer(async (req, res) => {
         const catalog = await getCatalog(db);
         const result = await generateTopicExplanation({ db, catalog, courseId: data.course_id, topic: data.topic, mode: data.mode });
         const course = catalog.courses.find(item => item.id === data.course_id);
-        await recordActivity(db, user.id, 'ai_topic_explain', AI ${data.mode || 'deep'} explanation: ${data.topic || 'topic'}, 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
+        await recordActivity(db, user.id, 'ai_topic_explain', 'AI topic explanation', 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
         return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
       } catch (error) { return aiFailure(res, error); }
     }
@@ -264,7 +264,7 @@ const server = createServer(async (req, res) => {
         const catalog = await getCatalog(db);
         const result = await generateVivaQuestions({ db, catalog, courseId: data.course_id, topic: data.topic });
         const course = catalog.courses.find(item => item.id === data.course_id);
-        await recordActivity(db, user.id, 'ai_viva', AI Mock Viva: ${data.topic || 'lab'}, 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
+        await recordActivity(db, user.id, 'ai_viva', 'AI mock viva', 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
         return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
       } catch (error) { return aiFailure(res, error); }
     }
