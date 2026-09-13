@@ -1,5 +1,37 @@
 # FLUX ONE backend
 
+## Class workspace and activity
+
+The backend seeds a versioned `academic_catalog` from `backend/catalog.mjs`:
+seven SY IC-SEDA subjects, 31 weekly timetable slots, six calendar milestones,
+four holiday entries and the existing practice library. The seed preserves the
+previously imported PDF data; practice topics are labelled as suggestions, not an
+official syllabus. Increment the catalog version when deliberately updating it.
+
+Profiles, assignments, notes, study sessions, practice-topic completion, quiz
+attempts and activity history are stored per account. The frontend reads these
+from the API and confirms saves before updating the interface. Quiz scores are
+recomputed on the server; repeated submission of an attempt ID does not duplicate
+the result. Active study sessions and their target duration can resume on refresh.
+
+Activity records include successful saved actions and authenticated client click,
+view and selection events. Client actions use an allowlist: form values, note
+contents, PRNs, passwords, URLs and IP addresses are not copied into activity
+records. Click capture can be paused in Activity Log; saved-action history remains.
+Each account can read only its own latest events. History retains the latest
+5,000 records per account; the UI shows 100. Clicks are batched and retried in
+memory while the page remains open, so offline/tab-close delivery is best effort.
+Browser interaction records are observations from the client, not proof a save
+succeeded; successful saves are separately recorded by the server.
+
+New routes: `GET /api/v1/catalog`, `GET /api/v1/progress`,
+`PUT /api/v1/progress/topics`, `POST /api/v1/quizzes/attempts`,
+`GET /api/v1/sessions/active`, `GET/POST /api/v1/activity/events`, and
+`GET/PUT /api/v1/activity/preferences`. All require authentication.
+
+Classmates' personal roster records still require the owner's CSV/JSON import.
+No sample classmates or fabricated academic scores are seeded into production.
+
 The Node.js 24 backend serves both the website and its API. It uses PostgreSQL
 when `DATABASE_URL` is set. Local development uses SQLite at
 `backend/data/flux-one.db`, or the path provided in `SQLITE_PATH`.

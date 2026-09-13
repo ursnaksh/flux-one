@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 COPY index.html ./index.html
+COPY assets/ ./assets/
 COPY backend/*.mjs ./backend/
 
 ENV PORT=10000
