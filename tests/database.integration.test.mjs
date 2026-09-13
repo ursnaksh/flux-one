@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
+import { catalogSeed } from '../backend/catalog.mjs';
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -196,7 +197,7 @@ test('accounts and all student data persist and remain isolated across server re
     await request('/api/v1/catalog', { status: 401 });
     const catalog = await request('/api/v1/catalog', { token });
     assert.equal(catalog.courses.length, 7);
-    assert.equal(catalog.timetable.length, 31);
+    assert.equal(catalog.timetable.length, catalogSeed.timetable.length);
     assert.equal(catalog.milestones.length, 6);
     assert.ok(!catalog.courses.some(course => /control systems/i.test(course.name)));
     assert.deepEqual(catalog, await request('/api/v1/catalog', { token: bobToken }));
@@ -325,7 +326,7 @@ test('accounts and all student data persist and remain isolated across server re
     assert.equal(session.reflection, 'I understand persistence.');
     assert.equal((await request('/api/v1/enrollments', { token }))[0].course_name, 'Database Systems');
     assert.ok((await request('/api/v1/activity/events', { token })).some(event => event.event_type === 'click'));
-    assert.equal((await request('/api/v1/catalog', { token })).timetable.length, 31);
+    assert.equal((await request('/api/v1/catalog', { token })).timetable.length, catalogSeed.timetable.length);
     const progress = await request('/api/v1/progress', { token });
     assert.equal(progress.courses.find(course => course.course_id === 'sat').completed, 1);
     assert.equal(progress.quizzes[0].score, 2);

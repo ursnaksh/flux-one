@@ -98,9 +98,16 @@ async function loadLiveData(initial = false) {
     fluxApi.request('/activity/preferences')
   ]);
   if (currentUser?.id !== userId || sequence !== syncSequence) return;
+  if (!catalog || !Array.isArray(catalog.courses) || !Array.isArray(catalog.timetable)) {
+    coursesData = []; rawData = [];
+    throw new Error('Academic catalog is temporarily unavailable. Please retry in a moment.');
+  }
+  const progressCourses = Array.isArray(progress?.courses) ? progress.courses : [];
   currentUser = profile; catalogInfo = catalog; savedProgress = progress; captureClicks = preferences.capture_clicks;
-  coursesData = catalog.courses.map(course => ({ ...course, progress: progress.courses.find(item => item.course_id === course.id)?.percent || 0 }));
-  academicMilestones = catalog.milestones; rawData = catalog.timetable; quizBank = catalog.quizzes;
+  coursesData = catalog.courses.map(course => ({ ...course, units: Array.isArray(course.units) ? course.units : [], progress: progressCourses.find(item => item.course_id === course.id)?.percent || 0 }));
+  academicMilestones = Array.isArray(catalog.milestones) ? catalog.milestones : [];
+  rawData = catalog.timetable;
+  quizBank = catalog.quizzes && typeof catalog.quizzes === 'object' ? catalog.quizzes : {};
   const courseIdFor = code => coursesData.find(course => course.code === code || course.name === code)?.id || null;
   const displayDate = (value, fallback = 'Not scheduled') => value ? new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : fallback;
   assignments = remoteAssignments.map(a => ({ ...a, courseId: courseIdFor(a.course_code), topic: a.topic || 'General', due: displayDate(a.due_at), done: a.status === 'completed', remote: true }));

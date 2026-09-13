@@ -32,9 +32,10 @@ test('AI generation returns structured curriculum output and caches it', async (
   };
   try {
     assert.equal(getAiStatus().configured, true);
-    const first = await generateFlightBriefing({ db, catalog: catalogSeed, courseId: 'sat', topic: 'LVDT Operating Principle & Characteristics' });
+    const topic = catalogSeed.courses.find(course => course.id === 'sat').units[0].topics.find(value => value.includes('LVDT'));
+    const first = await generateFlightBriefing({ db, catalog: catalogSeed, courseId: 'sat', topic });
     assert.equal(first.cached, false);
-    const second = await generateFlightBriefing({ db, catalog: catalogSeed, courseId: 'sat', topic: 'LVDT Operating Principle & Characteristics' });
+    const second = await generateFlightBriefing({ db, catalog: catalogSeed, courseId: 'sat', topic });
     assert.equal(second.cached, true);
     assert.equal(calls, 1);
     assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM ai_cache').get()).count, 1);
@@ -67,4 +68,33 @@ test('AI quiz validates inputs and preserves user-independent cache keys', async
     await db.close();
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+test('AI status uses a supported default and replaces known retired or invalid aliases', () => {
+  const previousModel = process.env.GEMINI_MODEL;
+  try {
+    delete process.env.GEMINI_MODEL;
+    assert.equal(getAiStatus().model, 'gemini-2.5-flash-lite');
+    process.env.GEMINI_MODEL = 'gemini-3.6-flash';
+    assert.equal(getAiStatus().model, 'gemini-2.5-flash-lite');
+    process.env.GEMINI_MODEL = 'models/gemini-2.5-flash';
+    assert.equal(getAiStatus().model, 'gemini-2.5-flash');
+  } finally {
+    if (previousModel === undefined) delete process.env.GEMINI_MODEL; else process.env.GEMINI_MODEL = previousModel;
+  }
+});
+
+test('catalog matches every timetable course and identifies title-only syllabus mappings', () => {
+  assert.equal(catalogSeed.version, 3);
+  assert.equal(catalogSeed.courses.length, 7);
+  assert.ok(catalogSeed.sources.syllabus.url.startsWith('https://www.vit.edu/'));
+  const courseIds = new Set(catalogSeed.courses.map(course => course.id));
+  for (const row of catalogSeed.timetable) assert.ok(courseIds.has(row.split('|')[7]), `Unknown timetable course in ${row}`);
+  const designThinking = catalogSeed.courses.find(course => course.id === 'dt');
+  assert.equal(designThinking.code, 'IC2311');
+  assert.equal(designThinking.syllabus.source_course_code, 'IC2236');
+  const microcontroller = catalogSeed.courses.find(course => course.id === 'maa');
+  assert.equal(microcontroller.code, 'MM1408');
+  assert.equal(microcontroller.syllabus.source_course_code, 'ICM002');
+  assert.equal(catalogSeed.courses.some(course => /control systems|control theory/i.test(course.name)), false);
 });

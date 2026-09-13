@@ -814,6 +814,25 @@
     </div>
   </div>
 
+  <!-- ==================== TOPIC PREPARATION MODAL ==================== -->
+  <div id="topic-preparation-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-cyan-500/40 w-full max-w-2xl rounded-3xl shadow-2xl p-6 max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-start gap-4 pb-4 border-b border-slate-800">
+        <div><span id="topic-preparation-course" class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider"></span><h3 id="topic-preparation-title" class="text-lg font-bold text-white mt-1"></h3><p id="topic-preparation-unit" class="text-xs text-slate-400 mt-1"></p></div>
+        <button onclick="closeTopicPreparation()" aria-label="Close topic preparation" class="w-8 h-8 shrink-0 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300">✕</button>
+      </div>
+      <div id="topic-preparation-source" class="mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300"></div>
+      <div class="flex flex-wrap gap-2 py-4">
+        <button onclick="generateTopicExplanation('summary')" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs">5-point summary</button>
+        <button onclick="generateTopicExplanation('deep')" class="px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-xs">Deep dive</button>
+        <button onclick="startPreparedTopicStudy()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">Study 25m</button>
+        <button onclick="quizPreparedTopic()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">Quiz this topic</button>
+        <button onclick="notePreparedTopic()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">Write note</button>
+      </div>
+      <div id="topic-preparation-result" role="status" aria-live="polite" class="overflow-y-auto text-sm text-slate-300 leading-relaxed"></div>
+    </div>
+  </div>
+
   <!-- ==================== DEAN'S CALENDAR MODAL ==================== -->
   <div id="academic-calendar-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-3xl shadow-2xl p-6 relative max-h-[85vh] flex flex-col text-xs">
@@ -1090,7 +1109,7 @@
               <h3 class="font-bold text-white text-sm">Practice topics</h3>
               <span class="text-cyan-400 font-bold">${c.progress}% Overall</span>
             </div>
-            <p class="text-[11px] text-slate-400">Suggested practice topics. Check your instructor’s syllabus for official coverage. Mark topics complete to track your progress.</p>
+            <p class="text-[11px] text-slate-400">${c.syllabus?.status === 'verified' ? 'Verified against the official VIT Pune syllabus.' : 'Matched to the official syllabus by subject title; see the source note for the code difference.'} Mark topics complete to track your progress.</p>
             <div class="space-y-4">
               ${c.units.map((u, uidx) => `
                 <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 space-y-2">
@@ -1099,9 +1118,7 @@
                     ${u.topics.map((t, tidx) => `
                       <div class="p-2 rounded-xl bg-slate-900 border border-slate-800/80 flex items-center justify-between">
                         <label class="flex items-center gap-2 pr-2 text-slate-200 font-medium"><input type="checkbox" aria-label="Mark topic complete" onchange="toggleTopic('${c.id}', ${uidx}, ${tidx}, this.checked)" ${topicIsComplete(c.id, uidx, tidx) ? 'checked' : ''}>${t}</label>
-                        <button onclick="startQuickStudy('${c.id}', ${uidx}, ${tidx}, 25)" class="text-[10px] px-2 py-1 rounded bg-cyan-950 text-cyan-300 hover:bg-cyan-900 font-bold border border-cyan-800">
-                          Study 25m →
-                        </button>
+                        <div class="flex gap-1 shrink-0"><button onclick="openTopicPreparation('${c.id}', ${uidx}, ${tidx})" class="text-[10px] px-2 py-1 rounded bg-indigo-950 text-indigo-300 hover:bg-indigo-900 font-bold border border-indigo-800">Details & prepare</button><button onclick="startQuickStudy('${c.id}', ${uidx}, ${tidx}, 25)" class="text-[10px] px-2 py-1 rounded bg-cyan-950 text-cyan-300 hover:bg-cyan-900 font-bold border border-cyan-800">Study 25m →</button></div>
                       </div>
                     `).join('')}
                   </div>
@@ -1453,6 +1470,35 @@
       document.getElementById('note-modal').classList.add('hidden');
       document.getElementById('note-modal').classList.remove('flex');
     }
+
+    let preparedTopic = null;
+    function openTopicPreparation(courseId, unitIndex, topicIndex) {
+      const course = coursesData.find(item => item.id === courseId);
+      const unit = course?.units?.[unitIndex]; const topic = unit?.topics?.[topicIndex];
+      if (!course || !unit || !topic) return showAppError('This topic could not be opened. Refresh and try again.');
+      preparedTopic = { course, unit, topic, unitIndex, topicIndex };
+      document.getElementById('topic-preparation-course').textContent = `${course.code} · ${course.name}`;
+      document.getElementById('topic-preparation-title').textContent = topic;
+      document.getElementById('topic-preparation-unit').textContent = unit.name;
+      const source = catalogInfo?.sources?.syllabus; const mapping = course.syllabus || {};
+      const safeUrl = String(source?.url || '').startsWith('https://www.vit.edu/') ? source.url : '';
+      document.getElementById('topic-preparation-source').innerHTML = `<strong class="text-white">Syllabus source:</strong> ${escapeRosterHtml(mapping.note || source?.note || 'Course outline')} ${safeUrl ? `<a href="${safeUrl}" target="_blank" rel="noopener" class="text-cyan-400 hover:underline">Open official PDF ↗</a>` : ''}`;
+      document.getElementById('topic-preparation-result').innerHTML = '<div class="p-4 rounded-xl bg-slate-950 border border-slate-800">Choose a summary or deep dive. Gemini will use this exact course and topic context.</div>';
+      const modal = document.getElementById('topic-preparation-modal'); modal.classList.remove('hidden'); modal.classList.add('flex');
+    }
+    function closeTopicPreparation() { const modal = document.getElementById('topic-preparation-modal'); modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    async function generateTopicExplanation(mode) {
+      if (!preparedTopic) return;
+      const resultBox = document.getElementById('topic-preparation-result');
+      resultBox.innerHTML = '<div class="p-4 text-cyan-300">Building your preparation guide…</div>';
+      try {
+        const result = await fluxApi.explainTopic({ course_id: preparedTopic.course.id, topic: preparedTopic.topic, mode });
+        resultBox.innerHTML = `<div class="space-y-4 p-4 rounded-xl bg-slate-950 border border-slate-800"><div><h4 class="font-bold text-white text-base">${escapeRosterHtml(result.title)}</h4><p class="mt-2">${escapeRosterHtml(result.overview)}</p></div><div><h5 class="font-bold text-cyan-300 mb-2">Key points</h5><ul class="list-disc pl-5 space-y-1">${(result.key_points || []).map(point => `<li>${escapeRosterHtml(point)}</li>`).join('')}</ul></div><p><strong class="text-indigo-300">Engineering application:</strong> ${escapeRosterHtml(result.engineering_application)}</p><p><strong class="text-amber-300">Exam tip:</strong> ${escapeRosterHtml(result.exam_tip)}</p><div class="p-3 rounded-lg bg-cyan-950/40 border border-cyan-900"><strong class="text-cyan-300">Check yourself:</strong> ${escapeRosterHtml(result.check_question)}</div></div>`;
+      } catch (error) { resultBox.innerHTML = `<div class="p-4 rounded-xl bg-rose-950/40 border border-rose-800 text-rose-300">${escapeRosterHtml(error.message)}</div>`; }
+    }
+    function startPreparedTopicStudy() { if (preparedTopic) { const value = preparedTopic; closeTopicPreparation(); startQuickStudy(value.course.id, value.unitIndex, value.topicIndex, 25); } }
+    function quizPreparedTopic() { if (preparedTopic) { const value = preparedTopic; closeTopicPreparation(); generateAiQuiz(value.course.id, value.topic); } }
+    function notePreparedTopic() { if (!preparedTopic) return; const value = preparedTopic; closeTopicPreparation(); openNewNoteModal(value.course.id); document.getElementById('modal-note-topic').value = value.topic; document.getElementById('modal-note-title').value = value.topic; }
 
     function populateModalNoteTopics() {
       const courseId = document.getElementById('modal-note-course').value;
@@ -1952,7 +1998,7 @@ const fluxApi = {
     try {
       response = await fetch(API_BASE + path, {
         method, headers: this.getHeaders(), body: data === undefined ? undefined : JSON.stringify(data),
-        signal: AbortSignal.timeout(20000)
+        signal: AbortSignal.timeout(path.startsWith('/ai/') ? 65000 : 20000)
       });
     } catch { throw new Error('Connection interrupted. Your changes have not been confirmed. Please retry.'); }
     if (response.status === 401) {
@@ -1986,6 +2032,7 @@ const fluxApi = {
   importClassRoster(rows) { return this.request('/class-roster/import', 'POST', { rows }); },
   getAiStatus() { return this.request('/ai/status'); },
   getFlightBriefing(data) { return this.request('/ai/flight-briefing', 'POST', data); },
+  explainTopic(data) { return this.request('/ai/topic-explain', 'POST', data); },
   generateAiQuiz(data) { return this.request('/ai/quiz', 'POST', data); },
   saveAiQuizAttempt(data) { return this.request('/ai/quiz-attempts', 'POST', data); }
 };

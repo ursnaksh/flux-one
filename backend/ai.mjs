@@ -1,8 +1,13 @@
 ﻿import { createHash } from 'node:crypto';
 
-const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
 const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';
 const MAX_PROMPT_LENGTH = 12000;
+const INVALID_MODEL_ALIASES = new Set([
+  'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash',
+  // This name was accidentally deployed even though it is not a Gemini API model.
+  'gemini-3.6-flash'
+]);
 
 export class AiInputError extends Error { constructor(message) { super(message); this.name = 'AiInputError'; } }
 export class AiConfigurationError extends Error { constructor(message) { super(message); this.name = 'AiConfigurationError'; } }
@@ -10,11 +15,9 @@ export class AiProviderError extends Error { constructor(message) { super(messag
 export class AiOutputError extends Error { constructor(message) { super(message); this.name = 'AiOutputError'; } }
 
 function modelName() {
-  let name = String(process.env.GEMINI_MODEL || DEFAULT_MODEL).trim();
-  if (!name || name.includes('2.5') || name.includes('lite') || name === 'gemini-pro') {
-    name = DEFAULT_MODEL;
-  }
-  return name.replace(/^models\//, '');
+  const configured = String(process.env.GEMINI_MODEL || '').trim().replace(/^models\//, '');
+  if (!configured || INVALID_MODEL_ALIASES.has(configured)) return DEFAULT_MODEL;
+  return configured;
 }
 
 const apiKey = () => String(process.env.GEMINI_API_KEY || '').trim();
@@ -138,7 +141,7 @@ function schemaFor(kind) {
 function normalizeJsonText(text) {
   const trimmed = String(text || '').trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return (fenced ? fenced : trimmed).trim();
+  return (fenced ? fenced[1] : trimmed).trim();
 }
 
 function assertString(value, label, max = 1500) {
@@ -229,7 +232,8 @@ async function callGemini({ prompt, kind }) {
   if (prompt.length > MAX_PROMPT_LENGTH) throw new AiInputError('The selected academic context is too large.');
   
   const targetModel = modelName();
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent?key=${encodeURIComponent(key)}`;
+  const endpointTemplate = String(process.env.GEMINI_API_ENDPOINT || DEFAULT_ENDPOINT).trim() || DEFAULT_ENDPOINT;
+  const endpoint = endpointTemplate.replace('{model}', encodeURIComponent(targetModel));
   
   let response;
   try {
@@ -257,11 +261,14 @@ async function callGemini({ prompt, kind }) {
   if (!response.ok) {
     const status = response.status;
     const errText = await response.text().catch(() => '');
-    console.error(`Gemini API Error (${status}) on model [${targetModel}]:`, errText);
+    let providerMessage = '';
+    try { providerMessage = JSON.parse(errText)?.error?.message || ''; } catch { /* Provider returned plain text. */ }
+    console.error(`Gemini API error (${status}) on model [${targetModel}]: ${providerMessage || 'No provider detail'}`);
 
     if (status === 401 || status === 403) throw new AiConfigurationError('Gemini rejected the server key. Check GEMINI_API_KEY in Render.');
     if (status === 429) throw new AiProviderError('Gemini rate limit reached. Try again in a moment.');
-    throw new AiProviderError(`Gemini returned an upstream error (${status}): ${errText}`);
+    if (status === 404) throw new AiConfigurationError(`Gemini model ${targetModel} is unavailable. Remove an outdated GEMINI_MODEL setting in Render.`);
+    throw new AiProviderError(`Gemini returned an upstream error (${status}).${providerMessage ? ` ${providerMessage}` : ''}`);
   }
 
   let payload;

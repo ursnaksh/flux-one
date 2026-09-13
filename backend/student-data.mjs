@@ -11,7 +11,9 @@ export const clientActions = new Set([
   'launchQuiz', 'generateFlightBriefing', 'generateAiQuiz', 'handleQuizAnswer', 'nextQuizQuestion', 'closeQuizModal', 'openCalendarModal', 'closeCalendarModal',
   'openStudentProfileModal', 'closeStudentProfileModal', 'saveStudentProfile', 'handleLogout',
   'handleRosterFile', 'importClassRoster', 'loadActivityEvents', 'toggleActivityCapture', 'toggleTopic', 'retrySync',
-  'selectAssignmentCourse', 'selectAssignmentPriority', 'selectProfileBatch'
+  'selectAssignmentCourse', 'selectAssignmentPriority', 'selectProfileBatch',
+  'openTopicPreparation', 'closeTopicPreparation', 'generateTopicExplanation', 'startPreparedTopicStudy',
+  'quizPreparedTopic', 'notePreparedTopic'
 ]);
 const views = new Set(['dashboard', 'subjects', 'study', 'assignments', 'notes', 'timetable', 'roster', 'activity', 'brain']);
 const isoNow = () => new Date().toISOString();
