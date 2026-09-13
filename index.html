@@ -10,14 +10,89 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #080c14; -webkit-tap-highlight-color: transparent; }
-    .glass-card { background: rgba(16, 23, 38, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
-    .glass-card:hover { border-color: rgba(255, 255, 255, 0.14); }
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: #080c14; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-    .nav-btn-active { color: #38bdf8; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; }
-  </style>
+ /* ==========================================================================
+     FLUX ONE THEME SYSTEM (CSS TOKENS)
+     ========================================================================== */
+  :root, [data-theme="flux-neon"] {
+    --bg-app: #030712;
+    --bg-surface: #0b1329;
+    --bg-card: #0f172a;
+    --border-subtle: #1e293b;
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-primary: #06b6d4;      /* Cyber Cyan */
+    --accent-glow: rgba(6, 182, 212, 0.25);
+    --font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  [data-theme="rose-quartz"] {
+    --bg-app: #18111b;
+    --bg-surface: #241929;
+    --bg-card: #2e2035;
+    --border-subtle: #4a3455;
+    --text-primary: #fdf2f8;
+    --text-muted: #d8b4e2;
+    --accent-primary: #f472b6;      /* Soft Rose / Lavender */
+    --accent-glow: rgba(244, 114, 182, 0.25);
+    --font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  [data-theme="terminal"] {
+    --bg-app: #000000;
+    --bg-surface: #0a0e0a;
+    --bg-card: #0d140d;
+    --border-subtle: #1b331b;
+    --text-primary: #4ade80;      /* Phosphor Matrix Green */
+    --text-muted: #166534;
+    --accent-primary: #22c55e;
+    --accent-glow: rgba(34, 197, 94, 0.2);
+    --font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  }
+
+  [data-theme="academic-minimal"] {
+    --bg-app: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --border-subtle: #cbd5e1;
+    --text-primary: #0f172a;      /* Oxford Navy */
+    --text-muted: #475569;
+    --accent-primary: #1e40af;      /* Classic Blue */
+    --accent-glow: transparent;
+    --font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  [data-theme="solar-focus"] {
+    --bg-app: #120e0a;
+    --bg-surface: #1c150e;
+    --bg-card: #241b12;
+    --border-subtle: #3d2c1d;
+    --text-primary: #fef3c7;
+    --text-muted: #d97706;
+    --accent-primary: #f59e0b;      /* Warm Amber */
+    --accent-glow: rgba(245, 158, 11, 0.2);
+    --font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
+  /* Accessibility: Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Accessibility: High Contrast */
+  [data-contrast="high"] {
+    --border-subtle: #94a3b8 !important;
+    --text-muted: #ffffff !important;
+  }
+
+  /* Apply dynamic variables to core body elements */
+  body {
+    background-color: var(--bg-app) !important;
+    color: var(--text-primary) !important;
+    font-family: var(--font-family) !important;
+  } </style>
 </head>
 <body class="text-slate-100 min-h-screen bg-[#080c14]">
 
@@ -56,7 +131,9 @@
     <div id="workspace-loader" class="fixed inset-0 z-[65] bg-[#080c14] flex items-center justify-center p-6">
       <div class="max-w-md text-center space-y-5"><div class="text-cyan-400 font-black text-2xl">FLUX ONE</div><p id="workspace-load-message" class="text-sm text-slate-300" role="status">Loading your workspace…</p><div class="flex gap-3 justify-center"><button onclick="retrySync()" class="px-4 py-2 rounded-xl bg-cyan-600 font-semibold text-xs">Retry connection</button><button onclick="handleLogout()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs">Sign out</button></div></div>
     </div>
-
+<button onclick="window.openThemeModal()" class="px-3 py-1.5 rounded-xl border border-slate-700 hover:border-slate-500 bg-slate-900/80 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition-colors">
+  🎨 Theme
+</button>
   <!-- ==================== DESKTOP SIDEBAR ==================== -->
   <aside class="hidden md:flex flex-col w-64 border-r border-slate-800/80 bg-[#080c14]/95 fixed inset-y-0 z-40 p-4 justify-between">
     <div class="space-y-6">
@@ -2146,5 +2223,124 @@ const fluxApi = {
 
   </script>
   <script src="assets/workspace.js"></script>
+  <!-- ==========================================================================
+     THEME ENGINE & FIRST-LOGIN ONBOARDING MODAL
+     ========================================================================== -->
+<script>
+(function() {
+  // 1. Core function to apply theme tokens to the HTML tag
+  window.applyTheme = function(themeName, contrast = 'normal') {
+    document.documentElement.setAttribute('data-theme', themeName);
+    document.documentElement.setAttribute('data-contrast', contrast);
+    localStorage.setItem('flux_theme', themeName);
+    localStorage.setItem('flux_contrast', contrast);
+    
+    // Sync select dropdown if it exists on page
+    const select = document.getElementById('theme-switcher-select');
+    if (select) select.value = themeName;
+  };
+
+  // 2. Save preference to localStorage and the server database
+  window.applyAndSaveTheme = async function(themeName, contrast = 'normal') {
+    window.applyTheme(themeName, contrast);
+    
+    // Remove onboarding modal if open
+    const modal = document.getElementById('theme-onboarding-modal');
+    if (modal) modal.remove();
+
+    // Persist via existing /activity/preferences endpoint
+    try {
+      if (window.fluxApi && window.fluxApi.request) {
+        await window.fluxApi.request('/activity/preferences', 'PUT', {
+          theme: themeName,
+          contrast: contrast,
+          theme_chosen: true
+        });
+      }
+    } catch (e) {
+      console.warn('Preferences stored locally:', e.message);
+    }
+  };
+
+  // 3. Open the "Choose your command-center style" preview modal
+  window.openThemeModal = function() {
+    if (document.getElementById('theme-onboarding-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'theme-onboarding-modal';
+    modal.className = 'fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4';
+    modal.innerHTML = `
+      <div class="max-w-3xl w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl animate-fade-in text-left">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-cyan-400">Workspace Customization</span>
+            <h2 class="text-2xl font-black text-white mt-1">Choose your command-center style</h2>
+            <p class="text-xs text-slate-400 mt-1">Select an ergonomic theme tailored to your study preferences. Change anytime in your profile.</p>
+          </div>
+          <button onclick="document.getElementById('theme-onboarding-modal').remove()" class="text-slate-400 hover:text-white text-lg">✕</button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- 1. Flux Neon -->
+          <button onclick="applyAndSaveTheme('flux-neon')" class="p-4 rounded-2xl border border-cyan-500/30 bg-slate-950 text-left hover:border-cyan-400 hover:scale-[1.02] transition-all group">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.6)]"></span>
+              <span class="font-black text-sm text-cyan-300">Flux Neon</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">Cyber dark navy with high-visibility cyan highlights.</p>
+          </button>
+
+          <!-- 2. Rose Quartz -->
+          <button onclick="applyAndSaveTheme('rose-quartz')" class="p-4 rounded-2xl border border-pink-500/30 bg-[#18111b] text-left hover:border-pink-400 hover:scale-[1.02] transition-all group">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.6)]"></span>
+              <span class="font-black text-sm text-pink-200">Rose Quartz</span>
+            </div>
+            <p class="text-[11px] text-pink-300/70 leading-relaxed">Soft lavender backgrounds with warm pastel accents.</p>
+          </button>
+
+          <!-- 3. Terminal -->
+          <button onclick="applyAndSaveTheme('terminal')" class="p-4 rounded-2xl border border-green-500/30 bg-black text-left hover:border-green-400 hover:scale-[1.02] transition-all group font-mono">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+              <span class="font-black text-sm text-green-400">Terminal</span>
+            </div>
+            <p class="text-[11px] text-green-600 leading-relaxed">Phosphor monochrome aesthetic with monospace typography.</p>
+          </button>
+
+          <!-- 4. Academic Minimal -->
+          <button onclick="applyAndSaveTheme('academic-minimal')" class="p-4 rounded-2xl border border-slate-300 bg-white text-left hover:border-blue-700 hover:scale-[1.02] transition-all group">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-blue-700"></span>
+              <span class="font-black text-sm text-slate-900">Academic Minimal</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">Clean paper white interface with structured navy headers.</p>
+          </button>
+
+          <!-- 5. Solar Focus -->
+          <button onclick="applyAndSaveTheme('solar-focus')" class="p-4 rounded-2xl border border-amber-500/30 bg-[#120e0a] text-left hover:border-amber-400 hover:scale-[1.02] transition-all group sm:col-span-2 md:col-span-1">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.6)]"></span>
+              <span class="font-black text-sm text-amber-200">Solar Focus</span>
+            </div>
+            <p class="text-[11px] text-amber-500/80 leading-relaxed">Warm amber, low-strain palette for long study sessions.</p>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  };
+
+  // 4. Initial boot check
+  const saved = localStorage.getItem('flux_theme');
+  if (saved) {
+    window.applyTheme(saved, localStorage.getItem('flux_contrast') || 'normal');
+  } else {
+    // Auto-detect system preference
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    window.applyTheme(prefersLight ? 'academic-minimal' : 'flux-neon');
+  }
+})();
+</script>
 </body>
 </html>
