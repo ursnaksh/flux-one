@@ -26,8 +26,8 @@ test('AI generation returns structured curriculum output and caches it', async (
   globalThis.fetch = async (_url, options) => {
     calls += 1;
     const request = JSON.parse(options.body);
-    assert.equal(request.generationConfig.responseFormat.text.mimeType, 'application/json');
-    assert.equal(request.generationConfig.responseFormat.text.schema.type, 'object');
+    assert.equal(request.generationConfig.responseMimeType, 'application/json');
+    assert.equal(request.generationConfig.responseSchema.type, 'object');
     return jsonResponse({ candidates: [{ content: { parts: [{ text: JSON.stringify({ title: 'LVDT Primer', hook: 'Connect displacement to differential voltage.', concepts: ['Null position', 'Differential output', 'Core movement'], check_question: 'Why does the null output cancel?', recommended_minutes: 3 }) }] } }] });
   };
   try {
