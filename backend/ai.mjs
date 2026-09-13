@@ -1,8 +1,5 @@
 import { createHash } from 'node:crypto';
 
-// Flash-Lite is available on the Gemini API's lightweight/free lane and
-// supports structured JSON output. Override with GEMINI_MODEL when a project
-// has access to another Gemini model.
 const DEFAULT_MODEL = 'gemini-1.5-flash';
 const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';
 const MAX_PROMPT_LENGTH = 12000;
@@ -12,7 +9,15 @@ export class AiConfigurationError extends Error { constructor(message) { super(m
 export class AiProviderError extends Error { constructor(message) { super(message); this.name = 'AiProviderError'; } }
 export class AiOutputError extends Error { constructor(message) { super(message); this.name = 'AiOutputError'; } }
 
-const modelName = () => String(process.env.GEMINI_MODEL || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
+function modelName() {
+  let name = String(process.env.GEMINI_MODEL || DEFAULT_MODEL).trim();
+  // Auto-heal invalid or deprecated model strings from .env or Render
+  if (!name || name.includes('2.5') || name.includes('lite') || name === 'gemini-pro') {
+    name = DEFAULT_MODEL;
+  }
+  return name.replace(/^models\//, '');
+}
+
 const apiKey = () => String(process.env.GEMINI_API_KEY || '').trim();
 
 export function getAiStatus() {
@@ -80,7 +85,7 @@ function schemaFor(kind) {
 function normalizeJsonText(text) {
   const trimmed = String(text || '').trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  return (fenced ? fenced[1] : trimmed).trim();
+  return (fenced ? fenced : trimmed).trim();
 }
 
 function assertString(value, label, max = 800) {
@@ -119,15 +124,21 @@ function validateOutput(kind, value) {
 }
 
 async function callGemini({ prompt, kind }) {
-  if (!apiKey()) throw new AiConfigurationError('AI is not configured yet. Add GEMINI_API_KEY to the server environment.');
+  const key = apiKey();
+  if (!key) throw new AiConfigurationError('AI is not configured yet. Add GEMINI_API_KEY to the server environment.');
   if (prompt.length > MAX_PROMPT_LENGTH) throw new AiInputError('The selected academic context is too large.');
-  const endpointTemplate = String(process.env.GEMINI_API_ENDPOINT || DEFAULT_ENDPOINT).trim() || DEFAULT_ENDPOINT;
-  const endpoint = endpointTemplate.replace('{model}', encodeURIComponent(modelName()));
+  
+  const targetModel = modelName();
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(targetModel)}:generateContent?key=${encodeURIComponent(key)}`;
+  
   let response;
   try {
     response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey() },
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-goog-api-key': key 
+      },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
@@ -142,12 +153,17 @@ async function callGemini({ prompt, kind }) {
     if (error?.name === 'TimeoutError' || error?.name === 'AbortError') throw new AiProviderError('Gemini took too long to respond. Please retry.');
     throw new AiProviderError('Gemini could not be reached. Please retry.');
   }
+
   if (!response.ok) {
     const status = response.status;
+    const errText = await response.text().catch(() => '');
+    console.error(`Gemini API Error (${status}) on model [${targetModel}]:`, errText);
+
     if (status === 401 || status === 403) throw new AiConfigurationError('Gemini rejected the server key. Check GEMINI_API_KEY in Render.');
     if (status === 429) throw new AiProviderError('Gemini rate limit reached. Try again in a moment.');
-    throw new AiProviderError(`Gemini returned an upstream error (${status}).`);
+    throw new AiProviderError(`Gemini returned an upstream error (${status}): ${errText}`);
   }
+
   let payload;
   try { payload = await response.json(); } catch { throw new AiProviderError('Gemini returned an unreadable response.'); }
   const text = payload?.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
@@ -181,7 +197,7 @@ export async function generateFlightBriefing({ db, catalog, courseId, topic, sch
   const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
   const focus = selected || allTopics[0];
   const week = semesterWeek();
-  const schedule = catalog.timetable.filter(line => line.split('|')[7] === course.id).slice(0, 4).map(line => line.split('|').slice(0, 7).join(' | '));
+  const schedule = catalog.timetable.filter(line => line.split('|') === course.id).slice(0, 4).map(line => line.split('|').slice(0, 7).join(' | '));
   const when = scheduledAt ? new Date(scheduledAt) : null;
   if (scheduledAt && (!when || Number.isNaN(when.getTime()))) throw new AiInputError('scheduled_at must be a valid date.');
   const cacheKey = `ai:${catalog.id}:v${catalog.version}:flight:${slug(course.id)}:${slug(focus.name)}:w${week}`;
