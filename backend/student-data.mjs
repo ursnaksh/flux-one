@@ -8,7 +8,7 @@ export const clientActions = new Set([
   'setAssignmentFilter', 'toggleAssignment', 'openAssignmentModal', 'closeAssignmentModal', 'saveAssignment',
   'openNewNoteModal', 'closeNewNoteModal', 'saveNewNote', 'deleteNote', 'populateModalNoteTopics',
   'populateStudyTopics', 'selectStudyTopic', 'setTimetableDay', 'renderTimetableFull',
-  'launchQuiz', 'handleQuizAnswer', 'nextQuizQuestion', 'closeQuizModal', 'openCalendarModal', 'closeCalendarModal',
+  'launchQuiz', 'generateFlightBriefing', 'generateAiQuiz', 'handleQuizAnswer', 'nextQuizQuestion', 'closeQuizModal', 'openCalendarModal', 'closeCalendarModal',
   'openStudentProfileModal', 'closeStudentProfileModal', 'saveStudentProfile', 'handleLogout',
   'handleRosterFile', 'importClassRoster', 'loadActivityEvents', 'toggleActivityCapture', 'toggleTopic', 'retrySync',
   'selectAssignmentCourse', 'selectAssignmentPriority', 'selectProfileBatch'
@@ -39,6 +39,17 @@ export async function initializeStudentData(db) {
       session_id TEXT PRIMARY KEY REFERENCES study_sessions(id) ON DELETE CASCADE,
       target_seconds INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS ai_cache (
+      cache_key TEXT PRIMARY KEY, kind TEXT NOT NULL, model TEXT NOT NULL,
+      response_json TEXT NOT NULL, created_at TEXT NOT NULL, expires_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_ai_cache_expiry ON ai_cache(expires_at);
+    CREATE TABLE IF NOT EXISTS ai_quiz_attempts (
+      id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      cache_key TEXT NOT NULL, course_id TEXT NOT NULL, answers TEXT NOT NULL,
+      score INTEGER NOT NULL, total INTEGER NOT NULL, created_at TEXT NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_ai_quiz_user_created ON ai_quiz_attempts(user_id, created_at DESC);
   `);
   await db.prepare(`INSERT INTO academic_catalog (id,version,payload,updated_at) VALUES (?,?,?,?)
     ON CONFLICT(id) DO UPDATE SET version = excluded.version, payload = excluded.payload, updated_at = excluded.updated_at
@@ -60,9 +71,10 @@ export async function recordActivity(db, userId, eventType, target, view = null,
 }
 
 export async function getProgress(db, userId) {
-  const [catalog, topics, quizzes, sessions, assignments] = await Promise.all([
+  const [catalog, topics, quizzes, aiQuizzes, sessions, assignments] = await Promise.all([
     getCatalog(db), db.prepare('SELECT * FROM topic_progress WHERE user_id = ?').all(userId),
     db.prepare('SELECT id,course_id,score,total,created_at FROM quiz_attempts WHERE user_id = ? ORDER BY created_at DESC').all(userId),
+    db.prepare('SELECT id,course_id,score,total,created_at FROM ai_quiz_attempts WHERE user_id = ? ORDER BY created_at DESC').all(userId),
     db.prepare("SELECT * FROM study_sessions WHERE user_id = ? AND state = 'completed'").all(userId),
     db.prepare('SELECT status FROM assignments WHERE user_id = ?').all(userId)
   ]);
@@ -83,17 +95,18 @@ export async function getProgress(db, userId) {
   let weekDays = 0;
   for (let i = 0; i < 7; i += 1) { const day = new Date(today); day.setUTCDate(day.getUTCDate() - i); if (activeDays.has(dayKey(day))) weekDays += 1; }
   const coverage = totalTopics ? Math.round(completedTopics / totalTopics * 100) : 0;
-  const quizTotal = quizzes.reduce((sum, quiz) => sum + Number(quiz.total), 0);
+  const quizRows = [...quizzes, ...aiQuizzes].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+  const quizTotal = quizRows.reduce((sum, quiz) => sum + Number(quiz.total), 0);
   return {
     topics: topics.map(topic => ({ course_id: topic.course_id, unit_index: Number(topic.unit_index), topic_index: Number(topic.topic_index), completed: Boolean(Number(topic.completed)) })),
-    courses: courseProgress, quizzes,
+    courses: courseProgress, quizzes: quizRows,
     stats: {
       total_study_minutes: Math.round(sessions.reduce((sum, session) => sum + Number(session.duration_seconds || 0), 0) / 60),
       completed_sessions: sessions.length, streak_days: streak, active_days_this_week: weekDays,
       academic_brain_score: coverage, topic_coverage: coverage, consistency: Math.round(weekDays / 7 * 100),
       focus_quality: sessions.length ? Math.round(sessions.reduce((sum, session) => sum + Number(session.focus_rating || 0), 0) / sessions.length / 5 * 100) : 0,
       assignment_completion: assignments.length ? Math.round(assignments.filter(a => a.status === 'completed').length / assignments.length * 100) : 0,
-      quiz_average: quizTotal ? Math.round(quizzes.reduce((sum, quiz) => sum + Number(quiz.score), 0) / quizTotal * 100) : null
+      quiz_average: quizTotal ? Math.round(quizRows.reduce((sum, quiz) => sum + Number(quiz.score), 0) / quizTotal * 100) : null
     }
   };
 }

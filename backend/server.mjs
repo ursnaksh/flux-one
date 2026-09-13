@@ -4,7 +4,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { openDatabase } from './database.mjs';
-import { initializeStudentData, handleStudentData, getProgress, recordActivity } from './student-data.mjs';
+import { initializeStudentData, handleStudentData, getCatalog, getProgress, recordActivity } from './student-data.mjs';
+import { generateDynamicQuiz, generateFlightBriefing, getAiStatus, AiConfigurationError, AiInputError, AiOutputError, AiProviderError } from './ai.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(root, 'data');
@@ -160,6 +161,13 @@ function sessionView(row) {
   return { ...row, paused_seconds: Number(row.paused_seconds || 0), duration_seconds: row.duration_seconds === null ? null : Number(row.duration_seconds), focus_rating: row.focus_rating === null ? null : Number(row.focus_rating) };
 }
 
+function aiFailure(res, error) {
+  if (error instanceof AiInputError) return fail(res, 422, error.message);
+  if (error instanceof AiConfigurationError) return fail(res, 503, error.message);
+  if (error instanceof AiOutputError || error instanceof AiProviderError) return fail(res, 502, error.message);
+  throw error;
+}
+
 const server = createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || 'http://127.0.0.1:3000');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
@@ -222,6 +230,56 @@ const server = createServer(async (req, res) => {
     if (req.method === 'GET' && route === '/api/v1/dashboard/overview') {
       const user = await requireUser(req, res); if (!user) return;
       return send(res, 200, { stats: (await getProgress(db, user.id)).stats });
+    }
+    if (route === '/api/v1/ai/status' && req.method === 'GET') {
+      const user = await requireUser(req, res); if (!user) return;
+      return send(res, 200, getAiStatus());
+    }
+    if (route === '/api/v1/ai/flight-briefing' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      try {
+        const catalog = await getCatalog(db);
+        const result = await generateFlightBriefing({ db, catalog, courseId: data.course_id, topic: data.topic, scheduledAt: data.scheduled_at });
+        const course = catalog.courses.find(item => item.id === data.course_id);
+        await recordActivity(db, user.id, 'ai_flight_briefing', 'AI flight briefing generated', 'dashboard', { source: 'server', course_code: course?.code, cached: result.cached });
+        return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
+      } catch (error) { return aiFailure(res, error); }
+    }
+    if (route === '/api/v1/ai/quiz' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      try {
+        const catalog = await getCatalog(db);
+        const result = await generateDynamicQuiz({ db, catalog, courseId: data.course_id, topic: data.topic, difficulty: data.difficulty, count: data.count });
+        const course = catalog.courses.find(item => item.id === data.course_id);
+        await recordActivity(db, user.id, 'ai_quiz_generate', 'AI quiz generated', 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
+        return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
+      } catch (error) { return aiFailure(res, error); }
+    }
+    if (route === '/api/v1/ai/quiz-attempts' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      try {
+        if (typeof data.id !== 'string' || !/^[0-9a-f-]{36}$/i.test(data.id)) throw new AiInputError('Provide a valid attempt ID.');
+        if (typeof data.cache_key !== 'string' || data.cache_key.length < 20 || data.cache_key.length > 300) throw new AiInputError('That AI quiz is no longer available. Generate it again.');
+        if (!Array.isArray(data.answers) || data.answers.length < 3 || data.answers.length > 8 || data.answers.some(answer => !Number.isInteger(answer) || answer < 0 || answer > 3)) throw new AiInputError('Provide one valid answer per question.');
+        const courseId = String(data.course_id || '').trim();
+        const catalog = await getCatalog(db);
+        if (!catalog.courses.some(course => course.id === courseId)) throw new AiInputError('Choose a valid course from the academic catalog.');
+        if (data.cache_key.split(':')[4] !== courseId) throw new AiInputError('The submitted AI quiz does not match its course.');
+        const cached = await db.prepare("SELECT response_json FROM ai_cache WHERE cache_key = ? AND kind = 'quiz' AND expires_at > ?").get(data.cache_key, now());
+        if (!cached) throw new AiInputError('That AI quiz is no longer available. Generate it again.');
+        const quiz = JSON.parse(cached.response_json);
+        if (!Array.isArray(quiz.questions) || quiz.questions.length !== data.answers.length) throw new AiInputError('The submitted AI quiz does not match its questions.');
+        const score = data.answers.reduce((sum, answer, index) => sum + (answer === quiz.questions[index].answer_index ? 1 : 0), 0);
+        const saved = await db.prepare('INSERT INTO ai_quiz_attempts (id,user_id,cache_key,course_id,answers,score,total,created_at) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING')
+          .run(data.id, user.id, data.cache_key, courseId, JSON.stringify(data.answers), score, quiz.questions.length, now());
+        const attempt = await db.prepare('SELECT id,course_id,score,total,created_at FROM ai_quiz_attempts WHERE id = ? AND user_id = ?').get(data.id, user.id);
+        if (!attempt) return fail(res, 409, 'That attempt ID is already in use.');
+        if (saved.changes) await recordActivity(db, user.id, 'ai_quiz_complete', 'AI quiz completed', 'subjects', { source: 'server', course_id: courseId });
+        return send(res, saved.changes ? 201 : 200, attempt);
+      } catch (error) { return aiFailure(res, error); }
     }
     if (req.method === 'GET' && route === '/api/v1/sessions/active') {
       const user = await requireUser(req, res); if (!user) return;

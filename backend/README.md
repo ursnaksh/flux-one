@@ -24,10 +24,38 @@ memory while the page remains open, so offline/tab-close delivery is best effort
 Browser interaction records are observations from the client, not proof a save
 succeeded; successful saves are separately recorded by the server.
 
+## Phase 1 Gemini academic copilot
+
+The current Phase 1 implementation keeps the API key on the backend and adds
+authenticated `GET /api/v1/ai/status`, `POST /api/v1/ai/flight-briefing`,
+`POST /api/v1/ai/quiz`, and `POST /api/v1/ai/quiz-attempts` routes. Briefings and
+quizzes use only the versioned course catalog and timetable context; PNRs,
+email addresses, names and activity history are not sent to Gemini. Structured
+JSON responses are validated before they are shown, and curriculum outputs are
+cached in the database (briefings for 24 hours, quizzes for 7 days). AI quiz
+attempts are stored with the account's normal progress records.
+
+Set these values in the Render service's Environment (never commit them):
+
+```text
+GEMINI_API_KEY=<Google AI Studio key>
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+The roadmap mentioned Gemini 2.0 Flash, but that model is no longer available;
+use the configurable current model above. `GEMINI_MODEL` is optional and can be
+changed as Google retires models. Without
+`GEMINI_API_KEY`, the existing study portal remains available and AI actions
+return a clear HTTP 503 configuration message. The first UI slice exposes
+manual **AI Briefing** and **AI Quiz** actions from the timetable and course
+workspaces; an automatic 15-minute pre-class scheduler can be layered on top of
+these cached endpoints in the next phase.
+
 New routes: `GET /api/v1/catalog`, `GET /api/v1/progress`,
 `PUT /api/v1/progress/topics`, `POST /api/v1/quizzes/attempts`,
-`GET /api/v1/sessions/active`, `GET/POST /api/v1/activity/events`, and
-`GET/PUT /api/v1/activity/preferences`. All require authentication.
+`GET /api/v1/sessions/active`, `GET/POST /api/v1/activity/events`,
+`GET/PUT /api/v1/activity/preferences`, and the Phase 1 AI routes listed above.
+All require authentication.
 
 Classmates' personal roster records still require the owner's CSV/JSON import.
 No sample classmates or fabricated academic scores are seeded into production.
