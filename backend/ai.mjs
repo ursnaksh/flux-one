@@ -1,12 +1,12 @@
 ﻿import { createHash } from 'node:crypto';
 
-const DEFAULT_MODEL = 'gemini-2.5-flash';
-const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';
+const DEFAULT_MODEL = 'gemini-3.6-flash';
+const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 const MAX_PROMPT_LENGTH = 12000;
 const INVALID_MODEL_ALIASES = new Set([
   'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash',
-  // This name was accidentally deployed even though it is not a Gemini API model.
-  'gemini-3.6-flash'
+  // Google no longer makes this model available to new API users.
+  'gemini-2.5-flash'
 ]);
 
 export class AiInputError extends Error { constructor(message) { super(message); this.name = 'AiInputError'; } }
@@ -244,12 +244,11 @@ async function callGemini({ prompt, kind }) {
         'x-goog-api-key': key 
       },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.25,
-          responseMimeType: 'application/json',
-          responseSchema: schemaFor(kind)
-        }
+        model: targetModel,
+        input: prompt,
+        response_format: [{ type: 'text', mime_type: 'application/json', schema: schemaFor(kind) }],
+        generation_config: { temperature: 0.25 },
+        store: false
       }),
       signal: AbortSignal.timeout(25000)
     });
@@ -267,13 +266,15 @@ async function callGemini({ prompt, kind }) {
 
     if (status === 401 || status === 403) throw new AiConfigurationError('Gemini rejected the server key. Check GEMINI_API_KEY in Render.');
     if (status === 429) throw new AiProviderError('Gemini rate limit reached. Try again in a moment.');
-    if (status === 404) throw new AiConfigurationError(`Gemini model ${targetModel} is unavailable. Remove an outdated GEMINI_MODEL setting in Render.`);
+    if (status === 404) throw new AiConfigurationError(`Gemini model ${targetModel} is unavailable through the Interactions API.`);
     throw new AiProviderError(`Gemini returned an upstream error (${status}).${providerMessage ? ` ${providerMessage}` : ''}`);
   }
 
   let payload;
   try { payload = await response.json(); } catch { throw new AiProviderError('Gemini returned an unreadable response.'); }
-  const text = payload?.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
+  const text = payload?.steps?.filter(step => step.type === 'model_output')
+    .flatMap(step => Array.isArray(step.content) ? step.content : [])
+    .map(content => content?.type === 'text' ? content.text || '' : '').join('').trim();
   if (!text) throw new AiOutputError('Gemini returned no generated content.');
   try { return validateOutput(kind, JSON.parse(normalizeJsonText(text))); }
   catch (error) { if (error instanceof AiOutputError) throw error; throw new AiOutputError('Gemini returned malformed JSON.'); }

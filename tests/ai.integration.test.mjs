@@ -22,13 +22,14 @@ test('AI generation returns structured curriculum output and caches it', async (
   const previousFetch = globalThis.fetch;
   let calls = 0;
   process.env.GEMINI_API_KEY = 'test-key';
-  process.env.GEMINI_API_ENDPOINT = 'https://example.test/models/{model}:generateContent';
+  process.env.GEMINI_API_ENDPOINT = 'https://example.test/interactions';
   globalThis.fetch = async (_url, options) => {
     calls += 1;
     const request = JSON.parse(options.body);
-    assert.equal(request.generationConfig.responseMimeType, 'application/json');
-    assert.equal(request.generationConfig.responseSchema.type, 'object');
-    return jsonResponse({ candidates: [{ content: { parts: [{ text: JSON.stringify({ title: 'LVDT Primer', hook: 'Connect displacement to differential voltage.', concepts: ['Null position', 'Differential output', 'Core movement'], check_question: 'Why does the null output cancel?', recommended_minutes: 3 }) }] } }] });
+    assert.equal(request.model, 'gemini-3.6-flash');
+    assert.equal(request.response_format[0].mime_type, 'application/json');
+    assert.equal(request.response_format[0].schema.type, 'object');
+    return jsonResponse({ steps: [{ type: 'model_output', content: [{ type: 'text', text: JSON.stringify({ title: 'LVDT Primer', hook: 'Connect displacement to differential voltage.', concepts: ['Null position', 'Differential output', 'Core movement'], check_question: 'Why does the null output cancel?', recommended_minutes: 3 }) }] }] });
   };
   try {
     assert.equal(getAiStatus().configured, true);
@@ -56,7 +57,7 @@ test('AI quiz validates inputs and preserves user-independent cache keys', async
   const previousKey = process.env.GEMINI_API_KEY;
   const previousFetch = globalThis.fetch;
   process.env.GEMINI_API_KEY = 'test-key';
-  globalThis.fetch = async () => jsonResponse({ candidates: [{ content: { parts: [{ text: JSON.stringify({ title: '8051 Quiz', questions: [1, 2, 3, 4, 5].map((_, i) => ({ question: `Question ${i + 1}`, options: ['A', 'B', 'C', 'D'], answer_index: i % 4, explanation: 'Curriculum explanation.' })) }) }] } }] });
+  globalThis.fetch = async () => jsonResponse({ steps: [{ type: 'model_output', content: [{ type: 'text', text: JSON.stringify({ title: '8051 Quiz', questions: [1, 2, 3, 4, 5].map((_, i) => ({ question: `Question ${i + 1}`, options: ['A', 'B', 'C', 'D'], answer_index: i % 4, explanation: 'Curriculum explanation.' })) }) }] }] });
   try {
     const quiz = await generateDynamicQuiz({ db, catalog: catalogSeed, courseId: 'maa', count: 5, difficulty: 'mixed' });
     assert.equal(quiz.questions.length, 5);
@@ -74,11 +75,11 @@ test('AI status uses a supported default and replaces known retired or invalid a
   const previousModel = process.env.GEMINI_MODEL;
   try {
     delete process.env.GEMINI_MODEL;
-    assert.equal(getAiStatus().model, 'gemini-2.5-flash');
-    process.env.GEMINI_MODEL = 'gemini-3.6-flash';
-    assert.equal(getAiStatus().model, 'gemini-2.5-flash');
+    assert.equal(getAiStatus().model, 'gemini-3.6-flash');
+    process.env.GEMINI_MODEL = 'gemini-2.5-flash';
+    assert.equal(getAiStatus().model, 'gemini-3.6-flash');
     process.env.GEMINI_MODEL = 'models/gemini-2.5-flash';
-    assert.equal(getAiStatus().model, 'gemini-2.5-flash');
+    assert.equal(getAiStatus().model, 'gemini-3.6-flash');
   } finally {
     if (previousModel === undefined) delete process.env.GEMINI_MODEL; else process.env.GEMINI_MODEL = previousModel;
   }
