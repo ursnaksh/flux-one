@@ -1936,7 +1936,10 @@
     // Set your API URL (localhost for local dev, or your tunnel/cloud URL later)
 const API_BASE = window.location.protocol === 'file:' ? 'https://flux-one.onrender.com/api/v1'
   : ['127.0.0.1', 'localhost'].includes(window.location.hostname) && window.location.port === '3000'
-    ? 'http://127.0.0.1:8001/api/v1' : `${window.location.origin}/api/v1`;
+    ? 'http://127.0.0.1:8001/api/v1'
+    : window.location.hostname.endsWith('.vercel.app')
+      ? 'https://flux-one.onrender.com/api/v1'
+      : `${window.location.origin}/api/v1`;
 
 const fluxApi = {
   getHeaders() {
