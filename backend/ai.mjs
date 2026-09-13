@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 // Flash-Lite is available on the Gemini API's lightweight/free lane and
 // supports structured JSON output. Override with GEMINI_MODEL when a project
 // has access to another Gemini model.
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL = 'gemini-1.5-flash';
 const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';
 const MAX_PROMPT_LENGTH = 12000;
 
