@@ -1,11 +1,11 @@
-import { createServer } from 'node:http';
+﻿import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto';
 import { openDatabase } from './database.mjs';
 import { initializeStudentData, handleStudentData, getCatalog, getProgress, recordActivity } from './student-data.mjs';
-import { generateDynamicQuiz, generateFlightBriefing, getAiStatus, AiConfigurationError, AiInputError, AiOutputError, AiProviderError } from './ai.mjs';
+import { generateDynamicQuiz, generateFlightBriefing, generateTopicExplanation, generatePostLectureDebrief, generateVivaQuestions, getAiStatus, AiConfigurationError, AiInputError, AiOutputError, AiProviderError } from './ai.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const dataDir = join(root, 'data');
@@ -235,6 +235,39 @@ const server = createServer(async (req, res) => {
       const user = await requireUser(req, res); if (!user) return;
       return send(res, 200, getAiStatus());
     }
+        if (route === '/api/v1/ai/topic-explain' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      try {
+        const catalog = await getCatalog(db);
+        const result = await generateTopicExplanation({ db, catalog, courseId: data.course_id, topic: data.topic, mode: data.mode });
+        const course = catalog.courses.find(item => item.id === data.course_id);
+        await recordActivity(db, user.id, 'ai_topic_explain', AI ${data.mode || 'deep'} explanation: ${data.topic || 'topic'}, 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
+        return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
+      } catch (error) { return aiFailure(res, error); }
+    }
+    if (route === '/api/v1/ai/post-class-debrief' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      try {
+        const catalog = await getCatalog(db);
+        const result = await generatePostLectureDebrief({ db, catalog, courseId: data.course_id, topic: data.topic, scheduledAt: data.scheduled_at });
+        const course = catalog.courses.find(item => item.id === data.course_id);
+        await recordActivity(db, user.id, 'ai_post_debrief', 'AI post-lecture debrief generated', 'dashboard', { source: 'server', course_code: course?.code, cached: result.cached });
+        return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
+      } catch (error) { return aiFailure(res, error); }
+    }
+    if (route === '/api/v1/ai/viva' && req.method === 'POST') {
+      const user = await requireUser(req, res); if (!user) return;
+      const data = await body(req);
+      try {
+        const catalog = await getCatalog(db);
+        const result = await generateVivaQuestions({ db, catalog, courseId: data.course_id, topic: data.topic });
+        const course = catalog.courses.find(item => item.id === data.course_id);
+        await recordActivity(db, user.id, 'ai_viva', AI Mock Viva: ${data.topic || 'lab'}, 'subjects', { source: 'server', course_code: course?.code, cached: result.cached });
+        return send(res, 200, { ...result, course_id: course?.id, course_code: course?.code, course_name: course?.name });
+      } catch (error) { return aiFailure(res, error); }
+    }
     if (route === '/api/v1/ai/flight-briefing' && req.method === 'POST') {
       const user = await requireUser(req, res); if (!user) return;
       const data = await body(req);
@@ -409,3 +442,4 @@ server.on('error', () => {
   void shutdown(1);
 });
 server.listen(port, '0.0.0.0', () => console.log(`FLUX ONE API listening on 0.0.0.0:${port} (${db.kind})`));
+

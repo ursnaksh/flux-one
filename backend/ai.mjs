@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+﻿import { createHash } from 'node:crypto';
 
 const DEFAULT_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 const DEFAULT_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent';
@@ -11,7 +11,6 @@ export class AiOutputError extends Error { constructor(message) { super(message)
 
 function modelName() {
   let name = String(process.env.GEMINI_MODEL || DEFAULT_MODEL).trim();
-  // Auto-heal invalid or deprecated model strings from .env or Render
   if (!name || name.includes('2.5') || name.includes('lite') || name === 'gemini-pro') {
     name = DEFAULT_MODEL;
   }
@@ -54,11 +53,65 @@ function schemaFor(kind) {
     properties: {
       title: { type: 'string' },
       hook: { type: 'string' },
-      concepts: { type: 'array', items: { type: 'string' }, minItems: 3, maxItems: 5 },
+      concepts: { type: 'array', items: { type: 'string' }, minItems: 3, maxItems: 6 },
       check_question: { type: 'string' },
-      recommended_minutes: { type: 'integer', minimum: 3, maximum: 5 }
+      recommended_minutes: { type: 'integer', minimum: 2, maximum: 5 }
     },
     required: ['title', 'hook', 'concepts', 'check_question', 'recommended_minutes']
+  };
+  if (kind === 'topic_explain') return {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      mode: { type: 'string' },
+      overview: { type: 'string' },
+      key_points: { type: 'array', items: { type: 'string' }, minItems: 3, maxItems: 6 },
+      engineering_application: { type: 'string' },
+      exam_tip: { type: 'string' },
+      check_question: { type: 'string' }
+    },
+    required: ['title', 'mode', 'overview', 'key_points', 'engineering_application', 'exam_tip', 'check_question']
+  };
+  if (kind === 'post_lecture') return {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      recap: { type: 'string' },
+      core_takeaways: { type: 'array', items: { type: 'string' }, minItems: 3, maxItems: 5 },
+      check_questions: {
+        type: 'array', minItems: 2, maxItems: 3,
+        items: {
+          type: 'object',
+          properties: {
+            question: { type: 'string' },
+            expected_answer: { type: 'string' },
+            why_important: { type: 'string' }
+          },
+          required: ['question', 'expected_answer', 'why_important']
+        }
+      }
+    },
+    required: ['title', 'recap', 'core_takeaways', 'check_questions']
+  };
+  if (kind === 'viva_mock') return {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      lab_context: { type: 'string' },
+      questions: {
+        type: 'array', minItems: 3, maxItems: 4,
+        items: {
+          type: 'object',
+          properties: {
+            question: { type: 'string' },
+            model_answer: { type: 'string' },
+            examiner_tip: { type: 'string' }
+          },
+          required: ['question', 'model_answer', 'examiner_tip']
+        }
+      }
+    },
+    required: ['title', 'lab_context', 'questions']
   };
   return {
     type: 'object',
@@ -88,24 +141,71 @@ function normalizeJsonText(text) {
   return (fenced ? fenced : trimmed).trim();
 }
 
-function assertString(value, label, max = 800) {
+function assertString(value, label, max = 1500) {
   if (typeof value !== 'string' || !value.trim() || value.length > max) throw new AiOutputError(`Gemini returned an invalid ${label}.`);
   return value.trim();
 }
 
 function validateOutput(kind, value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new AiOutputError('Gemini returned an invalid JSON object.');
+  
   if (kind === 'flight_briefing') {
     const concepts = value.concepts;
-    if (!Array.isArray(concepts) || concepts.length < 3 || concepts.length > 5) throw new AiOutputError('Gemini returned an invalid concept list.');
+    if (!Array.isArray(concepts) || concepts.length < 3 || concepts.length > 6) throw new AiOutputError('Gemini returned an invalid concept list.');
     return {
-      title: assertString(value.title, 'briefing title', 160),
-      hook: assertString(value.hook, 'briefing hook', 1000),
-      concepts: concepts.map(concept => assertString(concept, 'briefing concept', 240)),
-      check_question: assertString(value.check_question, 'check question', 500),
-      recommended_minutes: Number.isInteger(value.recommended_minutes) ? Math.min(5, Math.max(3, value.recommended_minutes)) : 3
+      title: assertString(value.title, 'briefing title', 180),
+      hook: assertString(value.hook, 'briefing hook', 1200),
+      concepts: concepts.map(concept => assertString(concept, 'briefing concept', 350)),
+      check_question: assertString(value.check_question, 'check question', 600),
+      recommended_minutes: Number.isInteger(value.recommended_minutes) ? Math.min(5, Math.max(2, value.recommended_minutes)) : 3
     };
   }
+
+  if (kind === 'topic_explain') {
+    const pts = value.key_points;
+    if (!Array.isArray(pts) || pts.length < 3 || pts.length > 6) throw new AiOutputError('Gemini returned invalid explanation points.');
+    return {
+      title: assertString(value.title, 'topic title', 180),
+      mode: String(value.mode || 'deep'),
+      overview: assertString(value.overview, 'overview', 1500),
+      key_points: pts.map(p => assertString(p, 'key point', 400)),
+      engineering_application: assertString(value.engineering_application, 'application', 1000),
+      exam_tip: assertString(value.exam_tip, 'exam tip', 800),
+      check_question: assertString(value.check_question, 'check question', 600)
+    };
+  }
+
+  if (kind === 'post_lecture') {
+    const takeaways = value.core_takeaways;
+    if (!Array.isArray(takeaways) || takeaways.length < 3) throw new AiOutputError('Gemini returned invalid takeaways.');
+    const qList = value.check_questions;
+    if (!Array.isArray(qList) || qList.length < 2) throw new AiOutputError('Gemini returned invalid check questions.');
+    return {
+      title: assertString(value.title, 'debrief title', 180),
+      recap: assertString(value.recap, 'recap', 1200),
+      core_takeaways: takeaways.map(t => assertString(t, 'takeaway', 350)),
+      check_questions: qList.map(q => ({
+        question: assertString(q.question, 'question', 400),
+        expected_answer: assertString(q.expected_answer, 'answer', 500),
+        why_important: assertString(q.why_important, 'importance', 400)
+      }))
+    };
+  }
+
+  if (kind === 'viva_mock') {
+    const qList = value.questions;
+    if (!Array.isArray(qList) || qList.length < 3) throw new AiOutputError('Gemini returned invalid viva questions.');
+    return {
+      title: assertString(value.title, 'viva title', 180),
+      lab_context: assertString(value.lab_context, 'lab context', 1000),
+      questions: qList.map(q => ({
+        question: assertString(q.question, 'viva question', 400),
+        model_answer: assertString(q.model_answer, 'viva answer', 600),
+        examiner_tip: assertString(q.examiner_tip, 'examiner tip', 400)
+      }))
+    };
+  }
+
   if (!Array.isArray(value.questions) || value.questions.length < 3 || value.questions.length > 8) throw new AiOutputError('Gemini returned an invalid quiz.');
   return {
     title: assertString(value.title, 'quiz title', 160),
@@ -197,20 +297,68 @@ export async function generateFlightBriefing({ db, catalog, courseId, topic, sch
   const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
   const focus = selected || allTopics[0];
   const week = semesterWeek();
-  const schedule = catalog.timetable.filter(line => line.split('|') === course.id).slice(0, 4).map(line => line.split('|').slice(0, 7).join(' | '));
+  const schedule = catalog.timetable.filter(line => line.split('|')[7] === course.id || line.split('|')[0] === course.id).slice(0, 4).map(line => line.split('|').slice(0, 7).join(' | '));
   const when = scheduledAt ? new Date(scheduledAt) : null;
   if (scheduledAt && (!when || Number.isNaN(when.getTime()))) throw new AiInputError('scheduled_at must be a valid date.');
   const cacheKey = `ai:${catalog.id}:v${catalog.version}:flight:${slug(course.id)}:${slug(focus.name)}:w${week}`;
   const prompt = [
-    'You are FLUX ONE, a concise academic copilot for engineering students.',
+    'You are FLUX ONE, a concise academic copilot for engineering students at VIT Pune.',
     `Create a 3-minute pre-class briefing for ${course.name} (${course.code}).`,
     `Semester week: ${week}. Focus topic: ${focus.name}. Unit: ${focus.unit}.`,
-    `Official curriculum topics for this course: ${allTopics.map(item => item.name).join('; ')}.`,
+    `Official curriculum topics: ${allTopics.map(item => item.name).join('; ')}.`,
     schedule.length ? `Known timetable context: ${schedule.join(' || ')}.` : '',
     when ? `Scheduled lecture time: ${when.toISOString()}.` : '',
-    'Use only the supplied curriculum. Do not invent a different subject, course, timetable, or assessment. Return JSON matching the requested schema. Keep the hook practical and the check question answerable from the briefing.'
+    'Provide high-yield conceptual points covering principles, formulas, and industrial applications. Return JSON matching the requested schema. Keep the hook practical and the check question directly answerable.'
   ].filter(Boolean).join('\n');
   return generateCached({ db, kind: 'flight_briefing', cacheKey, prompt, ttlHours: 24 });
+}
+
+export async function generateTopicExplanation({ db, catalog, courseId, topic, mode = 'deep' }) {
+  const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
+  const focus = selected || allTopics[0];
+  const isDeep = mode === 'deep';
+  const cacheKey = `ai:${catalog.id}:v${catalog.version}:topic:${slug(course.id)}:${slug(focus.name)}:${isDeep ? 'deep' : 'summary'}`;
+  const prompt = [
+    `You are FLUX ONE, an expert engineering faculty tutor for ${course.name} (${course.code}) at VIT Pune.`,
+    `Deliver a ${isDeep ? 'comprehensive, structured Deep Dive' : 'rapid 5-point revision summary & formula sheet'} for the topic: "${focus.name}".`,
+    `Syllabus Unit: ${focus.unit}.`,
+    isDeep 
+      ? 'In the overview, explain the core physics/algorithmic mechanics clearly. In key_points, give 4-5 rigorous engineering steps/principles with formulas where appropriate. Include industrial relevance (e.g. Forbes Marshall, Emerson, automotive, IoT) in engineering_application, common exam traps in exam_tip, and 1 conceptual check question.'
+      : 'In overview, provide a 2-sentence executive summary. In key_points, provide 4-5 high-yield bullets with essential equations, definitions, and operating limits. Highlight the primary exam takeaway in exam_tip.',
+    'Return strictly JSON matching the response schema.'
+  ].join('\n');
+  return generateCached({ db, kind: 'topic_explain', cacheKey, prompt, ttlHours: 30 * 24 });
+}
+
+export async function generatePostLectureDebrief({ db, catalog, courseId, topic, scheduledAt }) {
+  const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
+  const focus = selected || allTopics[0];
+  const when = scheduledAt ? new Date(scheduledAt) : new Date();
+  const cacheKey = `ai:${catalog.id}:v${catalog.version}:debrief:${slug(course.id)}:${slug(focus.name)}`;
+  const prompt = [
+    'You are FLUX ONE, reviewing today’s completed engineering lecture.',
+    `Course: ${course.name} (${course.code}). Topic covered: "${focus.name}" in ${focus.unit}.`,
+    'Create an immediate post-lecture retention debrief.',
+    '1. recap: A 2-sentence summary of what students should now understand from today’s class.',
+    '2. core_takeaways: 3 to 4 essential concepts students must remember for exams.',
+    '3. check_questions: 2 targeted conceptual check questions with expected_answer and why_important to verify if students truly grasped the lecture.',
+    'Return JSON adhering to schema.'
+  ].join('\n');
+  return generateCached({ db, kind: 'post_lecture', cacheKey, prompt, ttlHours: 48 });
+}
+
+export async function generateVivaQuestions({ db, catalog, courseId, topic }) {
+  const { course, allTopics, selected } = courseContext(catalog, courseId, topic);
+  const focus = selected || allTopics[0];
+  const cacheKey = `ai:${catalog.id}:v${catalog.version}:viva:${slug(course.id)}:${slug(focus.name)}`;
+  const prompt = [
+    `You are an external Comprehensive Viva Voce (CVV) examiner for ${course.name} (${course.code}) at VIT Pune.`,
+    `Conduct a mock lab viva evaluation on the laboratory/theory topic: "${focus.name}".`,
+    'Generate 3 top-tier viva questions commonly asked in practical exams.',
+    'For each question, provide: question, model_answer (concise, precise answer that impresses the examiner), and examiner_tip (what pitfall to avoid or key keyword to say).',
+    'Return valid JSON matching schema.'
+  ].join('\n');
+  return generateCached({ db, kind: 'viva_mock', cacheKey, prompt, ttlHours: 30 * 24 });
 }
 
 export async function generateDynamicQuiz({ db, catalog, courseId, topic, difficulty = 'mixed', count = 5 }) {
@@ -222,7 +370,7 @@ export async function generateDynamicQuiz({ db, catalog, courseId, topic, diffic
   const focusTopics = selected ? [selected] : allTopics.slice(0, 8);
   const cacheKey = `ai:${catalog.id}:v${catalog.version}:quiz:${slug(course.id)}:${slug(selected?.name || 'all')}:${level}:${amount}`;
   const prompt = [
-    'You are FLUX ONE, an engineering-course quiz author.',
+    'You are FLUX ONE, an engineering-course quiz author at VIT Pune.',
     `Create ${amount} multiple-choice questions for ${course.name} (${course.code}).`,
     `Difficulty: ${level}. Focus topics: ${focusTopics.map(item => `${item.unit} — ${item.name}`).join('; ')}.`,
     'Each question must have exactly four distinct options, one unambiguous correct answer, and a short explanation. Use only the supplied curriculum and avoid topics from other courses. Return JSON matching the requested schema. Do not include markdown.'
