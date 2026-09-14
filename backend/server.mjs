@@ -181,6 +181,23 @@ const server = createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end(frontend);
     }
+    if (req.method === 'GET' && route === '/api/v1/flight-deck/today') {
+      const user = await requireUser(req, res); if (!user) return;
+      try {
+        const catalog = await getCatalog(db);
+        const batch = user.batch || url.searchParams.get('batch') || 'ALL';
+        const fn = computeFlightDeck || getFlightDeckToday;
+        const flightDeck = await fn({
+          db,
+          catalog,
+          userBatch: batch,
+          userId: user.id
+        });
+        return send(res, 200, { status: 'ok', flightDeck });
+      } catch (error) {
+        return fail(res, 500, error.message || 'Failed to compute flight deck.');
+      }
+    }
     if (req.method === 'GET' && route === '/assets/workspace.js') {
       const script = await readFile(resolve(root, '..', 'assets', 'workspace.js'));
       res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' });
