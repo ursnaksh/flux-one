@@ -1,4 +1,4 @@
-import uuid
+﻿import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -44,7 +44,13 @@ async def register(
     user_repo = UserRepository(db)
 
     # 1. Unique email check
-    existing_identity = await user_repo.get_identity_by_email(request.email)
+    existing_identifier = request.email.strip()
+    if '@' in identifier:
+        identity = await user_repo.get_identity_by_email(identifier)
+    else:
+        identity = await user_repo.get_identity_by_prn(identifier)
+    if not identity:
+        identity = await user_repo.get_identity_by_email(identifier)
     if existing_identity:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -156,7 +162,13 @@ async def login(
     db: AsyncSession = Depends(get_db),
 ):
     user_repo = UserRepository(db)
-    identity = await user_repo.get_identity_by_email(request.email)
+    identifier = request.email.strip()
+    if '@' in identifier:
+        identity = await user_repo.get_identity_by_email(identifier)
+    else:
+        identity = await user_repo.get_identity_by_prn(identifier)
+    if not identity:
+        identity = await user_repo.get_identity_by_email(identifier)
 
     if not identity or not identity.password_hash or not verify_password(request.password, identity.password_hash):
         raise HTTPException(

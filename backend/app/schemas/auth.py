@@ -1,4 +1,4 @@
-import uuid
+﻿import uuid
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
@@ -25,7 +25,7 @@ EnrolledSubjectResponse = SubjectSimpleResponse
 
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str = Field(..., min_length=8)
     full_name: str = Field(..., min_length=1, max_length=150)
     prn_number: Optional[str] = Field(default=None, max_length=50)
@@ -36,7 +36,7 @@ class RegisterRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 
