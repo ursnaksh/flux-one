@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -60,8 +60,8 @@
       <!-- LOGIN FORM -->
       <form id="login-form" onsubmit="handleAuthLogin(event)" class="space-y-4 text-xs">
         <div>
-          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address</label>
-          <input type="email" id="login-email" required placeholder="student@example.com" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address or PRN Number</label>
+          <input type="text" id="login-email" required placeholder="student@vit.edu or PRN (e.g. 12310456)" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
         </div>
         <div>
           <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label>
@@ -72,6 +72,10 @@
             <span>Log In & Enter</span>
             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </button>
+
+        <button type="button" onclick="continueAsGuest()" class="w-full py-2.5 mt-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-2">
+          <span>⚡ Continue with Saved Profile / Offline Mode</span>
+        </button>
         </div>
         <div class="text-center pt-2">
           <p class="text-[11px] text-slate-400">
@@ -88,7 +92,7 @@
           <input type="text" id="reg-name" required placeholder="e.g. Alex Sharma" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
         </div>
         <div>
-          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address</label>
+          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address or PRN Number</label>
           <input type="email" id="reg-email" required placeholder="student@example.com" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
         </div>
         <div>
@@ -2121,3 +2125,4 @@
     checkAuthAndInit();
   </script>y>
 </html>
+
