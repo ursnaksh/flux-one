@@ -45,6 +45,11 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api/v1")
 
+@app.get('/', include_in_schema=False)
+async def root():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url='/api/v1/docs')
+
 
 @app.middleware("http")
 async def request_id_and_logging_middleware(request: Request, call_next):
