@@ -1,5 +1,6 @@
 import uuid
-from typing import Optional
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,10 +49,7 @@ async def start_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Starts an ACTIVE study session for the authenticated student.
-    Auto-reconciles stale sessions before starting.
-    """
+    """Starts an ACTIVE study session for the authenticated student."""
     service = SessionService(db)
     session = await service.start_session(current_user.id, request)
     return map_session_to_response(session)
@@ -62,12 +60,23 @@ async def get_active_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Returns the student's currently ACTIVE or PAUSED session, or null if idle.
-    """
+    """Returns the student's currently ACTIVE or PAUSED session, or null if idle."""
     repo = SessionRepository(db)
     session = await repo.get_active_or_paused_session(current_user.id)
     return map_session_to_response(session) if session else None
+
+
+@router.get("/history", response_model=List[SessionResponse])
+async def get_session_history(
+    limit: int = 20,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Returns persisted study sessions for the signed-in student, newest first."""
+    safe_limit = max(1, min(limit, 100))
+    repo = SessionRepository(db)
+    sessions = await repo.list_user_sessions(current_user.id, safe_limit)
+    return [map_session_to_response(session) for session in sessions]
 
 
 @router.post("/{session_id}/heartbeat", response_model=SessionResponse)
@@ -77,9 +86,7 @@ async def record_heartbeat(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Heartbeat ping from mobile or ESP32. Accumulates active study seconds.
-    """
+    """Heartbeat ping from the client. Accumulates active study seconds."""
     service = SessionService(db)
     session = await service.record_heartbeat(current_user.id, session_id, request)
     return map_session_to_response(session)
@@ -91,9 +98,7 @@ async def pause_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Transitions session from ACTIVE to PAUSED state.
-    """
+    """Transitions a session from ACTIVE to PAUSED."""
     service = SessionService(db)
     session = await service.pause_session(current_user.id, session_id)
     return map_session_to_response(session)
@@ -105,9 +110,7 @@ async def resume_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Transitions session from PAUSED back to ACTIVE state.
-    """
+    """Transitions a session from PAUSED back to ACTIVE."""
     service = SessionService(db)
     session = await service.resume_session(current_user.id, session_id)
     return map_session_to_response(session)
@@ -120,10 +123,7 @@ async def complete_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Concludes the study session with focus rating and qualitative reflection.
-    Atomically updates total study time, running focus averages, and streaks.
-    """
+    """Completes the session and updates study metrics and streaks."""
     service = SessionService(db)
     session = await service.complete_session(current_user.id, session_id, request)
     return map_session_to_response(session)
@@ -135,9 +135,7 @@ async def abandon_session(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Marks an active or paused session as ABANDONED without counting toward streaks.
-    """
+    """Marks an active or paused session as ABANDONED."""
     service = SessionService(db)
     session = await service.abandon_session(current_user.id, session_id)
     return map_session_to_response(session)
@@ -149,8 +147,12 @@ async def get_session_summary(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Future AI Hook: Returns formatted session telemetry ready for Gemini analysis.
-    """
+    """Returns formatted session telemetry for the authenticated student's session."""
     service = SessionService(db)
-    return await service.build_session_summary(session_id)
+    summary = await service.build_session_summary(session_id)
+    session = await SessionRepository(db).get_by_id(session_id)
+    if not session or session.user_id != current_user.id:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=404, detail="Study session not found.")
+    return summary
