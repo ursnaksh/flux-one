@@ -38,6 +38,14 @@ class Settings(BaseSettings):
     DB_MAX_OVERFLOW: int = 10
     DB_POOL_TIMEOUT: int = 30
 
+    # Gemini academic copilot. Keep the API key server-side only.
+    GEMINI_API_KEY: str = Field(default="")
+    GEMINI_MODEL: str = Field(default="gemini-2.5-flash-lite")
+    GEMINI_API_ENDPOINT: str = Field(
+        default="https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    )
+    GEMINI_TIMEOUT_SECONDS: float = Field(default=25.0, gt=0, le=120)
+
     if USE_PYDANTIC_V2:
         model_config = SettingsConfigDict(
             env_file=".env",
