@@ -2,9 +2,12 @@ import uuid
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 from fastapi import HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.enums import SessionSource, SessionStatus
+from app.models.enums import EnrollmentStatus, SessionSource, SessionStatus
+from app.models.institution import Topic
+from app.models.student import Enrollment
 from app.models.session import StudySession
 from app.repositories.session_repository import SessionRepository
 from app.schemas.session import (
@@ -59,6 +62,32 @@ class SessionService:
         Initiates a study session in ACTIVE state after running auto-reconciliation.
         """
         await self.reconcile_active_sessions(user_id)
+
+        enrollment_result = await self.db.execute(
+            select(Enrollment.id).where(
+                Enrollment.user_id == user_id,
+                Enrollment.subject_id == request.subject_id,
+                Enrollment.status == EnrollmentStatus.ACTIVE,
+            )
+        )
+        if enrollment_result.scalar_one_or_none() is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not actively enrolled in the selected subject.",
+            )
+
+        if request.topic_id is not None:
+            topic_result = await self.db.execute(
+                select(Topic.id).where(
+                    Topic.id == request.topic_id,
+                    Topic.subject_id == request.subject_id,
+                )
+            )
+            if topic_result.scalar_one_or_none() is None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="The selected topic does not belong to this subject.",
+                )
 
         now = datetime.now(timezone.utc)
         session = StudySession(
