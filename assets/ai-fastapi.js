@@ -18,7 +18,32 @@
     if (!enrolled?.id) {
       throw new Error('This subject is not linked to your active enrollment yet.');
     }
-    return { course, subjectId: enrolled.id };
+    return { course, enrolled, subjectId: enrolled.id };
+  }
+
+  function resolveAiScope(courseId, unitIndex = null, topicIndex = null) {
+    const { course, enrolled, subjectId } = resolveAiSubject(courseId);
+    if (unitIndex === null || topicIndex === null) {
+      return { course, subjectId, topicId: null, scopeLabel: course.name };
+    }
+
+    const unit = course.units?.[Number(unitIndex)];
+    const topicTitle = unit?.topics?.[Number(topicIndex)];
+    if (!unit || !topicTitle) throw new Error('This syllabus topic is not available.');
+
+    const verifiedTopic = (enrolled.topics || []).find(topic =>
+      Number(topic.unit_number) === Number(unitIndex) + 1 && topic.title === topicTitle
+    );
+    if (!verifiedTopic?.id) {
+      throw new Error('This topic is visible in the UI but is not synced to the verified backend syllabus yet. Refresh after the syllabus deploy finishes.');
+    }
+
+    return {
+      course,
+      subjectId,
+      topicId: Number(verifiedTopic.id),
+      scopeLabel: topicTitle
+    };
   }
 
   async function aiRequest(path, data) {
@@ -56,15 +81,15 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div class="text-[10px] uppercase tracking-[0.18em] text-cyan-300 font-bold">FLUX AI · Gemini</div>
-            <div class="text-sm font-bold text-white mt-1">Academic Copilot</div>
-            <div class="text-[11px] text-slate-400 mt-1">Uses your verified enrolled subject. It will not guess the current lecture topic.</div>
+            <div class="text-sm font-bold text-white mt-1">Contextual Academic Copilot</div>
+            <div class="text-[11px] text-slate-400 mt-1">AI is available at subject level and beside every verified syllabus topic below.</div>
           </div>
           <div class="flex flex-wrap gap-2">
             <button onclick="generateFluxAiBriefing('${courseId}')" class="px-4 py-2.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 text-cyan-200 border border-cyan-800 text-xs font-bold flex items-center gap-2">
-              <i data-lucide="sparkles" class="w-4 h-4"></i> AI Briefing
+              <i data-lucide="sparkles" class="w-4 h-4"></i> Subject Briefing
             </button>
             <button onclick="generateFluxAiQuiz('${courseId}')" class="px-4 py-2.5 rounded-xl bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 text-xs font-bold flex items-center gap-2">
-              <i data-lucide="brain-circuit" class="w-4 h-4"></i> AI Quiz
+              <i data-lucide="brain-circuit" class="w-4 h-4"></i> Subject Quiz
             </button>
           </div>
         </div>
@@ -86,7 +111,7 @@
               <span id="flux-ai-status-badge" class="text-[9px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Checking…</span>
             </div>
             <div class="text-base font-black text-white mt-1">Academic Copilot</div>
-            <div class="text-[11px] text-slate-400 mt-1">Choose a subject, then generate a verified briefing or a 5-question AI quiz.</div>
+            <div class="text-[11px] text-slate-400 mt-1">Start at a subject here, or open a subject workspace for topic-level AI.</div>
             <select id="flux-ai-course-select" class="mt-3 w-full max-w-xl bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
               ${options}
             </select>
@@ -116,6 +141,61 @@
     void hydrateAiStatus();
   }
 
+  function createTopicAiButton(label, className, onClick, title) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = className;
+    button.textContent = label;
+    button.title = title;
+    button.addEventListener('click', onClick);
+    return button;
+  }
+
+  function injectTopicAiControls(courseId) {
+    const workspace = document.getElementById('subject-workspace-container');
+    const course = coursesData.find(item => item.id === courseId);
+    if (!workspace || !course || workspace.classList.contains('hidden')) return;
+
+    const topicScopes = [];
+    course.units.forEach((unit, unitIndex) => {
+      unit.topics.forEach((topic, topicIndex) => {
+        topicScopes.push({ unitIndex, topicIndex, topic });
+      });
+    });
+
+    const studyButtons = Array.from(workspace.querySelectorAll('button')).filter(button =>
+      (button.getAttribute('onclick') || '').includes('startQuickStudy') &&
+      (button.getAttribute('onclick') || '').includes(`'${courseId}'`)
+    );
+
+    studyButtons.forEach((studyButton, index) => {
+      const scope = topicScopes[index];
+      const row = studyButton.parentElement;
+      if (!scope || !row || row.querySelector('.flux-ai-topic-actions')) return;
+
+      const actions = document.createElement('div');
+      actions.className = 'flux-ai-topic-actions flex items-center gap-1.5 shrink-0 ml-2';
+
+      const briefingButton = createTopicAiButton(
+        '✨ AI',
+        'text-[10px] px-2 py-1 rounded bg-cyan-950 text-cyan-300 hover:bg-cyan-900 font-bold border border-cyan-800',
+        () => window.generateFluxAiBriefing(courseId, scope.unitIndex, scope.topicIndex),
+        `AI briefing: ${scope.topic}`
+      );
+      const quizButton = createTopicAiButton(
+        'Quiz',
+        'text-[10px] px-2 py-1 rounded bg-indigo-950 text-indigo-300 hover:bg-indigo-900 font-bold border border-indigo-800',
+        () => window.generateFluxAiQuiz(courseId, scope.unitIndex, scope.topicIndex),
+        `AI quiz: ${scope.topic}`
+      );
+
+      row.insertBefore(actions, studyButton);
+      actions.appendChild(briefingButton);
+      actions.appendChild(quizButton);
+      actions.appendChild(studyButton);
+    });
+  }
+
   function injectSubjectAiControls(courseId) {
     const workspace = document.getElementById('subject-workspace-container');
     if (!workspace || workspace.classList.contains('hidden')) return;
@@ -123,6 +203,7 @@
     const hero = workspace.querySelector('.glass-card');
     if (!hero) return;
     hero.insertAdjacentHTML('afterend', aiPanelMarkup(courseId));
+    injectTopicAiControls(courseId);
     if (window.lucide) lucide.createIcons();
   }
 
@@ -168,11 +249,13 @@
     }
   }
 
-  window.generateFluxAiBriefing = async function generateFluxAiBriefing(courseId) {
+  window.generateFluxAiBriefing = async function generateFluxAiBriefing(courseId, unitIndex = null, topicIndex = null) {
     try {
-      const { subjectId } = resolveAiSubject(courseId);
-      setAiOutput('<div class="text-cyan-300 font-semibold"><span class="animate-pulse">●</span> Preparing your briefing…</div>');
-      const result = await aiRequest('/ai/flight-briefing', { subject_id: subjectId });
+      const { subjectId, topicId, scopeLabel } = resolveAiScope(courseId, unitIndex, topicIndex);
+      setAiOutput(`<div class="text-cyan-300 font-semibold"><span class="animate-pulse">●</span> Preparing AI briefing for ${escapeFluxAi(scopeLabel)}…</div>`);
+      const payload = { subject_id: subjectId };
+      if (topicId) payload.topic_id = topicId;
+      const result = await aiRequest('/ai/flight-briefing', payload);
       setAiOutput(`
         <div class="flex items-start justify-between gap-3">
           <div>
@@ -193,15 +276,17 @@
     }
   };
 
-  window.generateFluxAiQuiz = async function generateFluxAiQuiz(courseId) {
+  window.generateFluxAiQuiz = async function generateFluxAiQuiz(courseId, unitIndex = null, topicIndex = null) {
     try {
-      const { course, subjectId } = resolveAiSubject(courseId);
-      setAiOutput('<div class="text-indigo-300 font-semibold"><span class="animate-pulse">●</span> Generating a fresh 5-question quiz…</div>');
-      const result = await aiRequest('/ai/quiz', {
+      const { course, subjectId, topicId, scopeLabel } = resolveAiScope(courseId, unitIndex, topicIndex);
+      setAiOutput(`<div class="text-indigo-300 font-semibold"><span class="animate-pulse">●</span> Generating 5 questions for ${escapeFluxAi(scopeLabel)}…</div>`);
+      const payload = {
         subject_id: subjectId,
         difficulty: 'mixed',
         count: 5
-      });
+      };
+      if (topicId) payload.topic_id = topicId;
+      const result = await aiRequest('/ai/quiz', payload);
 
       activeAiQuizAttempt = {
         id: crypto.randomUUID(),
@@ -219,7 +304,7 @@
       quizPoints = 0;
       quizOptionLocked = false;
 
-      document.getElementById('quiz-course-title').textContent = `${course.name} · AI Quiz`;
+      document.getElementById('quiz-course-title').textContent = `${course.name} · ${result.topic || 'AI Quiz'}`;
       document.getElementById('quiz-modal').classList.remove('hidden');
       document.getElementById('quiz-modal').classList.add('flex');
       document.getElementById('quiz-result-box').classList.add('hidden');
@@ -228,7 +313,7 @@
       document.getElementById('quiz-next-btn').textContent = 'Next Question →';
       renderQuizStep();
 
-      setAiOutput(`<div class="text-emerald-300 font-semibold">AI quiz ready · ${escapeFluxAi(result.cached ? 'cached question set' : 'fresh question set')}.</div>`);
+      setAiOutput(`<div class="text-emerald-300 font-semibold">AI quiz ready for ${escapeFluxAi(result.topic || course.name)} · ${escapeFluxAi(result.cached ? 'cached question set' : 'fresh question set')}.</div>`);
     } catch (error) {
       activeAiQuizAttempt = null;
       setAiOutput(escapeFluxAi(error.message || 'The AI quiz could not be generated.'), 'error');
