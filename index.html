@@ -309,9 +309,9 @@
           <div class="flex items-center justify-between pb-2 border-b border-slate-800">
             <div>
               <h2 class="text-base font-bold text-white flex items-center gap-2">
-                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> Today's Classes (Friday)
+                <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i> <span id="dash-schedule-title">Today's Classes</span>
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Batch B2 Schedule</p>
+              <p id="dash-batch-label" class="text-xs text-slate-400 mt-0.5">SY IC-SEDA • Batch — Schedule</p>
             </div>
             <button onclick="switchView('timetable')" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">
               Full Timetable →
@@ -528,7 +528,7 @@
             <select id="tt-batch-filter" onchange="renderTimetableFull()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-slate-200 font-semibold focus:outline-none focus:border-cyan-500">
               <option value="ALL">All Batches</option>
               <option value="B1">Batch B1</option>
-              <option value="B2" selected>Batch B2</option>
+              <option value="B2">Batch B2</option>
               <option value="B3">Batch B3</option>
             </select>
           </div>
@@ -1223,9 +1223,24 @@
 
     // 3. DASHBOARD RENDERERS
     function renderDashboard() {
-      // Schedule preview
+      // Schedule preview synced to the logged-in student's batch and current weekday
       const scheduleContainer = document.getElementById('dash-schedule-list');
-      const todayClasses = rawData.filter(x => x.startsWith('Fri')).slice(0, 3);
+      const dashboardBatch = normalizeBatch(currentUser?.batch || localStorage.getItem('flux_user_batch') || 'ALL');
+      const dayKeys = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const todayIndex = new Date().getDay();
+      const todayKey = dayKeys[todayIndex];
+      const todayName = dayNames[todayIndex];
+
+      const scheduleTitle = document.getElementById('dash-schedule-title');
+      if (scheduleTitle) scheduleTitle.textContent = `Today's Classes (${todayName})`;
+
+      const todayClasses = rawData.filter(line => {
+        const [day, , , , , , rawBatch] = line.split('|');
+        const slotBatch = normalizeBatch(rawBatch);
+        return day === todayKey && (dashboardBatch === 'ALL' || slotBatch === 'ALL' || slotBatch === dashboardBatch);
+      }).slice(0, 3);
+
       scheduleContainer.innerHTML = todayClasses.map(line => {
         const [, time, type, name, prof, room, , courseId, uidx, tidx] = line.split('|');
         return `
@@ -2178,9 +2193,19 @@
     function applyUserProfile(user) {
       if (!user) return;
       const displayName = user.full_name || user.display_name || user.email || 'Student';
+      const prn = user.prn_number || '';
+      const batch = normalizeBatch(user.batch || localStorage.getItem('flux_user_batch') || 'ALL');
 
       const namePill = document.getElementById('user-name-pill');
       if (namePill) namePill.textContent = displayName;
+
+      const rolePill = document.getElementById('user-role-pill');
+      if (rolePill) {
+        const meta = [];
+        if (prn) meta.push(`PRN ${prn}`);
+        if (batch && batch !== 'ALL') meta.push(`Batch ${batch}`);
+        rolePill.textContent = meta.length ? meta.join(' • ') : 'VIT Pune • SY IC';
+      }
 
       const avatarPill = document.getElementById('user-avatar-pill');
       if (avatarPill) {
@@ -2193,10 +2218,29 @@
       }
 
       const mobileName = document.getElementById('mobile-user-name');
-      if (mobileName) mobileName.textContent = displayName;
+      if (mobileName) {
+        mobileName.textContent = prn ? `${displayName} • ${prn}` : displayName;
+        mobileName.title = [displayName, prn ? `PRN ${prn}` : '', batch !== 'ALL' ? `Batch ${batch}` : ''].filter(Boolean).join(' • ');
+      }
 
       const dashGreeting = document.getElementById('dash-greeting-name');
       if (dashGreeting) dashGreeting.textContent = displayName;
+
+      if (batch && batch !== 'ALL') {
+        localStorage.setItem('flux_user_batch', batch);
+      }
+
+      const batchSelect = document.getElementById('tt-batch-filter');
+      if (batchSelect && batch && Array.from(batchSelect.options).some(option => option.value === batch)) {
+        batchSelect.value = batch;
+      }
+
+      const dashBatchLabel = document.getElementById('dash-batch-label');
+      if (dashBatchLabel) {
+        dashBatchLabel.textContent = batch && batch !== 'ALL'
+          ? `SY IC-SEDA • Batch ${batch} Schedule`
+          : 'SY IC-SEDA • Schedule';
+      }
     }
 
     function showAppView(user) {
@@ -2209,7 +2253,8 @@
       initStudyEngine();
       renderAssignmentsFull();
       renderNotes();
-      setTimetableDay('Fri');
+      const todayDay = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date().getDay()];
+      setTimetableDay(['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].includes(todayDay) ? todayDay : 'Mon');
       renderAcademicBrain();
       switchView('dashboard');
       lucide.createIcons();
