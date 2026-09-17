@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.models.enums import EnrollmentStatus
 from app.models.institution import TimetableSlot
-from app.models.student import User
+from app.models.student import Enrollment, User
 from app.schemas.flight_deck import FlightDeckClass, FlightDeckTodayResponse
 
 
@@ -59,8 +60,11 @@ async def get_today_flight_deck(
 
     stmt = (
         select(TimetableSlot)
+        .join(Enrollment, Enrollment.subject_id == TimetableSlot.subject_id)
         .options(selectinload(TimetableSlot.subject))
         .where(
+            Enrollment.user_id == user.id,
+            Enrollment.status == EnrollmentStatus.ACTIVE,
             TimetableSlot.division_id == user.division_id,
             TimetableSlot.day_of_week == day_of_week,
             TimetableSlot.batch.in_(["ALL", user.batch]),
