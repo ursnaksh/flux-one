@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user_and_identity
 from app.core.database import get_db
 from app.core.security import (
     create_access_token,
@@ -15,7 +15,7 @@ from app.core.security import (
     verify_password,
 )
 from app.models.institution import College, Department, Division, Semester, Subject
-from app.models.student import Enrollment, User
+from app.models.student import Enrollment, User, UserIdentity
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import (
     EnrolledSubjectResponse,
@@ -187,9 +187,11 @@ async def login(
 
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(
-    current_user: User = Depends(get_current_user),
+    user_and_identity: tuple[User, UserIdentity] = Depends(get_current_user_and_identity),
     db: AsyncSession = Depends(get_db),
 ):
+    current_user, current_identity = user_and_identity
+
     stmt = (
         select(Subject)
         .join(Enrollment, Enrollment.subject_id == Subject.id)
@@ -203,7 +205,7 @@ async def get_me(
         all_subj_res = await db.execute(select(Subject))
         subjects = [s for s in all_subj_res.scalars().all() if s.id in enrolled_subject_ids]
 
-    email = current_user.identities[0].email if current_user.identities else ""
+    email = current_identity.email or ""
 
     return UserMeResponse(
         id=current_user.id,
