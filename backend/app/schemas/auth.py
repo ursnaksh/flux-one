@@ -3,11 +3,23 @@ from typing import List, Optional, Literal
 
 from pydantic import BaseModel, Field, EmailStr
 
+
+class TopicSimpleResponse(BaseModel):
+    id: int
+    unit_number: int
+    title: str
+
+    class Config:
+        orm_mode = True
+        from_attributes = True
+
+
 class SubjectSimpleResponse(BaseModel):
     id: int
     name: str
     code: str
     credits: int
+    topics: List[TopicSimpleResponse] = []
 
     class Config:
         orm_mode = True
@@ -23,12 +35,11 @@ class RegisterRequest(BaseModel):
     full_name: str = Field(..., min_length=1, max_length=150)
     prn_number: Optional[str] = Field(default=None, max_length=50)
     batch: Literal["B1", "B2", "B3"]
-    
+
     college_id: int = 1
     department_id: int = 1
     division_id: int = 1
     semester_id: Optional[int] = 1
-    
 
 
 class LoginRequest(BaseModel):
@@ -53,7 +64,6 @@ class RegisterResponse(BaseModel):
     prn_number: Optional[str] = None
     college_id: int
     department_id: int
-    
     division_id: int
     semester_id: int
     enrolled_subjects: List[EnrolledSubjectResponse] = []
