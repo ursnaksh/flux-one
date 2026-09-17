@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/v1/:path*",
+      "destination": "https://flux-one.onrender.com/api/v1/:path*"
+    }
+  ]
+}
