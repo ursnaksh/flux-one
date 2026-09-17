@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt "email-validator>=2.0.0"
 # Copy backend files and root frontend
 COPY backend/ .
 COPY index.html ./index.html
+COPY assets/ ./assets/
 
 ENV PYTHONUNBUFFERED=1
 
