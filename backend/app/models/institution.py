@@ -162,10 +162,14 @@ class Topic(Base, TimestampMixin):
 
 class TimetableSlot(Base, TimestampMixin):
     __tablename__ = "timetable_slots"
-    __table_args__ = (
-        UniqueConstraint("division_id", "day_of_week", "start_time", name="uq_timetable_slot_division_day_time"),
-        Index("ix_timetable_slots_division_day", "division_id", "day_of_week"),
-    )
+    __table_args__ = UniqueConstraint(
+    "division_id",
+    "day_of_week",
+    "start_time",
+    "subject_id",
+    "batch",
+    name="uq_timetable_slot_schedule",
+),
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
     semester_id: Mapped[int] = mapped_column(
@@ -192,6 +196,11 @@ class TimetableSlot(Base, TimestampMixin):
     end_time: Mapped[Time] = mapped_column(Time, nullable=False)
     location: Mapped[str] = mapped_column(String(100), nullable=False)
     instructor_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    batch: Mapped[str] = mapped_column(
+    String(20),
+    nullable=False,
+    default="ALL",
+)
 
     semester: Mapped["Semester"] = relationship()
     division: Mapped["Division"] = relationship(back_populates="timetable_slots")

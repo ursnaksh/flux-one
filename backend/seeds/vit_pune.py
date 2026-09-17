@@ -133,15 +133,16 @@ async def seed_vit_pune_curriculum(db: AsyncSession):
     for dow, st, et, code, loc, instr, batch in timetable_definitions:
         subj = subject_map[code]
         slot = TimetableSlot(
-            semester_id=sem.id,
-            division_id=div.id,
-            subject_id=subj.id,
-            day_of_week=dow,
-            start_time=st,
-            end_time=et,
-            location=loc,
-            instructor_name=instr,
-        )
+    semester_id=sem.id,
+    division_id=div.id,
+    subject_id=subj.id,
+    day_of_week=dow,
+    start_time=st,
+    end_time=et,
+    location=loc,
+    instructor_name=instr,
+    batch=batch,
+)
         db.add(slot)
 
     await db.commit()

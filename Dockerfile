@@ -16,4 +16,4 @@ COPY index.html ./index.html
 ENV PYTHONUNBUFFERED=1
 
 # Execute database migration, seed VIT Pune curriculum, and launch Uvicorn
-CMD sh -c "alembic stamp base && alembic upgrade head && python -m seeds.vit_pune && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+CMD sh -c "alembic upgrade head && python -m seeds.vit_pune && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
