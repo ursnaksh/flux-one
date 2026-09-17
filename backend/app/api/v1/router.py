@@ -7,6 +7,7 @@ from app.api.v1.endpoints import (
     institution,
     sessions,
     flight_deck,
+    student_content,
 )
 
 api_router = APIRouter()
@@ -24,4 +25,9 @@ api_router.include_router(
     ai.router,
     prefix="/ai",
     tags=["AI Academic Copilot"],
+)
+api_router.include_router(
+    student_content.router,
+    prefix="/student-data",
+    tags=["Student Data"],
 )
