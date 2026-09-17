@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     # Gemini academic copilot. Keep the API key server-side only.
     GEMINI_API_KEY: str = Field(default="")
-    GEMINI_MODEL: str = Field(default="gemini-2.5-flash-lite")
+    GEMINI_MODEL: str = Field(default="gemini-3.6-flash")
     GEMINI_API_ENDPOINT: str = Field(
         default="https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     )
@@ -56,7 +56,6 @@ class Settings(BaseSettings):
     else:
         class Config:
             env_file = ".env"
-            env_file_encoding = "utf-8"
             case_sensitive = True
             extra = "ignore"
 
