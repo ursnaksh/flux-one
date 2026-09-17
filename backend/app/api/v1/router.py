@@ -1,12 +1,14 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    ai,
     auth,
     dashboard,
     institution,
     sessions,
     flight_deck,
 )
+
 api_router = APIRouter()
 
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
@@ -17,4 +19,9 @@ api_router.include_router(
     flight_deck.router,
     prefix="/flight-deck",
     tags=["Flight Deck"],
+)
+api_router.include_router(
+    ai.router,
+    prefix="/ai",
+    tags=["AI Academic Copilot"],
 )
