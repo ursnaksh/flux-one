@@ -110,16 +110,16 @@ async def seed_legacy_class_accounts(db: AsyncSession) -> int:
         db.add(user)
         await db.flush()
 
-        db.add(
-            UserIdentity(
-                user_id=user.id,
-                provider=IdentityProvider.LOCAL,
-                provider_user_id=email,
-                email=email,
-                password_hash=get_password_hash(prn),
-                token_version=1,
-            )
+        identity = UserIdentity(
+            user_id=user.id,
+            provider=IdentityProvider.LOCAL,
+            provider_user_id=email,
+            email=email,
+            password_hash=get_password_hash(prn),
+            token_version=1,
         )
+        db.add(identity)
+
         db.add(Streak(user_id=user.id, current_streak=0, longest_streak=0))
         db.add(
             AcademicBrain(
