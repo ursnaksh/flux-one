@@ -1,0 +1,78 @@
+name: Temporary Flight Deck frontend edit
+
+on:
+  push:
+    branches:
+      - feature/flight-deck
+    paths:
+      - .github/workflows/temp-flight-deck-frontend-edit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  edit-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/flight-deck
+          fetch-depth: 0
+
+      - name: Wire registration batch into frontend
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = [
+              (
+                  '''        <div>\n          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label>\n          <input type="password" id="reg-password" required placeholder="Choose a password" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">\n        </div>\n        <div class="pt-2">''',
+                  '''        <div>\n          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label>\n          <input type="password" id="reg-password" required placeholder="Choose a password" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">\n        </div>\n        <div>\n          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Batch</label>\n          <select id="reg-batch" required class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">\n            <option value="" disabled selected>Select your batch</option>\n            <option value="B1">B1</option>\n            <option value="B2">B2</option>\n            <option value="B3">B3</option>\n          </select>\n        </div>\n        <div class="pt-2">'''
+              ),
+              (
+                  "      const password = document.getElementById('reg-password').value;\n      const btn = document.getElementById('btn-submit-register');",
+                  "      const password = document.getElementById('reg-password').value;\n      const batch = document.getElementById('reg-batch').value;\n      const btn = document.getElementById('btn-submit-register');"
+              ),
+              (
+                  "      if (!displayName || !email || !password) {\n        showAuthError('Please fill in your display name, email, and password.');\n        return;\n      }",
+                  "      if (!displayName || !email || !password || !batch) {\n        showAuthError('Please fill in your name, email, password, and batch.');\n        return;\n      }"
+              ),
+              (
+                  "            password: password,\n            college_id: 1,",
+                  "            password: password,\n            batch: batch,\n            college_id: 1,"
+              ),
+              (
+                  "      const displayName = user.display_name || user.email || 'Student';",
+                  "      const displayName = user.full_name || user.display_name || user.email || 'Student';"
+              ),
+          ]
+
+          for old, new in replacements:
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:80]!r}')
+              text = text.replace(old, new, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Verify expected frontend wiring
+        shell: bash
+        run: |
+          grep -q 'id="reg-batch"' index.html
+          grep -q 'batch: batch' index.html
+          grep -q "user.full_name || user.display_name" index.html
+
+      - name: Commit frontend change and remove temporary workflow
+        shell: bash
+        run: |
+          rm .github/workflows/temp-flight-deck-frontend-edit.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/workflows/temp-flight-deck-frontend-edit.yml
+          git commit -m "feat: add batch selection to registration"
+          git push origin HEAD:feature/flight-deck
