@@ -84,6 +84,19 @@ class UserRepository:
             identity.user = user
         return identity
 
+    async def get_enrolled_subjects_for_user(self, user_id: uuid.UUID) -> List[Subject]:
+        stmt = (
+            select(Subject)
+            .join(Enrollment, Enrollment.subject_id == Subject.id)
+            .where(
+                Enrollment.user_id == user_id,
+                Enrollment.status == EnrollmentStatus.ACTIVE,
+            )
+            .order_by(Subject.code.asc())
+        )
+        res = await self.db.execute(stmt)
+        return list(res.scalars().all())
+
     async def increment_token_version(self, identity: UserIdentity) -> None:
         identity.token_version += 1
         await self.db.flush()
