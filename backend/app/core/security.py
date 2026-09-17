@@ -1,4 +1,5 @@
-import os
+import hashlib
+import hmac
 import re
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -6,6 +7,9 @@ from typing import Optional
 
 from jose import JWTError, jwt
 from app.core.config import settings
+
+
+LEGACY_SCRYPT_PREFIX = "legacy_scrypt$"
 
 
 def validate_password_strength(password: str) -> bool:
@@ -22,6 +26,24 @@ def validate_password_strength(password: str) -> bool:
     return True
 
 
+def _verify_legacy_scrypt(plain_password: str, stored_value: str) -> bool:
+    try:
+        prefix, salt_hex, expected_hash = stored_value.split("$", 2)
+        if prefix != "legacy_scrypt":
+            return False
+        candidate = hashlib.scrypt(
+            plain_password.encode("utf-8"),
+            salt=salt_hex.encode("utf-8"),
+            n=2**14,
+            r=8,
+            p=1,
+            dklen=64,
+        ).hex()
+        return hmac.compare_digest(candidate, expected_hash)
+    except (ValueError, TypeError):
+        return False
+
+
 try:
     import bcrypt
 
@@ -29,6 +51,8 @@ try:
         return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
     def verify_password(plain_password: str, hashed_password: str) -> bool:
+        if hashed_password.startswith(LEGACY_SCRYPT_PREFIX):
+            return _verify_legacy_scrypt(plain_password, hashed_password)
         return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 except ImportError:
@@ -40,6 +64,8 @@ except ImportError:
             return pwd_context.hash(password)
 
         def verify_password(plain_password: str, hashed_password: str) -> bool:
+            if hashed_password.startswith(LEGACY_SCRYPT_PREFIX):
+                return _verify_legacy_scrypt(plain_password, hashed_password)
             return pwd_context.verify(plain_password, hashed_password)
     except ImportError:
         import crypt
@@ -49,6 +75,8 @@ except ImportError:
             return crypt.crypt(password, salt)
 
         def verify_password(plain_password: str, hashed_password: str) -> bool:
+            if hashed_password.startswith(LEGACY_SCRYPT_PREFIX):
+                return _verify_legacy_scrypt(plain_password, hashed_password)
             return crypt.crypt(plain_password, hashed_password) == hashed_password
 
 
