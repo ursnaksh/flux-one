@@ -72,6 +72,50 @@
       </div>`;
   }
 
+  function aiLauncherMarkup() {
+    const options = coursesData.map(course =>
+      `<option value="${escapeFluxAi(course.id)}">${escapeFluxAi(course.code)} · ${escapeFluxAi(course.name)}</option>`
+    ).join('');
+
+    return `
+      <div id="flux-ai-list-panel" class="glass-card p-5 rounded-3xl border border-cyan-500/25 bg-gradient-to-r from-cyan-950/20 via-slate-900 to-indigo-950/20 mb-5">
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <div class="text-[10px] uppercase tracking-[0.18em] text-cyan-300 font-bold">FLUX AI · Gemini</div>
+              <span id="flux-ai-status-badge" class="text-[9px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Checking…</span>
+            </div>
+            <div class="text-base font-black text-white mt-1">Academic Copilot</div>
+            <div class="text-[11px] text-slate-400 mt-1">Choose a subject, then generate a verified briefing or a 5-question AI quiz.</div>
+            <select id="flux-ai-course-select" class="mt-3 w-full max-w-xl bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none">
+              ${options}
+            </select>
+          </div>
+          <div class="flex flex-wrap gap-2 shrink-0">
+            <button onclick="generateFluxAiBriefing(document.getElementById('flux-ai-course-select').value)" class="px-4 py-2.5 rounded-xl bg-cyan-950 hover:bg-cyan-900 text-cyan-200 border border-cyan-800 text-xs font-bold flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4"></i> AI Briefing
+            </button>
+            <button onclick="generateFluxAiQuiz(document.getElementById('flux-ai-course-select').value)" class="px-4 py-2.5 rounded-xl bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 text-xs font-bold flex items-center gap-2">
+              <i data-lucide="brain-circuit" class="w-4 h-4"></i> AI Quiz
+            </button>
+          </div>
+        </div>
+        <div id="flux-ai-list-output" class="hidden mt-4"></div>
+      </div>`;
+  }
+
+  function injectSubjectsAiLauncher() {
+    const container = document.getElementById('subjects-list-container');
+    if (!container || document.getElementById('flux-ai-list-panel')) return;
+
+    const header = container.querySelector('.flex.items-center.justify-between.mb-5');
+    if (header) header.insertAdjacentHTML('afterend', aiLauncherMarkup());
+    else container.insertAdjacentHTML('afterbegin', aiLauncherMarkup());
+
+    if (window.lucide) lucide.createIcons();
+    void hydrateAiStatus();
+  }
+
   function injectSubjectAiControls(courseId) {
     const workspace = document.getElementById('subject-workspace-container');
     if (!workspace || workspace.classList.contains('hidden')) return;
@@ -82,14 +126,46 @@
     if (window.lucide) lucide.createIcons();
   }
 
+  function currentAiOutput() {
+    const workspace = document.getElementById('subject-workspace-container');
+    if (workspace && !workspace.classList.contains('hidden')) {
+      return document.getElementById('flux-ai-subject-output');
+    }
+    return document.getElementById('flux-ai-list-output') || document.getElementById('flux-ai-subject-output');
+  }
+
   function setAiOutput(html, tone = 'normal') {
-    const output = document.getElementById('flux-ai-subject-output');
+    const output = currentAiOutput();
     if (!output) return;
     output.classList.remove('hidden');
     output.className = tone === 'error'
       ? 'mt-4 p-4 rounded-2xl bg-rose-950/40 border border-rose-800 text-xs text-rose-200'
       : 'mt-4 p-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-xs text-slate-200';
     output.innerHTML = html;
+  }
+
+  async function hydrateAiStatus() {
+    const badge = document.getElementById('flux-ai-status-badge');
+    if (!badge) return;
+    if (!localStorage.getItem('flux_access_token')) {
+      badge.textContent = 'Sign in required';
+      badge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800';
+      return;
+    }
+
+    try {
+      const status = await aiRequest('/ai/status');
+      if (status.configured) {
+        badge.textContent = 'AI ready';
+        badge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800';
+      } else {
+        badge.textContent = 'Gemini key required';
+        badge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800';
+      }
+    } catch (error) {
+      badge.textContent = 'AI unavailable';
+      badge.className = 'text-[9px] px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-800';
+    }
   }
 
   window.generateFluxAiBriefing = async function generateFluxAiBriefing(courseId) {
@@ -104,7 +180,7 @@
             <h3 class="text-base font-black text-white mt-1">${escapeFluxAi(result.title)}</h3>
             <p class="text-slate-300 mt-2 leading-relaxed">${escapeFluxAi(result.hook)}</p>
           </div>
-          <button onclick="document.getElementById('flux-ai-subject-output').classList.add('hidden')" class="text-slate-500 hover:text-white">✕</button>
+          <button onclick="this.closest('[id$=output]').classList.add('hidden')" class="text-slate-500 hover:text-white">✕</button>
         </div>
         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2">
           ${result.concepts.map((concept, index) => `<div class="p-3 rounded-xl bg-slate-900 border border-slate-800"><span class="text-cyan-400 font-bold mr-1">${index + 1}.</span>${escapeFluxAi(concept)}</div>`).join('')}
@@ -163,7 +239,16 @@
   if (typeof originalOpenSubjectWorkspace === 'function') {
     window.openSubjectWorkspace = function patchedOpenSubjectWorkspace(courseId) {
       const result = originalOpenSubjectWorkspace(courseId);
-      injectSubjectAiControls(courseId);
+      queueMicrotask(() => injectSubjectAiControls(courseId));
+      return result;
+    };
+  }
+
+  const originalSwitchView = window.switchView;
+  if (typeof originalSwitchView === 'function') {
+    window.switchView = function patchedSwitchView(target) {
+      const result = originalSwitchView(target);
+      if (target === 'subjects') queueMicrotask(injectSubjectsAiLauncher);
       return result;
     };
   }
@@ -212,4 +297,6 @@
       return result;
     };
   }
+
+  injectSubjectsAiLauncher();
 })();
