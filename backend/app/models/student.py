@@ -49,6 +49,10 @@ class User(Base, TimestampMixin, AuditMixin):
     )
     full_name: Mapped[str] = mapped_column(String(150), nullable=False)
     prn_number: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, index=True)
+    batch: Mapped[Optional[str]] = mapped_column(
+    String(20),
+    nullable=True,
+)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     version_id: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
 

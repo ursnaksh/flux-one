@@ -118,6 +118,7 @@ async def register(
         college_id=request.college_id,
         department_id=request.department_id,
         division_id=request.division_id,
+        batch=request.batch,
         semester_id=effective_semester_id,
         prn_number=request.prn_number,
     )
@@ -134,6 +135,7 @@ async def register(
         college_id=user.college_id,
         department_id=user.department_id,
         division_id=user.division_id,
+        batch=user.batch,
         semester_id=effective_semester_id,
         enrolled_subjects=[
             EnrolledSubjectResponse(
@@ -211,6 +213,7 @@ async def get_me(
         college_id=current_user.college_id,
         department_id=current_user.department_id,
         division_id=current_user.division_id,
+        batch=current_user.batch,
         enrolled_subjects=[
             EnrolledSubjectResponse(
                 id=s.id,

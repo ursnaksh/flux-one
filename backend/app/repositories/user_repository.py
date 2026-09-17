@@ -93,6 +93,7 @@ class UserRepository:
         email: str,
         password_hash: str,
         full_name: str,
+        batch: str,
         college_id: int,
         department_id: int,
         division_id: int,
@@ -101,6 +102,7 @@ class UserRepository:
     ) -> Tuple[User, UserIdentity, List[Subject]]:
         user = User(
             full_name=full_name,
+            batch=batch,
             college_id=college_id,
             department_id=department_id,
             division_id=division_id,
