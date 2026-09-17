@@ -40,17 +40,18 @@ def do_run_migrations(connection: Connection) -> None:
     with context.begin_transaction():
         context.run_migrations()
 
-
 async def run_async_migrations() -> None:
+    configuration = config.get_section(
+        config.config_ini_section, {}
+    ) or {}
+
+    configuration["sqlalchemy.url"] = db_url
+
     connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-    async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
-    await connectable.dispose()
-
 
 def run_migrations_online() -> None:
     asyncio.run(run_async_migrations())
