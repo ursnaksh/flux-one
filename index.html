@@ -99,6 +99,15 @@
           <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label>
           <input type="password" id="reg-password" required placeholder="Choose a password" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
         </div>
+        <div>
+          <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Batch</label>
+          <select id="reg-batch" required class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+            <option value="" disabled selected>Select your batch</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+            <option value="B3">B3</option>
+          </select>
+        </div>
         <div class="pt-2">
           <button type="submit" id="btn-submit-register" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2">
             <span>Create Account</span>
@@ -2022,12 +2031,13 @@
       const displayName = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
+      const batch = document.getElementById('reg-batch').value;
       const btn = document.getElementById('btn-submit-register');
 
       hideAuthMessages();
 
-      if (!displayName || !email || !password) {
-        showAuthError('Please fill in your display name, email, and password.');
+      if (!displayName || !email || !password || !batch) {
+        showAuthError('Please fill in your name, email, password, and batch.');
         return;
       }
 
@@ -2043,6 +2053,7 @@
             email: email,
             full_name: displayName,
             password: password,
+            batch: batch,
             college_id: 1,
             department_id: 1,
             division_id: 1,
@@ -2166,7 +2177,7 @@
 
     function applyUserProfile(user) {
       if (!user) return;
-      const displayName = user.display_name || user.email || 'Student';
+      const displayName = user.full_name || user.display_name || user.email || 'Student';
 
       const namePill = document.getElementById('user-name-pill');
       if (namePill) namePill.textContent = displayName;
