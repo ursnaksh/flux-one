@@ -24,10 +24,29 @@ from app.schemas.auth import (
     RegisterRequest,
     RegisterResponse,
     TokenResponse,
+    TopicSimpleResponse,
     UserMeResponse,
 )
 
 router = APIRouter()
+
+
+def _subject_response(subject: Subject) -> EnrolledSubjectResponse:
+    topics = sorted(subject.topics or [], key=lambda item: (item.unit_number, item.id))
+    return EnrolledSubjectResponse(
+        id=subject.id,
+        name=subject.name,
+        code=subject.code,
+        credits=subject.credits,
+        topics=[
+            TopicSimpleResponse(
+                id=topic.id,
+                unit_number=topic.unit_number,
+                title=topic.title,
+            )
+            for topic in topics
+        ],
+    )
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
@@ -43,7 +62,6 @@ async def register(
 
     user_repo = UserRepository(db)
 
-    # 1. Unique email check
     existing_identity = await user_repo.get_identity_by_email(request.email)
     if existing_identity:
         raise HTTPException(
@@ -51,7 +69,6 @@ async def register(
             detail="Email already registered.",
         )
 
-    # 2. Unique PRN check
     if request.prn_number:
         existing_prn = await user_repo.get_user_by_prn(request.prn_number)
         if existing_prn:
@@ -60,7 +77,6 @@ async def register(
                 detail="PRN number already registered.",
             )
 
-    # 3. Hierarchy Validation: college_id must exist
     college_res = await db.execute(select(College).where(College.id == request.college_id))
     college = college_res.scalar_one_or_none()
     if not college:
@@ -69,7 +85,6 @@ async def register(
             detail=f"College with ID {request.college_id} does not exist.",
         )
 
-    # 4. Hierarchy Validation: department_id must belong to college_id
     dept_res = await db.execute(
         select(Department).where(
             Department.id == request.department_id,
@@ -83,7 +98,6 @@ async def register(
             detail=f"Department with ID {request.department_id} does not belong to college {request.college_id}.",
         )
 
-    # 5. Hierarchy Validation: division_id must exist
     div_res = await db.execute(select(Division).where(Division.id == request.division_id))
     division = div_res.scalar_one_or_none()
     if not division:
@@ -92,7 +106,6 @@ async def register(
             detail=f"Division with ID {request.division_id} does not exist.",
         )
 
-    # 6. Hierarchy Validation: division must belong to the selected department through its semester
     sem_res = await db.execute(select(Semester).where(Semester.id == division.semester_id))
     semester = sem_res.scalar_one_or_none()
     if not semester or semester.department_id != dept.id:
@@ -101,7 +114,6 @@ async def register(
             detail="Selected division does not belong to the chosen department or college.",
         )
 
-    # 7. Hierarchy Validation: if semester_id is provided, it must match division.semester_id; else derive it
     if request.semester_id is not None and request.semester_id != division.semester_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -109,7 +121,6 @@ async def register(
         )
     effective_semester_id = division.semester_id
 
-    # 8. Transactional User, Identity, Streak, AcademicBrain, and Subject Auto-Enrollment
     pwd_hash = get_password_hash(request.password)
     user, identity, enrolled_subjects = await user_repo.create_user_with_identity(
         email=request.email,
@@ -137,15 +148,7 @@ async def register(
         division_id=user.division_id,
         batch=user.batch,
         semester_id=effective_semester_id,
-        enrolled_subjects=[
-            EnrolledSubjectResponse(
-                id=s.id,
-                name=s.name,
-                code=s.code,
-                credits=s.credits,
-            )
-            for s in enrolled_subjects
-        ],
+        enrolled_subjects=[_subject_response(subject) for subject in enrolled_subjects],
         access_token=access_token,
         refresh_token=refresh_token,
         token_type="bearer",
@@ -216,15 +219,7 @@ async def get_me(
         department_id=current_user.department_id,
         division_id=current_user.division_id,
         batch=current_user.batch,
-        enrolled_subjects=[
-            EnrolledSubjectResponse(
-                id=s.id,
-                name=s.name,
-                code=s.code,
-                credits=s.credits,
-            )
-            for s in subjects
-        ],
+        enrolled_subjects=[_subject_response(subject) for subject in subjects],
     )
 
 
