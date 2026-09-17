@@ -16,5 +16,5 @@ COPY assets/ ./assets/
 
 ENV PYTHONUNBUFFERED=1
 
-# Execute migrations, seed curriculum + legacy class accounts, and launch Uvicorn
-CMD sh -c "alembic upgrade head && python -m seeds.vit_pune && python -m seeds.legacy_class_accounts && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
+# Execute migrations, seed curriculum + verified syllabus + legacy class accounts, and launch Uvicorn
+CMD sh -c "alembic upgrade head && python -m seeds.vit_pune && python -m seeds.syllabus_topics && python -m seeds.legacy_class_accounts && exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"
