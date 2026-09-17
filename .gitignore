@@ -1,6 +1,19 @@
-backend/data/
-*.log
-node_modules/
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment and secrets
 .env
-.env.*
-!.env.example
+.venv
+venv/
+ENV/
+
+# Testing & build artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# System files
+.DS_Store

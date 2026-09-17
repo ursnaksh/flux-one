@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
@@ -7,7 +7,10 @@ try:
     from pydantic import EmailStr
 except ImportError:
     from pydantic import constr
-    EmailStr = constr(pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    try:
+        EmailStr = constr(pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    except TypeError:
+        EmailStr = constr(regex=r"^[\w\.-]+@[\w\.-]+\.\w+$")
 
 
 class SubjectSimpleResponse(BaseModel):
@@ -25,18 +28,18 @@ EnrolledSubjectResponse = SubjectSimpleResponse
 
 
 class RegisterRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str = Field(..., min_length=8)
     full_name: str = Field(..., min_length=1, max_length=150)
     prn_number: Optional[str] = Field(default=None, max_length=50)
-    college_id: int
-    department_id: int
-    division_id: int
-    semester_id: Optional[int] = None
+    college_id: int = 1
+    department_id: int = 1
+    division_id: int = 1
+    semester_id: Optional[int] = 1
 
 
 class LoginRequest(BaseModel):
-    email: str
+    email: str = Field(..., description="Student Email Address or PRN Number")
     password: str
 
 

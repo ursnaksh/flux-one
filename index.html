@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -61,21 +61,21 @@
       <form id="login-form" onsubmit="handleAuthLogin(event)" class="space-y-4 text-xs">
         <div>
           <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Email Address or PRN Number</label>
-          <input type="text" id="login-email" required placeholder="student@vit.edu or PRN (e.g. 12310456)" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
+          <input type="text" id="login-email" required placeholder="student@vit.edu or PRN (e.g. 12620259)" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
         </div>
         <div>
           <label class="font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">Password</label>
           <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none transition">
         </div>
+
         <div class="pt-2">
           <button type="submit" id="btn-submit-login" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2">
             <span>Log In & Enter</span>
             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </button>
-
-        <button type="button" onclick="continueAsGuest()" class="w-full py-2.5 mt-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-2">
-          <span>⚡ Continue with Saved Profile / Offline Mode</span>
-        </button>
+          <button type="button" onclick="continueAsGuest()" class="w-full py-2.5 mt-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-2">
+            <span>⚡ Continue with Saved Profile / Offline Mode</span>
+          </button>
         </div>
         <div class="text-center pt-2">
           <p class="text-[11px] text-slate-400">
@@ -803,8 +803,54 @@
 
   <!-- ==================== SCRIPT ENGINE ==================== -->
   <script>
+    
+    // Fast Timeout Fetch Helper (prevents UI hanging on unreachable backend)
+    async function fetchWithTimeout(resource, options = {}, timeoutMs = 3500) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(resource, {
+          ...options,
+          signal: controller.signal
+        });
+        clearTimeout(id);
+        return response;
+      } catch (err) {
+        clearTimeout(id);
+        throw err;
+      }
+    }
+
+    function continueAsGuest() {
+      localStorage.setItem('flux_guest_mode', 'true');
+      localStorage.removeItem('flux_access_token');
+      const guestUser = {
+        id: 'guest_student',
+        email: 'student@vit.edu',
+        display_name: 'Student',
+        full_name: 'VIT Student (Offline / Guest)',
+        batch: localStorage.getItem('flux_user_batch') || 'B2',
+        prn_number: 'Guest'
+      };
+      showAppView(guestUser);
+    }
+
     // API Configuration
-    const API_BASE = "http://127.0.0.1:8000/api/v1";
+    // API Configuration (dynamic same-origin for production & local dev, fallback for file://)
+    const API_BASE = (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null' && !window.location.origin.startsWith('file'))
+      ? `${window.location.origin}/api/v1`
+      : 'http://127.0.0.1:8000/api/v1';
+
+    const COURSE_SUBJECT_MAP = {
+      sat: 1,  // Sensors and Transducers (IC2303)
+      ds: 2,   // Data Science (IC2301)
+      maa: 3,  // Microcontroller & Applications (MM1408)
+      oop: 4,  // Object Oriented Programming (IC2305)
+      dbms: 5, // Database Management Systems (IC2307)
+      rad: 6,  // Reasoning & Aptitude Development - 3 (HS2001)
+      dt: 7    // Design Thinking - 1 (IC2311)
+    };
+    let activeBackendSessionId = null;
 
     const fluxApi = {
       getHeaders() {
@@ -816,87 +862,146 @@
         return headers;
       },
 
-      // 1. Dashboard Stats
+      // 1. Dashboard Overview (protected route with graceful offline/guest handling)
       async getDashboard() {
+        const token = localStorage.getItem("flux_access_token");
+        if (!token) return null; // Guest or unauthenticated: bypass network call
         try {
-          const res = await fetch(`${API_BASE}/dashboard/overview`, {
+          const res = await fetchWithTimeout(`${API_BASE}/dashboard/overview`, {
             headers: this.getHeaders()
           });
           if (res.status === 401) {
-            handleLogout();
+            localStorage.removeItem("flux_access_token");
+            if (localStorage.getItem("flux_guest_mode") !== "true") {
+              showAuthView('login');
+              showAuthError('Session expired. Please log in again.');
+            }
             return null;
           }
-          return await res.json();
+          if (res.ok) return await res.json();
+          return null;
         } catch (e) {
-          console.warn("Backend offline, falling back to local data", e);
+          console.warn("Dashboard API offline fallback:", e);
           return null;
         }
       },
 
-      // 2. Complete Study Session
-      async saveSession(sessionData) {
+      // 2. Study Session Lifecycle (FastAPI contract: /start -> /{id}/heartbeat -> /{id}/complete)
+      async startSession(courseId, targetDurationMins) {
+        const token = localStorage.getItem("flux_access_token");
+        if (!token) return null;
+        const subjectId = COURSE_SUBJECT_MAP[courseId] || 1;
         try {
-          const res = await fetch(`${API_BASE}/sessions/complete`, {
+          const res = await fetchWithTimeout(`${API_BASE}/sessions/start`, {
             method: "POST",
             headers: this.getHeaders(),
-            body: JSON.stringify(sessionData)
+            body: JSON.stringify({
+              subject_id: subjectId,
+              topic_id: null,
+              target_duration_minutes: Number(targetDurationMins) || 45,
+              source: "MANUAL"
+            })
           });
-          return await res.json();
+          if (res.ok) {
+            const data = await res.json();
+            activeBackendSessionId = data.id;
+            return data;
+          }
         } catch (e) {
-          console.error("Failed to save session to backend", e);
+          console.warn("Session start offline fallback:", e);
         }
+        return null;
       },
 
-      // 3. Assignments
-      async getAssignments() {
+      async sendHeartbeat() {
+        const token = localStorage.getItem("flux_access_token");
+        if (!token || !activeBackendSessionId) return null;
         try {
-          const res = await fetch(`${API_BASE}/assignments`, {
-            headers: this.getHeaders()
-          });
-          return await res.json();
-        } catch (e) {
-          return null;
-        }
-      },
-
-      async toggleAssignment(id) {
-        try {
-          const res = await fetch(`${API_BASE}/assignments/${id}/toggle`, {
-            method: "PATCH",
-            headers: this.getHeaders()
-          });
-          return await res.json();
-        } catch (e) {
-          console.error("Failed to toggle assignment", e);
-        }
-      },
-
-      // 4. Notes
-      async getNotes(courseCode = null) {
-        try {
-          const url = courseCode 
-            ? `${API_BASE}/notes?course_code=${encodeURIComponent(courseCode)}` 
-            : `${API_BASE}/notes`;
-          const res = await fetch(url, {
-            headers: this.getHeaders()
-          });
-          return await res.json();
-        } catch (e) {
-          return null;
-        }
-      },
-
-      async createNote(noteData) {
-        try {
-          const res = await fetch(`${API_BASE}/notes`, {
+          await fetch(`${API_BASE}/sessions/${activeBackendSessionId}/heartbeat`, {
             method: "POST",
             headers: this.getHeaders(),
-            body: JSON.stringify(noteData)
+            body: JSON.stringify({})
           });
-          return await res.json();
+        } catch (e) {}
+      },
+
+      async pauseSession() {
+        const token = localStorage.getItem("flux_access_token");
+        if (!token || !activeBackendSessionId) return null;
+        try {
+          await fetch(`${API_BASE}/sessions/${activeBackendSessionId}/pause`, {
+            method: "POST",
+            headers: this.getHeaders()
+          });
+        } catch (e) {}
+      },
+
+      async resumeSession() {
+        const token = localStorage.getItem("flux_access_token");
+        if (!token || !activeBackendSessionId) return null;
+        try {
+          await fetch(`${API_BASE}/sessions/${activeBackendSessionId}/resume`, {
+            method: "POST",
+            headers: this.getHeaders()
+          });
+        } catch (e) {}
+      },
+
+      async completeSession(focusRating, reflectionNote) {
+        const token = localStorage.getItem("flux_access_token");
+        if (!token || !activeBackendSessionId) return null;
+        try {
+          const res = await fetch(`${API_BASE}/sessions/${activeBackendSessionId}/complete`, {
+            method: "POST",
+            headers: this.getHeaders(),
+            body: JSON.stringify({
+              focus_rating: Math.max(1, Math.min(5, Number(focusRating) || 5)),
+              reflection_note: reflectionNote || "Completed structured study session."
+            })
+          });
+          activeBackendSessionId = null;
+          if (res.ok) return await res.json();
         } catch (e) {
-          console.error("Failed to create note", e);
+          console.warn("Session complete offline fallback:", e);
         }
+        activeBackendSessionId = null;
+        return null;
+      },
+
+      // 3. Assignments (Canonical Local Storage - no 404 network calls)
+      getAssignments() {
+        try {
+          const saved = localStorage.getItem('flux_assignments');
+          return saved ? JSON.parse(saved) : assignments;
+        } catch (e) {
+          return assignments;
+        }
+      },
+
+      toggleAssignment(id) {
+        assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
+        localStorage.setItem('flux_assignments', JSON.stringify(assignments));
+        return assignments;
+      },
+
+      // 4. Notes (Canonical Local Storage - no 404 network calls)
+      getNotes(courseCode = null) {
+        try {
+          const saved = localStorage.getItem('flux_notes_v2');
+          const list = saved ? JSON.parse(saved) : notesList;
+          if (courseCode) {
+            return list.filter(n => n.courseId === courseCode || n.course === courseCode);
+          }
+          return list;
+        } catch (e) {
+          return notesList;
+        }
+      },
+
+      createNote(noteData) {
+        notesList.unshift(noteData);
+        localStorage.setItem('flux_notes_v2', JSON.stringify(notesList));
+        return noteData;
       }
     };
 
@@ -1022,8 +1127,8 @@
       "Mon|10:00 - 11:00 AM|Theory|Microcontroller & Applications (MM1408)|Prof. Pramod Kanjalkar (PMK)|C204|ALL|maa|0|0",
       "Mon|11:00 - 12:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|0",
       "Mon|01:00 - 03:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B2|ds|0|1",
-      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
       "Mon|03:00 - 05:00 PM|Lab|Sensors & Transducers Lab (IC2303)|Prof. Seema Mashalkar (SSM)|C307|B1|sat|0|0",
+      "Mon|03:00 - 05:00 PM|Lab|OOP Lab (IC2305)|Prof. Sheetal Katwe (SMK)|C304|B2|oop|1|0",
       "Mon|03:00 - 05:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C305|B3|ds|0|1",
       "Mon|05:00 - 06:00 PM|Tutorial|Design Thinking - 1 Tut (IC2311)|Dr. Jayant Kulkarni (JVK)|Dept|B1|dt|0|0",
       "Mon|05:00 - 07:00 PM|Lab|Data Science Lab (IC2301)|Prof. Rajesh Pashikanti (RP)|C304|B1|ds|0|1",
@@ -1041,7 +1146,8 @@
       "Thu|12:00 - 01:00 PM|Theory|Sensors & Transducers (IC2303)|Prof. Seema Mashalkar (SSM)|C204|ALL|sat|0|2",
       "Thu|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|0",
       "Thu|03:00 - 05:00 PM|Lab|DBMS Lab (IC2307)|Prof. Vikas Nandeshwar (VJN)|C305|B1|dbms|1|1",
-      "Fri|10:00 - 11:00 AM|Theory|Reasoning & Aptitude Development (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL|raad|0|0",
+      "Fri|10:00 - 11:00 AM|Tutorial|Design Thinking - 1 Tut (IC2311)|Prof. Sandhya Vaibhav Waghmare (SVW)|Dept|B3|dt|0|0",
+      "Fri|11:00 - 12:00 PM|Theory|Reasoning & Aptitude Development - 3 (HS2001)|Prof. Manisha Narwane (MPN)|C301|ALL|raad|0|0",
       "Fri|12:00 - 01:00 PM|Theory|Database Management Systems (IC2307)|Prof. Vikas Nandeshwar (VJN)|C204|ALL|dbms|1|0",
       "Fri|01:00 - 02:00 PM|Theory|Object Oriented Programming (IC2305)|Prof. Sheetal Katwe (SMK)|C301|ALL|oop|1|1",
       "Fri|02:00 - 03:00 PM|Theory|Data Science (IC2301)|Prof. Rajesh Pashikanti (RP)|C301|ALL|ds|1|1",
@@ -1096,6 +1202,7 @@
       const activeMnav = document.getElementById('mnav-' + target);
       if (activeMnav) activeMnav.className = 'flex flex-col items-center gap-1 py-1 px-2 text-cyan-400 font-bold';
 
+      if (target === 'timetable') { renderTimetableFull(); }
       if (target === 'subjects') {
         document.getElementById('subjects-list-container').classList.remove('hidden');
         document.getElementById('subject-workspace-container').classList.add('hidden');
@@ -1363,6 +1470,8 @@
     function startStudySession() {
       if (isStudyActive) return;
       isStudyActive = true;
+      const courseId = document.getElementById('study-course-select')?.value || 'sat';
+      fluxApi.startSession(courseId, activeDurationMins);
       document.getElementById('session-badge').textContent = 'ACTIVE';
       document.getElementById('session-badge').className = 'text-xs font-bold px-3 py-1 rounded-xl bg-emerald-950 text-emerald-300 border border-emerald-800';
       document.getElementById('study-btn-start').classList.add('hidden');
@@ -1373,6 +1482,9 @@
         if (timerTotalSeconds > 0) {
           timerTotalSeconds--;
           updateClockDisplay();
+          if (timerTotalSeconds % 30 === 0) {
+            fluxApi.sendHeartbeat();
+          }
         } else {
           openSessionReflection();
         }
@@ -1382,6 +1494,7 @@
     function pauseStudySession() {
       if (!isStudyActive) return;
       isStudyActive = false;
+      fluxApi.pauseSession();
       clearInterval(studyTimerInterval);
       document.getElementById('session-badge').textContent = 'PAUSED';
       document.getElementById('session-badge').className = 'text-xs font-bold px-3 py-1 rounded-xl bg-amber-950 text-amber-300 border border-amber-800';
@@ -1394,6 +1507,7 @@
       document.getElementById('study-btn-pause').innerHTML = '<i data-lucide="pause" class="w-4 h-4"></i> Pause';
       document.getElementById('study-btn-pause').onclick = pauseStudySession;
       lucide.createIcons();
+      fluxApi.resumeSession();
       startStudySession();
     }
 
@@ -1440,8 +1554,8 @@
         reflection: reflection || "Completed structured study session."
       };
 
-      // Save directly to your FastAPI SQLite backend:
-      await fluxApi.saveSession(sessionPayload);
+      // Save to backend using real session ID and persist locally
+      await fluxApi.completeSession(activeStudyRating, sessionPayload.reflection);
 
       studySessions.unshift({
         course: sessionPayload.course_code,
@@ -1451,6 +1565,7 @@
         reflection: sessionPayload.reflection,
         time: "Just now"
       });
+      localStorage.setItem('flux_sessions', JSON.stringify(studySessions));
 
       closeSessionReflection();
       renderStudyHistory();
@@ -1562,15 +1677,8 @@
   }
 })();
 
-    async function toggleAssignment(id) {
-  assignments = assignments.map(a => a.id === id ? { ...a, done: !a.done } : a);
-  
-  // If the assignment is an integer ID from SQLite, sync to backend:
-  const numericId = parseInt(id.replace(/\D/g, ''));
-  if (numericId) {
-    await fluxApi.toggleAssignment(numericId);
-  }
-
+    function toggleAssignment(id) {
+  fluxApi.toggleAssignment(id);
   renderAssignmentsFull();
   renderDashboard();
 }
@@ -1654,18 +1762,16 @@
     content: content
   };
 
-  // Save to SQLite database
-  await fluxApi.createNote(notePayload);
-
-  notesList.unshift({
+  const newNote = {
     id: 'n_' + Date.now(),
     courseId,
     topic,
     title,
     content,
     date: "Today"
-  });
+  };
 
+  fluxApi.createNote(newNote);
   closeNewNoteModal();
   renderNotes();
 }
@@ -1850,10 +1956,12 @@
 
     // BATCH NORMALIZATION (B4->B1, B5->B2, B6->B3)
     function normalizeBatch(b) {
-      if (b === 'B4') return 'B1';
-      if (b === 'B5') return 'B2';
-      if (b === 'B6') return 'B3';
-      return b;
+      if (!b) return 'ALL';
+      const clean = b.trim().toUpperCase();
+      if (clean === 'B4') return 'B1';
+      if (clean === 'B5') return 'B2';
+      if (clean === 'B6') return 'B3';
+      return clean;
     }
 
     // AUTHENTICATION & USER SESSION CONTROLLER
@@ -1933,8 +2041,12 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email,
-            display_name: displayName,
-            password: password
+            full_name: displayName,
+            password: password,
+            college_id: 1,
+            department_id: 1,
+            division_id: 1,
+            semester_id: 1
           })
         });
 
@@ -1987,7 +2099,7 @@
       btn.innerHTML = '<span>Signing In...</span>';
 
       try {
-        const res = await fetch(`${API_BASE}/auth/login`, {
+        const res = await fetchWithTimeout(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
@@ -2034,7 +2146,7 @@
       const token = localStorage.getItem('flux_access_token');
       if (!token) return null;
       try {
-        const res = await fetch(`${API_BASE}/auth/me`, {
+        const res = await fetchWithTimeout(`${API_BASE}/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -2102,6 +2214,7 @@
 
     function handleLogout() {
       localStorage.removeItem('flux_access_token');
+      localStorage.removeItem('flux_guest_mode');
       currentUser = null;
       showAuthView('login');
       showAuthSuccess('You have been logged out.');
@@ -2110,13 +2223,23 @@
     async function checkAuthAndInit() {
       const token = localStorage.getItem('flux_access_token');
       if (token) {
-        const user = await fetchCurrentUser();
-        if (user) {
-          showAppView(user);
-          return;
-        } else {
-          localStorage.removeItem('flux_access_token');
+        try {
+          const user = await Promise.race([
+            fetchCurrentUser(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2500))
+          ]);
+          if (user) {
+            showAppView(user);
+            return;
+          }
+        } catch (e) {
+          console.warn('Backend connection check error, falling back:', e);
         }
+        localStorage.removeItem('flux_access_token');
+      }
+      if (localStorage.getItem('flux_guest_mode') === 'true') {
+        continueAsGuest();
+        return;
       }
       showAuthView('login');
     }
@@ -2125,4 +2248,3 @@
     checkAuthAndInit();
   </script>y>
 </html>
-

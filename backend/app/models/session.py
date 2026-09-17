@@ -36,10 +36,6 @@ class StudySession(Base, TimestampMixin, AuditMixin):
             name="ck_focus_rating_range",
         ),
     )
-    __mapper_args__ = {
-        "version_id_col": "version_id",
-    }
-
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
         default=uuid.uuid4,

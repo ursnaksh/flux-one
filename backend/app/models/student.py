@@ -26,13 +26,8 @@ class User(Base, TimestampMixin, AuditMixin):
         UniqueConstraint("prn_number", name="uq_users_prn_number"),
         Index("ix_users_college_dept_div", "college_id", "department_id", "division_id"),
     )
-    __mapper_args__ = {
-        "version_id_col": "version_id",
-    }
-
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
-        primary_value=uuid.uuid4,
         default=uuid.uuid4,
         primary_key=True,
         index=True,

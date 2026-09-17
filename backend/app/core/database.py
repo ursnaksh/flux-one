@@ -1,4 +1,4 @@
-﻿from typing import AsyncGenerator
+from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import (
 )
 from app.core.config import settings
 
-# Automatically adapt Render / Cloud PostgreSQL connection strings for asyncpg
 db_url = str(settings.DATABASE_URL)
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
@@ -15,7 +14,7 @@ elif db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
 
 engine = create_async_engine(
     db_url,
-    echo=False,
+    echo=False,  # Logged via standard logger when needed
     future=True,
     pool_size=settings.DB_POOL_SIZE,
     max_overflow=settings.DB_MAX_OVERFLOW,
@@ -31,7 +30,12 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False,
 )
 
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Dependency injection generator yielding an isolated async SQLAlchemy database session.
+    Automatically closes session on completion.
+    """
     async with AsyncSessionLocal() as session:
         try:
             yield session

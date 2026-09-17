@@ -1,4 +1,4 @@
-﻿// backend/flight-deck.mjs - Advanced Academic OS Flight Deck Engine for FLUX ONE
+// backend/flight-deck.mjs - Advanced Academic OS Flight Deck Engine for FLUX ONE
 
 // ==========================================
 // 1. TIME & UTILITY HELPERS
@@ -8,10 +8,10 @@ function parseTimeSlot(timeStr) {
   const parts = String(timeStr || '').split('-').map(s => s.trim());
   if (parts.length !== 2) return null;
 
-  const endMatch = parts.match(/(AM|PM)/i);
-  const endPeriod = endMatch ? endMatch.toUpperCase() : 'PM';
+  const endMatch = parts[1].match(/(AM|PM)/i);
+  const endPeriod = endMatch ? endMatch[1].toUpperCase() : 'PM';
   const startMatch = parts[0].match(/(AM|PM)/i);
-  let startPeriod = startMatch ? startMatch.toUpperCase() : null;
+  let startPeriod = startMatch ? startMatch[1].toUpperCase() : null;
 
   const toMins = (str, period) => {
     const clean = str.replace(/(AM|PM)/i, '').trim();
@@ -28,7 +28,7 @@ function parseTimeSlot(timeStr) {
 
   return {
     startMinutes: toMins(parts[0], startPeriod),
-    endMinutes: toMins(parts, endPeriod)
+    endMinutes: toMins(parts[1], endPeriod)
   };
 }
 
@@ -36,6 +36,7 @@ export function buildTopicSlug(courseId, uIdx, tIdx) {
   return `${String(courseId).toLowerCase()}-u${Number(uIdx)}-t${Number(tIdx)}`;
 }
 
+// Format minutes from midnight to readable string (e.g. 780 -> "01:00 PM")
 function formatMinutesToTime(totalMinutes) {
   let h = Math.floor(totalMinutes / 60);
   const m = totalMinutes % 60;
@@ -91,7 +92,8 @@ export async function computeFlightDeck({ db, catalog, userBatch = 'ALL', userId
   const currentWeek = Math.min(VIT_SEMESTER_CONFIG.totalWeeks, Math.floor(daysElapsed / 7) + 1);
   const semesterProgressPct = Math.min(100, Math.round((daysElapsed / totalSemDays) * 100));
 
-  // Determine active syllabus unit based on 16-week timeline (Weeks 1-4 = Unit 1)
+  // Determine active syllabus unit based on 16-week timeline
+  // Weeks 1-4: Unit 1 | Weeks 5-8: Unit 2 | Weeks 9-12: Unit 3 | Weeks 13-16: Unit 4
   const currentUnitIndex = Math.min(3, Math.floor((currentWeek - 1) / 4));
 
   // Check Holiday Status
@@ -117,6 +119,7 @@ export async function computeFlightDeck({ db, catalog, userBatch = 'ALL', userId
     const [day, timeStr, type, subjectTitle, faculty, room, rawBatch, courseId, uIdxStr, tIdxStr] = line.split('|').map(s => s.trim());
     if (day !== todayDay) continue;
 
+    // Normalize ERP batch tokens (B4 -> B1, B5 -> B2, B6 -> B3)
     let batch = rawBatch;
     if (batch === 'B4') batch = 'B1';
     if (batch === 'B5') batch = 'B2';
@@ -127,6 +130,7 @@ export async function computeFlightDeck({ db, catalog, userBatch = 'ALL', userId
     const times = parseTimeSlot(timeStr);
     if (!times) continue;
 
+    // Resolve Syllabus Topic Context dynamically from current Academic Unit
     const course = catalog.courses?.find(c => c.id === courseId);
     const assignedUnitIdx = (uIdxStr !== undefined && uIdxStr !== '') ? Number(uIdxStr) : currentUnitIndex;
     const unit = course?.units?.[assignedUnitIdx] || course?.units?.[0];
@@ -194,6 +198,7 @@ export async function computeFlightDeck({ db, catalog, userBatch = 'ALL', userId
       );
 
       if (rawDecaying) {
+        // Calculate estimated retention %: R = e^(-dt / S)
         const lastDate = rawDecaying.last_reviewed_at ? new Date(rawDecaying.last_reviewed_at) : semStart;
         const daysSinceReview = Math.max(0, Math.floor((istNow - lastDate) / (1000 * 60 * 60 * 24)));
         const stability = Math.max(2, Math.min(21, (rawDecaying.review_count || 1) * 3));
@@ -213,11 +218,12 @@ export async function computeFlightDeck({ db, catalog, userBatch = 'ALL', userId
   let priorityAction = null;
 
   if (isHoliday) {
+    // Holiday Protocol: Deep Work / Syllabus Acceleration
     priorityAction = {
       actionType: 'HOLIDAY_SPRINT',
       urgency: 'calm',
       title: `🎉 ${holidayName} (Official Holiday)`,
-      subtitle: 'No lectures scheduled today. Excellent window for mid-sem prep & lab revisions.',
+      subtitle: `No lectures scheduled today. Excellent window for mid-sem prep & lab revisions.`,
       cta: '⚡ Launch 45m Deep Work Sprint',
       target: { view: 'study', courseId: 'sat', unitIndex: currentUnitIndex },
       badge: 'OFFICIAL HOLIDAY'
@@ -317,6 +323,7 @@ export async function computeFlightDeck({ db, catalog, userBatch = 'ALL', userId
     }
 
     const coveragePercent = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+    // 60% syllabus completion + 40% retention test accuracy
     const readinessScore = Math.min(100, Math.round(0.6 * coveragePercent + 0.4 * avgMastery));
 
     courseReadiness.push({
